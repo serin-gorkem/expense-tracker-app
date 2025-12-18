@@ -55,6 +55,7 @@ export function useExpenses() {
   const updateExpense = (updated: Expense) => {
     setExpenses((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
   }
+  
 
   return {
     expenses,

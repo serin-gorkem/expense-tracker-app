@@ -5,8 +5,10 @@ import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
 import { useExpenses } from "@/hooks/useExpenses";
 import { Category, Expense } from "@/models/expense.model";
 import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
-import { useMemo, useState } from "react";
-import { Text } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useMemo, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -14,6 +16,10 @@ export default function Index() {
   const [category, setCategory] = useState<Category | "all">("all");
   const [query, setQuery] = useState("");
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [lastDeletedExpense, setLastDeletedExpense] = useState<Expense | null>(
+    null
+  );
+
   const options = useMemo(
     () => ({
       mode,
@@ -22,6 +28,12 @@ export default function Index() {
     }),
     [mode, category, query]
   );
+
+  useEffect(() => {
+    if (!lastDeletedExpense) return;
+    const timer = setTimeout(() => setLastDeletedExpense(null), 4000);
+    return () => clearTimeout(timer);
+  }, [lastDeletedExpense]);
 
   const { expenses, addExpense, removeExpense, updateExpense, loading } =
     useExpenses();
@@ -33,30 +45,122 @@ export default function Index() {
     setEditingExpense(null);
   };
 
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ModeSwitcher value={mode} onChange={setMode} />
+  const handleDelete = (expenseId: string) => {
+    const expenseToDelete = expenses.find((e) => e.id === expenseId);
+    if (!expenseToDelete) return;
+    removeExpense(expenseId);
+    setLastDeletedExpense(expenseToDelete);
+  };
 
-      {editingExpense ? (
-        <EditExpenseForm
-          expense={editingExpense}
-          onSubmit={handleUpdate}
-          onCancel={() => setEditingExpense(null)}
-        ></EditExpenseForm>
-      ) : (
-        <>
-          <AddExpenseForm onSubmit={addExpense} />
-          {loading ? (
-            <Text>Loading...</Text>
-          ) : (
-            <ExpenseList
-              expenses={visibleExpenses}
-              onDelete={removeExpense}
-              onEdit={setEditingExpense}
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.root}>
+        {/* Background (liquid blobs + gradient) */}
+        <LinearGradient
+          colors={["#050816", "#070A2A", "#0B1238", "#050816"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+
+        {/* Decorative blobs */}
+        <View style={[styles.blob, styles.blobA]} />
+        <View style={[styles.blob, styles.blobB]} />
+        <View style={[styles.blob, styles.blobC]} />
+
+        <SafeAreaView style={styles.safe}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Welcome To</Text>
+            <Text style={styles.subtitle}>Expense Manage Databoard</Text>
+          </View>
+
+          <ModeSwitcher value={mode} onChange={setMode} />
+
+          {editingExpense ? (
+            <EditExpenseForm
+              expense={editingExpense}
+              onSubmit={handleUpdate}
+              onCancel={() => setEditingExpense(null)}
             />
+          ) : (
+            <>
+              <AddExpenseForm onSubmit={addExpense} />
+
+              {loading ? (
+                <Text style={styles.loading}>Loading...</Text>
+              ) : (
+                <ExpenseList
+                  expenses={visibleExpenses}
+                  onDelete={handleDelete}
+                  onEdit={setEditingExpense}
+                />
+              )}
+            </>
           )}
-        </>
-      )}
-    </SafeAreaView>
+
+          {lastDeletedExpense && (
+            <View style={styles.toast}>
+              <Text style={styles.toastText}>Expense deleted</Text>
+              <Pressable
+                onPress={() => {
+                  addExpense(lastDeletedExpense);
+                  setLastDeletedExpense(null);
+                }}
+                hitSlop={10}
+              >
+                <Text style={styles.toastAction}>UNDO</Text>
+              </Pressable>
+            </View>
+          )}
+        </SafeAreaView>
+      </View>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  safe: { flex: 1, paddingHorizontal: 16, paddingTop: 6 },
+  header: { marginBottom: 10 },
+  title: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 28,
+    fontWeight: "700",
+    letterSpacing: 0.2,
+  },
+  subtitle: {
+    marginTop: 2,
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 13,
+  },
+  loading: { color: "rgba(255,255,255,0.75)", marginTop: 12 },
+
+  blob: {
+    position: "absolute",
+    width: 320,
+    height: 320,
+    borderRadius: 999,
+    opacity: 0.35,
+  },
+  blobA: { top: -120, left: -90, backgroundColor: "#5B7CFF" },
+  blobB: { top: 80, right: -140, backgroundColor: "#8B5CFF", opacity: 0.25 },
+  blobC: { bottom: -160, left: 40, backgroundColor: "#22D3EE", opacity: 0.18 },
+
+  toast: {
+    position: "absolute",
+    bottom: 18,
+    left: 16,
+    right: 16,
+    backgroundColor: "rgba(17,24,39,0.75)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  toastText: { color: "rgba(255,255,255,0.85)" },
+  toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
+});

@@ -1,6 +1,8 @@
 import { ViewMode } from "@/utils/expenseSelectors";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type ModeSwitcherProps = {
   value: ViewMode;
@@ -8,28 +10,63 @@ type ModeSwitcherProps = {
 };
 
 const ModeSwitcher = ({ value, onChange }: ModeSwitcherProps) => {
-
-    const isActive = (mode:ViewMode) => mode === value;
+  const items: { key: ViewMode; label: string }[] = [
+    { key: "daily", label: "Daily" },
+    { key: "weekly", label: "Weekly" },
+    { key: "monthly", label: "Monthly" },
+  ];
 
   return (
-    <View style={{ flex: 1, flexDirection: "row", gap:"10" }}>
-      <Pressable onPress={() => onChange("daily")}>
-        <Text style={{ fontWeight: isActive("daily") ? "bold" : "normal" }}>
-          Daily
-        </Text>
-      </Pressable>
-      <Pressable onPress={() => onChange("weekly")}>
-        <Text style={{ fontWeight: isActive("weekly") ? "bold" : "normal" }}>
-          Weekly
-        </Text>
-      </Pressable>
-      <Pressable onPress={() => onChange("monthly")}>
-        <Text style={{ fontWeight: isActive("monthly") ? "bold" : "normal" }}>
-          Monthly
-        </Text>
-      </Pressable>
+    <View style={styles.wrap}>
+      <BlurView intensity={26} tint="dark" style={styles.blur}>
+        <LinearGradient
+          colors={["rgba(255,255,255,0.10)", "rgba(255,255,255,0.04)"]}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={styles.row}>
+          {items.map((it) => {
+            const active = it.key === value;
+            return (
+              <Pressable
+                key={it.key}
+                onPress={() => onChange(it.key)}
+                style={[styles.tab, active && styles.tabActive]}
+              >
+                <Text style={[styles.tabText, active && styles.tabTextActive]}>
+                  {it.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </BlurView>
     </View>
   );
 };
 
 export default ModeSwitcher;
+
+const styles = StyleSheet.create({
+  wrap: { marginBottom: 12 },
+  blur: {
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    overflow: "hidden",
+  },
+  row: { flexDirection: "row", padding: 6, gap: 6 },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabActive: {
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  tabText: { color: "rgba(255,255,255,0.68)", fontWeight: "700" },
+  tabTextActive: { color: "rgba(255,255,255,0.92)" },
+});
