@@ -46,9 +46,21 @@ export function useExpenses() {
     setExpenses((prev) => [...prev, expense]);
   };
 
+// Delete expense.
+  const removeExpense = (id: string) => {
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
+  }
+
+// Update expense.
+  const updateExpense = (updated: Expense) => {
+    setExpenses((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+  }
+
   return {
     expenses,
     addExpense,
+    removeExpense,
+    updateExpense,
     loading,
   };
 }
