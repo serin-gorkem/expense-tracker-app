@@ -1,13 +1,20 @@
 import AddExpenseForm from "@/components/AddExpenseForm/AddExpenseForm";
+import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import EditExpenseForm from "@/components/EditExpenseForm/EditExpenseForm";
 import ExpenseList from "@/components/ExpenseList/ExpenseList";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
+import MonthlyExpenseList from "@/components/MonthlyExpenseList/MonthlyExpenseList";
+import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList";
 import { useExpenses } from "@/hooks/useExpenses";
 import { Category, Expense } from "@/models/expense.model";
+import {
+  groupExpensesByMonth,
+  groupExpensesByWeek,
+} from "@/utils/expenseGrouping";
 import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -69,49 +76,67 @@ export default function Index() {
         <View style={[styles.blob, styles.blobC]} />
 
         <SafeAreaView style={styles.safe}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Welcome To</Text>
-            <Text style={styles.subtitle}>Expense Manage Databoard</Text>
-          </View>
-
-          <ModeSwitcher value={mode} onChange={setMode} />
-
-          {editingExpense ? (
-            <EditExpenseForm
-              expense={editingExpense}
-              onSubmit={handleUpdate}
-              onCancel={() => setEditingExpense(null)}
-            />
-          ) : (
-            <>
-              <AddExpenseForm onSubmit={addExpense} />
-
-              {loading ? (
-                <Text style={styles.loading}>Loading...</Text>
-              ) : (
-                <ExpenseList
-                  expenses={visibleExpenses}
-                  onDelete={handleDelete}
-                  onEdit={setEditingExpense}
-                />
-              )}
-            </>
-          )}
-
-          {lastDeletedExpense && (
-            <View style={styles.toast}>
-              <Text style={styles.toastText}>Expense deleted</Text>
-              <Pressable
-                onPress={() => {
-                  addExpense(lastDeletedExpense);
-                  setLastDeletedExpense(null);
-                }}
-                hitSlop={10}
-              >
-                <Text style={styles.toastAction}>UNDO</Text>
-              </Pressable>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 120 }}
+          >
+            <View style={styles.header}>
+              <Text style={styles.title}>Welcome To</Text>
+              <Text style={styles.subtitle}>Expense Manage Databoard</Text>
             </View>
-          )}
+
+            <ModeSwitcher value={mode} onChange={setMode} />
+
+            {editingExpense ? (
+              <EditExpenseForm
+                expense={editingExpense}
+                onSubmit={handleUpdate}
+                onCancel={() => setEditingExpense(null)}
+              />
+            ) : (
+              <>
+                <AddExpenseForm onSubmit={addExpense} />
+                <CategoryFilter category={category} setCategory={setCategory} />
+
+                {loading ? (
+                  <Text style={styles.loading}>Loading...</Text>
+                ) : mode === "weekly" ? (
+                  <WeeklyExpenseList
+                    groups={groupExpensesByWeek(visibleExpenses)}
+                    onDelete={handleDelete}
+                    onEdit={setEditingExpense}
+                  />
+                ) : mode === "monthly" ? (
+                  <MonthlyExpenseList
+                    groups={groupExpensesByMonth(visibleExpenses)}
+                    onDelete={handleDelete}
+                    onEdit={setEditingExpense}
+                  />
+                ) : (
+                  <ExpenseList
+                    expenses={visibleExpenses}
+                    onDelete={handleDelete}
+                    onEdit={setEditingExpense}
+                  />
+                )}
+              </>
+            )}
+
+            {lastDeletedExpense && (
+              <View style={styles.toast}>
+                <Text style={styles.toastText}>Expense deleted</Text>
+                <Pressable
+                  onPress={() => {
+                    addExpense(lastDeletedExpense);
+                    setLastDeletedExpense(null);
+                  }}
+                  hitSlop={10}
+                >
+                  <Text style={styles.toastAction}>UNDO</Text>
+                </Pressable>
+              </View>
+            )}
+          </ScrollView>
         </SafeAreaView>
       </View>
     </GestureHandlerRootView>

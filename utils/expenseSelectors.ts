@@ -4,32 +4,24 @@ import { Category, Expense } from "@/models/expense.model";
 export type ViewMode = "daily" | "weekly" | "monthly";
 
 //Filter the expenses based on ViewMode daily , weekly, monthly.
-export function filterByMode(expenses: Expense[], mode: ViewMode): Expense[] {
-  
-  switch (mode) {
-    case "daily":
-      let startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-
-      let endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999);
-
-      return expenses.filter((expense) => {
-        const expenseDate = new Date(expense.date);
-        return expenseDate <= endOfDay && expenseDate >= startOfDay;
-      });
-
-    case "weekly":
-      break;
-
-    case "monthly":
-      break;
-
-    default:
-      return expenses;
+export function filterByMode(
+  expenses: Expense[],
+  mode: ViewMode
+): Expense[] {
+  if (mode !== "daily") {
+    return expenses;
   }
 
-  return expenses;
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return expenses.filter((expense) => {
+    const expenseDate = new Date(expense.date);
+    return expenseDate >= startOfDay && expenseDate <= endOfDay;
+  });
 }
 
 

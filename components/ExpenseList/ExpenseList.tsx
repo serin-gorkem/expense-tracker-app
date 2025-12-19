@@ -26,6 +26,7 @@ const ExpenseList = ({ expenses, onDelete, onEdit }: ExpenseListProps) => {
         <ExpenseItem expense={item} onDelete={onDelete} onEdit={onEdit} />
       )}
       style={{ flex: 1 }}
+      scrollEnabled={false}
       contentContainerStyle={{ paddingTop: 2, paddingBottom: 90 }}
       showsVerticalScrollIndicator={false}
     />

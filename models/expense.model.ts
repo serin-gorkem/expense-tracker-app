@@ -12,7 +12,7 @@ export type Category =
     { key: "food", label: "Food" },
     { key: "health", label: "Health" },
     { key: "transport", label: "Transport" },
-    { key: "entertainment", label: "Fun" },
+    { key: "entertainment", label: "Entertainment" },
     { key: "shopping", label: "Shopping" },
     { key: "other", label: "Other" },
   ] as const;
