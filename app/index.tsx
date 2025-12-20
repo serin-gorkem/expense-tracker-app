@@ -46,6 +46,10 @@ export default function Index() {
     useExpenses();
 
   const visibleExpenses = selectVisibleExpenses(expenses, options);
+  const monthlyChartExpenses = selectVisibleExpenses(expenses, {
+  ...options,
+  category: "all",
+});
 
   const handleUpdate = (expense: Expense) => {
     updateExpense(expense);
@@ -108,7 +112,10 @@ export default function Index() {
                   />
                 ) : mode === "monthly" ? (
                   <MonthlyExpenseList
-                    groups={groupExpensesByMonth(visibleExpenses)}
+                    groups={groupExpensesByMonth(visibleExpenses)} // filtreli liste
+                    chartGroups={groupExpensesByMonth(monthlyChartExpenses)} // chart always all
+                    selectedCategory={category}
+                    onSelectCategory={setCategory}
                     onDelete={handleDelete}
                     onEdit={setEditingExpense}
                   />

@@ -2,18 +2,22 @@
 
 export type Category =
   | "food"
-  | "health"
   | "transport"
   | "entertainment"
   | "shopping"
+  | "health"
+  | "bills"
+  | "education"
   | "other";
 
   export const CATEGORY_OPTIONS = [
     { key: "food", label: "Food" },
-    { key: "health", label: "Health" },
     { key: "transport", label: "Transport" },
     { key: "entertainment", label: "Entertainment" },
     { key: "shopping", label: "Shopping" },
+    { key: "health", label: "Health" },
+    { key: "bills", label: "Bills" },
+    { key: "education", label: "Education" },
     { key: "other", label: "Other" },
   ] as const;
 

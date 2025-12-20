@@ -3,6 +3,8 @@ import { Expense } from "@/models/expense.model";
 export type GroupedExpenses = {
   label: string;
   expenses: Expense[];
+  startOfWeek?: Date;
+  startOfMonth?: Date;
 };
 
 // #region Week Grouping
@@ -51,9 +53,11 @@ export function groupExpensesByWeek(expenses: Expense[]): GroupedExpenses[] {
     const date = new Date(expense.date);
     const startOfWeek = getStartOfWeek(date);
     const key = startOfWeek.toISOString();
+
     if (!groups[key]) {
       groups[key] = [];
     }
+
     groups[key].push(expense);
   });
 
@@ -63,11 +67,10 @@ export function groupExpensesByWeek(expenses: Expense[]): GroupedExpenses[] {
       return {
         label: formatWeekLabel(startOfWeek),
         expenses,
-        startOfWeek,
+        startOfWeek, // 🔴 ARTIK KAYBOLMUYOR
       };
     })
-    .sort((a, b) => a.startOfWeek.getTime() - b.startOfWeek.getTime())
-    .map(({ label, expenses }) => ({ label, expenses }));
+    .sort((a, b) => a.startOfWeek!.getTime() - b.startOfWeek!.getTime());
 }
 // #endregion
 

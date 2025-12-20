@@ -1,28 +1,14 @@
-import { BlurView } from "expo-blur";
-import { ViewStyle } from "react-native";
+import { StyleSheet, View, ViewProps } from "react-native";
 
-type Props = {
-  children: React.ReactNode;
-  style?: ViewStyle;
-};
-
-export function GlassCard({ children, style }: Props) {
-  return (
-    <BlurView
-      intensity={45}
-      tint="dark"
-      style={[
-        {
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.15)",
-          backgroundColor: "rgba(255,255,255,0.08)",
-        },
-        style,
-      ]}
-    >
-      {children}
-    </BlurView>
-  );
+export default function GlassCard({ style, ...props }: ViewProps) {
+  return <View style={[styles.card, style]} {...props} />;
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 18,
+    padding: 16,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    overflow: "hidden",
+  },
+});
