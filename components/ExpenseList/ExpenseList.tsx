@@ -27,7 +27,7 @@ const ExpenseList = ({ expenses, onDelete, onEdit }: ExpenseListProps) => {
       )}
       style={{ flex: 1 }}
       scrollEnabled={false}
-      contentContainerStyle={{ paddingTop: 2, paddingBottom: 90 }}
+      contentContainerStyle={{ paddingTop: 2, paddingBottom: 20 }}
       showsVerticalScrollIndicator={false}
     />
   );

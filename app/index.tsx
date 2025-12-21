@@ -1,9 +1,11 @@
 import AddExpenseForm from "@/components/AddExpenseForm/AddExpenseForm";
 import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import EditExpenseForm from "@/components/EditExpenseForm/EditExpenseForm";
+import EmptyState from "@/components/EmptyState/EmptyState";
 import ExpenseList from "@/components/ExpenseList/ExpenseList";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
 import MonthlyExpenseList from "@/components/MonthlyExpenseList/MonthlyExpenseList";
+import SearchBar from "@/components/SearchBar/SearchBar";
 import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList";
 import { useExpenses } from "@/hooks/useExpenses";
 import { Category, Expense } from "@/models/expense.model";
@@ -46,10 +48,14 @@ export default function Index() {
     useExpenses();
 
   const visibleExpenses = selectVisibleExpenses(expenses, options);
+
+  const isGlobalEmpty = expenses.length === 0;
+  const isFilteredEmpty = expenses.length > 0 && visibleExpenses.length === 0;
+
   const monthlyChartExpenses = selectVisibleExpenses(expenses, {
-  ...options,
-  category: "all",
-});
+    ...options,
+    category: "all",
+  });
 
   const handleUpdate = (expense: Expense) => {
     updateExpense(expense);
@@ -82,7 +88,7 @@ export default function Index() {
         <SafeAreaView style={styles.safe}>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 120 }}
+            contentContainerStyle={{ paddingBottom: 180 }}
           >
             <View style={styles.header}>
               <Text style={styles.title}>Welcome To</Text>
@@ -102,9 +108,22 @@ export default function Index() {
                 <AddExpenseForm onSubmit={addExpense} />
                 <CategoryFilter category={category} setCategory={setCategory} />
 
-                {loading ? (
-                  <Text style={styles.loading}>Loading...</Text>
-                ) : mode === "weekly" ? (
+                {!loading && isGlobalEmpty && (
+                  <EmptyState
+                    title="No expenses yet"
+                    description="Start adding your expenses to see them here."
+                  />
+                )}
+
+                {!loading && isFilteredEmpty && (
+                  <EmptyState
+                    title="No expenses found"
+                    description="Try adjusting your search or filter to find what you're looking for."
+                  />
+                )}
+                {loading && <Text style={styles.loading}>Loading...</Text>}
+
+                {!loading && !isGlobalEmpty && !isFilteredEmpty && (mode === "weekly" ? (
                   <WeeklyExpenseList
                     groups={groupExpensesByWeek(visibleExpenses)}
                     onDelete={handleDelete}
@@ -125,7 +144,7 @@ export default function Index() {
                     onDelete={handleDelete}
                     onEdit={setEditingExpense}
                   />
-                )}
+                ))}
               </>
             )}
 
@@ -144,6 +163,9 @@ export default function Index() {
               </View>
             )}
           </ScrollView>
+          <View style={styles.searchWrapper}>
+            <SearchBar value={query} onChange={setQuery}></SearchBar>
+          </View>
         </SafeAreaView>
       </View>
     </GestureHandlerRootView>
@@ -195,4 +217,15 @@ const styles = StyleSheet.create({
   },
   toastText: { color: "rgba(255,255,255,0.85)" },
   toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
+  searchWrapper: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: "rgba(17,24,39,0.55)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backdropFilter: "blur(10px)", // web değil ama tasarım dili
+  },
 });
