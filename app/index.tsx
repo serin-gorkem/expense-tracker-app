@@ -14,6 +14,7 @@ import {
   groupExpensesByWeek,
 } from "@/utils/expenseGrouping";
 import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
+import { haptic } from "@/utils/haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -66,6 +67,7 @@ export default function Index() {
     const expenseToDelete = expenses.find((e) => e.id === expenseId);
     if (!expenseToDelete) return;
     removeExpense(expenseId);
+    haptic.warning();
     setLastDeletedExpense(expenseToDelete);
   };
 
@@ -214,6 +216,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    zIndex: 100,
   },
   toastText: { color: "rgba(255,255,255,0.85)" },
   toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
@@ -226,6 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
-    backdropFilter: "blur(10px)", // web değil ama tasarım dili
+    backdropFilter: "blur(10px)",
+    zIndex: 50,
   },
 });

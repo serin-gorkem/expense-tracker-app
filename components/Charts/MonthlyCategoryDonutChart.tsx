@@ -1,5 +1,6 @@
 import { Category } from "@/models/expense.model";
 import { DonutChartItem } from "@/utils/expenseChart";
+import { haptic } from "@/utils/haptics";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
@@ -24,6 +25,7 @@ export default function MonthlyCategoryDonutChart({
   const isFiltering = selectedCategory !== "all";
 
   const handleSelect = (label: Category) => {
+    haptic.medium();
     onSelectCategory(selectedCategory === label ? "all" : label);
   };
 

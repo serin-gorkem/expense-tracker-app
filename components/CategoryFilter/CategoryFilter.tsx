@@ -1,4 +1,5 @@
 import { Category, CATEGORY_OPTIONS } from '@/models/expense.model';
+import { haptic } from '@/utils/haptics';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,6 +9,10 @@ type CategoryFilterProps = {
 };
 
 const CategoryFilter = ({ category, setCategory }: CategoryFilterProps) => {
+  const handlePress = (value: Category | "all") => {
+    haptic.light();
+    setCategory(value);
+  };
   return (
     <View>
       <Text style={styles.filterLabel}>Filter by category</Text>
@@ -15,7 +20,7 @@ const CategoryFilter = ({ category, setCategory }: CategoryFilterProps) => {
       <View style={styles.categoryRow}>
         {/* ALL */}
         <Pressable
-          onPress={() => setCategory("all")}
+          onPress={() => handlePress("all")}
           style={[styles.category, category === "all" && styles.categoryActive]}
         >
           <Text style={styles.categoryText}>All</Text>
@@ -28,7 +33,7 @@ const CategoryFilter = ({ category, setCategory }: CategoryFilterProps) => {
           return (
             <Pressable
               key={item.key}
-              onPress={() => setCategory(item.key)}
+              onPress={ () => handlePress(item.key) }
               style={[styles.category, active && styles.categoryActive]}
             >
               <Text style={styles.categoryText}>{item.label}</Text>

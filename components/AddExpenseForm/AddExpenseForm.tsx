@@ -1,3 +1,4 @@
+import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
@@ -15,6 +16,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenceFormProps) => {
 
   const handleSubmit = () => {
     const parsedAmount = Number(amount);
+    haptic.success();
     if (!title || isNaN(parsedAmount) || !category) return;
 
     const expense: Expense = {
