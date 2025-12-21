@@ -3,6 +3,7 @@ import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import EditExpenseForm from "@/components/EditExpenseForm/EditExpenseForm";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import ExpenseList from "@/components/ExpenseList/ExpenseList";
+import ExpenseListHint from "@/components/ExpenseListHint/ExpenseListHint";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
 import MonthlyExpenseList from "@/components/MonthlyExpenseList/MonthlyExpenseList";
 import SearchBar from "@/components/SearchBar/SearchBar";
@@ -15,10 +16,15 @@ import {
 } from "@/utils/expenseGrouping";
 import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
 import { haptic } from "@/utils/haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -29,7 +35,7 @@ export default function Index() {
   const [lastDeletedExpense, setLastDeletedExpense] = useState<Expense | null>(
     null
   );
-
+  const [showExpenseHint, setShowExpenseHint] = useState(false);
   const options = useMemo(
     () => ({
       mode,
@@ -44,6 +50,42 @@ export default function Index() {
     const timer = setTimeout(() => setLastDeletedExpense(null), 4000);
     return () => clearTimeout(timer);
   }, [lastDeletedExpense]);
+  const keyboard = useAnimatedKeyboard();
+
+const searchBarStyle = useAnimatedStyle(() => {
+  return {
+    transform: [
+      {
+        translateY: -keyboard.height.value,
+      },
+    ],
+  };
+});
+
+  useEffect(() => {
+  const checkHint = async () => {
+    try {
+      const seen = await AsyncStorage.getItem(
+        "@expense_list_hint_seen"
+      );
+
+      if (!seen) {
+        setShowExpenseHint(true);
+      }
+    } catch {
+      // sessiz geç
+    }
+  };
+
+  checkHint();
+}, []);
+
+const dismissExpenseHint = async () => {
+  setShowExpenseHint(false);
+  try {
+    await AsyncStorage.setItem("@expense_list_hint_seen", "true");
+  } catch {}
+};
 
   const { expenses, addExpense, removeExpense, updateExpense, loading } =
     useExpenses();
@@ -91,6 +133,7 @@ export default function Index() {
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 180 }}
+            keyboardDismissMode="on-drag"
           >
             <View style={styles.header}>
               <Text style={styles.title}>Welcome To</Text>
@@ -109,7 +152,14 @@ export default function Index() {
               <>
                 <AddExpenseForm onSubmit={addExpense} />
                 <CategoryFilter category={category} setCategory={setCategory} />
-
+                {showExpenseHint && (
+                  <ExpenseListHint onDismiss={dismissExpenseHint} />
+                )}
+                {query.length > 0 && (
+                  <Text style={styles.searchMeta}>
+                    Showing results for “{query}”
+                  </Text>
+                )}
                 {!loading && isGlobalEmpty && (
                   <EmptyState
                     title="No expenses yet"
@@ -125,31 +175,33 @@ export default function Index() {
                 )}
                 {loading && <Text style={styles.loading}>Loading...</Text>}
 
-                {!loading && !isGlobalEmpty && !isFilteredEmpty && (mode === "weekly" ? (
-                  <WeeklyExpenseList
-                    groups={groupExpensesByWeek(visibleExpenses)}
-                    onDelete={handleDelete}
-                    onEdit={setEditingExpense}
-                  />
-                ) : mode === "monthly" ? (
-                  <MonthlyExpenseList
-                    groups={groupExpensesByMonth(visibleExpenses)} // filtreli liste
-                    chartGroups={groupExpensesByMonth(monthlyChartExpenses)} // chart always all
-                    selectedCategory={category}
-                    onSelectCategory={setCategory}
-                    onDelete={handleDelete}
-                    onEdit={setEditingExpense}
-                  />
-                ) : (
-                  <ExpenseList
-                    expenses={visibleExpenses}
-                    onDelete={handleDelete}
-                    onEdit={setEditingExpense}
-                  />
-                ))}
+                {!loading &&
+                  !isGlobalEmpty &&
+                  !isFilteredEmpty &&
+                  (mode === "weekly" ? (
+                    <WeeklyExpenseList
+                      groups={groupExpensesByWeek(visibleExpenses)}
+                      onDelete={handleDelete}
+                      onEdit={setEditingExpense}
+                    />
+                  ) : mode === "monthly" ? (
+                    <MonthlyExpenseList
+                      groups={groupExpensesByMonth(visibleExpenses)} // filtreli liste
+                      chartGroups={groupExpensesByMonth(monthlyChartExpenses)} // chart always all
+                      selectedCategory={category}
+                      onSelectCategory={setCategory}
+                      onDelete={handleDelete}
+                      onEdit={setEditingExpense}
+                    />
+                  ) : (
+                    <ExpenseList
+                      expenses={visibleExpenses}
+                      onDelete={handleDelete}
+                      onEdit={setEditingExpense}
+                    />
+                  ))}
               </>
             )}
-
             {lastDeletedExpense && (
               <View style={styles.toast}>
                 <Text style={styles.toastText}>Expense deleted</Text>
@@ -165,9 +217,9 @@ export default function Index() {
               </View>
             )}
           </ScrollView>
-          <View style={styles.searchWrapper}>
-            <SearchBar value={query} onChange={setQuery}></SearchBar>
-          </View>
+          <Animated.View style={[styles.searchWrapper, searchBarStyle]}>
+            <SearchBar value={query} onChange={setQuery} />
+          </Animated.View>
         </SafeAreaView>
       </View>
     </GestureHandlerRootView>
@@ -204,7 +256,7 @@ const styles = StyleSheet.create({
 
   toast: {
     position: "absolute",
-    bottom: 18,
+    bottom: 80,
     left: 16,
     right: 16,
     backgroundColor: "rgba(17,24,39,0.75)",
@@ -217,19 +269,29 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     zIndex: 100,
+    elevation: 10,
   },
   toastText: { color: "rgba(255,255,255,0.85)" },
   toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
-  searchWrapper: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: "rgba(17,24,39,0.55)",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backdropFilter: "blur(10px)",
-    zIndex: 50,
+searchWrapper: {
+  position: "absolute",
+  bottom: 16,
+  left: 16,
+  right: 16,
+
+  backgroundColor: "rgba(17,24,39,0.55)",
+  borderRadius: 16,
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.12)",
+
+  zIndex: 999,
+  elevation: 12,
+},
+  searchMeta: {
+    marginTop: 8,
+    marginBottom: 4,
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

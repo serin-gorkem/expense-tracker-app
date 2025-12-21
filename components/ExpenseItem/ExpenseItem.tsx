@@ -1,4 +1,5 @@
 import { Expense } from "@/models/expense.model";
+import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -32,27 +33,40 @@ const formatAmount = (n: number) => {
 
 const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
   const confirmDelete = () => {
-    Alert.alert("Delete Expense", "Are you sure you want to delete this expense?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => onDelete(expense.id) },
-    ]);
+    Alert.alert(
+      "Delete Expense",
+      "Are you sure you want to delete this expense?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => onDelete(expense.id),
+        },
+      ]
+    );
   };
 
   const renderRightActions = () => (
-    <Pressable onPress={confirmDelete} style={[styles.action, styles.actionDelete]}>
+    <Pressable
+      onPress={confirmDelete}
+      style={[styles.action, styles.actionDelete]}
+    >
       <Text style={styles.actionText}>Delete</Text>
     </Pressable>
   );
 
-  const renderLeftActions = () => (
-    <Pressable onPress={() => onEdit(expense)} style={[styles.action, styles.actionEdit]}>
-      <Text style={styles.actionText}>Edit</Text>
-    </Pressable>
-  );
-
   return (
-    <ReanimatedSwipeable renderRightActions={renderRightActions} renderLeftActions={renderLeftActions}>
-      <View style={{ marginBottom: 10 }}>
+    <ReanimatedSwipeable renderRightActions={renderRightActions}>
+      {/* 🔥 EDIT = TAP ON CARD */}
+      <Pressable
+        onPress={() => {
+          haptic.warning();
+          onEdit(expense);
+        }}
+        android_ripple={{ color: "rgba(255,255,255,0.06)" }}
+        style={{ marginBottom: 10 }}
+      >
         <BlurView intensity={22} tint="dark" style={styles.card}>
           <LinearGradient
             colors={["rgba(255,255,255,0.10)", "rgba(255,255,255,0.03)"]}
@@ -64,6 +78,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
               <Text style={styles.title} numberOfLines={1}>
                 {expense.title}
               </Text>
+
               <View style={styles.metaRow}>
                 <Text style={styles.meta}>{formatDate(expense.date)}</Text>
                 <View style={styles.dot} />
@@ -73,10 +88,12 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
               </View>
             </View>
 
-            <Text style={styles.amount}>{formatAmount(expense.amount)}</Text>
+            <Text style={styles.amount}>
+              {formatAmount(expense.amount)}
+            </Text>
           </View>
         </BlurView>
-      </View>
+      </Pressable>
     </ReanimatedSwipeable>
   );
 };
@@ -97,7 +114,12 @@ const styles = StyleSheet.create({
 
   metaRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
   meta: { color: "rgba(255,255,255,0.55)", fontSize: 12, fontWeight: "700" },
-  dot: { width: 4, height: 4, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.22)" },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 4,
+    backgroundColor: "rgba(255,255,255,0.22)",
+  },
   pill: {
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -106,7 +128,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.10)",
   },
-  pillText: { color: "rgba(255,255,255,0.72)", fontSize: 12, fontWeight: "800" },
+  pillText: {
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 12,
+    fontWeight: "800",
+  },
 
   action: {
     width: 86,

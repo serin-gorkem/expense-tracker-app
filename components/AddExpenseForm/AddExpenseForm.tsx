@@ -16,9 +16,8 @@ const AddExpenseForm = ({ onSubmit }: AddExpenceFormProps) => {
 
   const handleSubmit = () => {
     const parsedAmount = Number(amount);
-    haptic.success();
     if (!title || isNaN(parsedAmount) || !category) return;
-
+    
     const expense: Expense = {
       id: Date.now().toString(),
       title,
@@ -26,8 +25,9 @@ const AddExpenseForm = ({ onSubmit }: AddExpenceFormProps) => {
       category,
       date: new Date().toISOString(),
     };
-
+    
     onSubmit(expense);
+    haptic.success();
     setTitle("");
     setAmount("");
     setCategory(null);
