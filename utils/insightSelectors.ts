@@ -3,14 +3,14 @@
 import { Expense } from "@/models/expense.model";
 import { InsightItem, InsightType } from "@/models/insight.model";
 import {
-    getMonthlyChangeInsightData,
-    getTopCategoryInsightData,
-    getWeeklyAverageInsightData,
+  getMonthlyChangeInsightData,
+  getTopCategoryInsightData,
+  getWeeklyAverageInsightData,
 } from "@/utils/expenseInsights";
 import {
-    INSIGHT_PRIORITY,
-    MAX_VISIBLE_INSIGHTS,
-    isInsightEligible,
+  INSIGHT_PRIORITY,
+  MAX_VISIBLE_INSIGHTS,
+  isInsightEligible,
 } from "@/utils/insightRules";
 
 /**

@@ -5,6 +5,7 @@ import EmptyState from "@/components/EmptyState/EmptyState";
 import ExpenseList from "@/components/ExpenseList/ExpenseList";
 import ExpenseListHint from "@/components/ExpenseListHint/ExpenseListHint";
 import InsightSection from "@/components/InsightSection/InsightSection";
+import { LimitCard } from "@/components/LimitCard/LimitCard";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
 import MonthlyExpenseList from "@/components/MonthlyExpenseList/MonthlyExpenseList";
 import SearchBar from "@/components/SearchBar/SearchBar";
@@ -17,6 +18,7 @@ import {
 } from "@/utils/expenseGrouping";
 import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
 import { haptic } from "@/utils/haptics";
+import { calculateLimitStatus } from "@/utils/limitCalculation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
@@ -53,43 +55,53 @@ export default function Index() {
   }, [lastDeletedExpense]);
   const keyboard = useAnimatedKeyboard();
 
-const searchBarStyle = useAnimatedStyle(() => {
-  return {
-    transform: [
-      {
-        translateY: -keyboard.height.value,
-      },
-    ],
-  };
-});
+  const searchBarStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: -keyboard.height.value,
+        },
+      ],
+    };
+  });
 
   useEffect(() => {
-  const checkHint = async () => {
-    try {
-      const seen = await AsyncStorage.getItem(
-        "@expense_list_hint_seen"
-      );
+    const checkHint = async () => {
+      try {
+        const seen = await AsyncStorage.getItem("@expense_list_hint_seen");
 
-      if (!seen) {
-        setShowExpenseHint(true);
+        if (!seen) {
+          setShowExpenseHint(true);
+        }
+      } catch {
+        // sessiz geç
       }
-    } catch {
-      // sessiz geç
-    }
+    };
+
+    checkHint();
+  }, []);
+
+  const dismissExpenseHint = async () => {
+    setShowExpenseHint(false);
+    try {
+      await AsyncStorage.setItem("@expense_list_hint_seen", "true");
+    } catch {}
   };
-
-  checkHint();
-}, []);
-
-const dismissExpenseHint = async () => {
-  setShowExpenseHint(false);
-  try {
-    await AsyncStorage.setItem("@expense_list_hint_seen", "true");
-  } catch {}
-};
 
   const { expenses, addExpense, removeExpense, updateExpense, loading } =
     useExpenses();
+
+  const LIMITS = {
+    daily: 100,
+    weekly: 500,
+    monthly: 2000,
+  };
+
+  const limitResult = calculateLimitStatus({
+    expenses,
+    period: mode,
+    limitAmount: LIMITS[mode],
+  });
 
   const visibleExpenses = selectVisibleExpenses(expenses, options);
 
@@ -142,6 +154,16 @@ const dismissExpenseHint = async () => {
             </View>
 
             <InsightSection expenses={expenses} mode={mode} />
+            {limitResult && (
+              <LimitCard
+                period={mode}
+                total={limitResult.total}
+                ratio={limitResult.ratio}
+                status={limitResult.status}
+                limitAmount={LIMITS[mode]}
+              />
+            )}
+
             <ModeSwitcher value={mode} onChange={setMode} />
 
             {editingExpense ? (
@@ -275,20 +297,20 @@ const styles = StyleSheet.create({
   },
   toastText: { color: "rgba(255,255,255,0.85)" },
   toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
-searchWrapper: {
-  position: "absolute",
-  bottom: 16,
-  left: 16,
-  right: 16,
+  searchWrapper: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    right: 16,
 
-  backgroundColor: "rgba(17,24,39,0.55)",
-  borderRadius: 16,
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(17,24,39,0.55)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
 
-  zIndex: 999,
-  elevation: 12,
-},
+    zIndex: 999,
+    elevation: 12,
+  },
   searchMeta: {
     marginTop: 8,
     marginBottom: 4,
