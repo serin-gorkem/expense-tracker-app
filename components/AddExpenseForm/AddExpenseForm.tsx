@@ -146,5 +146,5 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  btnText: { color: "rgba(255,255,255,0.92)", fontWeight: "900" },
+  btnText: { color: "rgba(255,255,255,0.92)", fontWeight: "900", marginVertical: 4 },
 });

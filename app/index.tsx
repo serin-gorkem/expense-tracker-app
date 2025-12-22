@@ -4,6 +4,7 @@ import EditExpenseForm from "@/components/EditExpenseForm/EditExpenseForm";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import ExpenseList from "@/components/ExpenseList/ExpenseList";
 import ExpenseListHint from "@/components/ExpenseListHint/ExpenseListHint";
+import InsightSection from "@/components/InsightSection/InsightSection";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
 import MonthlyExpenseList from "@/components/MonthlyExpenseList/MonthlyExpenseList";
 import SearchBar from "@/components/SearchBar/SearchBar";
@@ -140,6 +141,7 @@ const dismissExpenseHint = async () => {
               <Text style={styles.subtitle}>Expense Manage Databoard</Text>
             </View>
 
+            <InsightSection expenses={expenses} mode={mode} />
             <ModeSwitcher value={mode} onChange={setMode} />
 
             {editingExpense ? (
