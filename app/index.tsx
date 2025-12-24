@@ -15,6 +15,7 @@ import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList"
 import { useExpenses } from "@/hooks/useExpenses";
 import { useStreakCelebration } from "@/hooks/useStreakCelebrations";
 import { useStreakMetrics } from "@/hooks/useStreakMetrics";
+import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { Category, Expense } from "@/models/expense.model";
 import {
   groupExpensesByMonth,
@@ -121,6 +122,10 @@ const streakMetrics = useStreakMetrics({
   expenses,
   dailyLimit: LIMITS.daily,
 });
+
+const { newMilestone } = useStreakMilestones(
+  streakMetrics.currentStreak
+);
 
 const { celebration, dismiss } = useStreakCelebration(
   streakMetrics.currentStreak,

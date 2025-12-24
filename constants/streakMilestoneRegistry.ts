@@ -1,26 +1,62 @@
-export const STREAK_MILESTONE_REGISTRY = {
+// constants/streakMilestoneRegistry.ts
+import { StreakMilestone } from "./streakMilestones";
+
+export type Milestone = {
+  id: string;
+  type: "streak";
+  value: StreakMilestone;
+  title: string;
+  description: string;
+  emoji: string;
+};
+
+export const STREAK_MILESTONE_REGISTRY: Record<StreakMilestone, Milestone> = {
   1: {
-    title: "Streak started",
-    description: "You started your first streak.",
+    id: "streak_1",
+    type: "streak",
+    value: 1,
+    title: "First Step",
+    description: "You completed your first safe day.",
+    emoji: "🔥",
   },
   7: {
-    title: "7-day streak",
-    description: "One full week under control.",
+    id: "streak_7",
+    type: "streak",
+    value: 7,
+    title: "One Week Strong",
+    description: "7 days in a row within your limit.",
+    emoji: "💪",
   },
   21: {
-    title: "21-day streak",
-    description: "A solid habit is forming.",
+    id: "streak_21",
+    type: "streak",
+    value: 21,
+    title: "Habit Formed",
+    description: "21 day streak achieved.",
+    emoji: "🧠",
   },
   30: {
-    title: "30-day streak",
-    description: "One month streak.",
+    id: "streak_30",
+    type: "streak",
+    value: 30,
+    title: "Monthly Discipline",
+    description: "30 days of consistency.",
+    emoji: "🏆",
   },
   60: {
-    title: "60-day streak",
-    description: "Strong financial discipline.",
+    id: "streak_60",
+    type: "streak",
+    value: 60,
+    title: "Unstoppable",
+    description: "60 day streak. Impressive.",
+    emoji: "🚀",
   },
   90: {
-    title: "90-day streak",
-    description: "Elite level consistency.",
+    id: "streak_90",
+    type: "streak",
+    value: 90,
+    title: "Legendary",
+    description: "90 days without breaking discipline.",
+    emoji: "👑",
   },
-} as const;
+};

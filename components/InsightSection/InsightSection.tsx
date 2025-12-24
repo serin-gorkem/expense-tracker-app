@@ -1,7 +1,7 @@
 import { useStreakMetrics } from "@/hooks/useStreakMetrics";
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { Expense } from "@/models/expense.model";
-import { selectInsights } from "@/utils/insightSelectors";
+import { selectInsights } from "@/utils/insights/insightSelectors";
 import { Animated, StyleSheet, View } from "react-native";
 import { StreakMilestoneCard } from "../StreakMilestoneCard/StreakMilestoneCard";
 import InsightCard from "./InsightCard";
@@ -14,13 +14,11 @@ type Props = {
 
 export default function InsightSection({ expenses, mode, streakMetrics }: Props) {
   const insights = selectInsights(expenses);
-  const milestones = useStreakMilestones(streakMetrics.currentStreak);
+  const { newMilestone } = useStreakMilestones(streakMetrics.currentStreak);
 
   return (
     <View style={styles.container}>
-      {milestones.map((m) => (
-        <StreakMilestoneCard key={m.day} milestone={m} />
-      ))}
+      {newMilestone && <StreakMilestoneCard milestone={newMilestone} />}
 
       {insights.map((insight) => (
         <Animated.View key={insight.type}>

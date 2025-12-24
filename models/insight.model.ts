@@ -3,8 +3,13 @@
 export type InsightType =
   | "monthly_change"
   | "top_category"
-  | "weekly_average";
-
+  | "weekly_average"
+  | "streak_current"
+  | "streak_longest"
+  | "behavioral_weekend_spike"
+  | "behavioral_inconsistent_days"
+  | "behavioral_over_limit_frequency"
+  
 export type InsightTone =
   | "positive"
   | "negative"

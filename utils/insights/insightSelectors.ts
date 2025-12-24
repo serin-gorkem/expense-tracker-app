@@ -11,7 +11,7 @@ import {
   INSIGHT_PRIORITY,
   MAX_VISIBLE_INSIGHTS,
   isInsightEligible,
-} from "@/utils/insightRules";
+} from "@/utils/insights/insightRules";
 
 /**
  * Builds UI-ready insights from raw expense data.
