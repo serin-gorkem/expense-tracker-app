@@ -1,5 +1,4 @@
 import { InsightItem } from "@/models/insight.model";
-import { Feather } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
@@ -14,26 +13,9 @@ export default function InsightCard({ insight }: Props) {
       ? styles.negative
       : styles.neutral;
 
-  const iconName =
-    insight.type === "monthly_change"
-      ? insight.tone === "negative"
-        ? "trending-up"
-        : "trending-down"
-      : insight.type === "top_category"
-      ? "pie-chart"
-      : "bar-chart-2";
-
   return (
     <View style={[styles.card, toneStyle]}>
-      <View style={styles.header}>
-        <Feather
-          name={iconName}
-          size={16}
-          color="rgba(255,255,255,0.85)"
-        />
-        <Text style={styles.title}>{insight.title}</Text>
-      </View>
-
+      <Text style={styles.title}>{insight.title}</Text>
       <Text style={styles.description}>{insight.description}</Text>
     </View>
   );
@@ -45,24 +27,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 10,
-
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
   },
   title: {
     fontSize: 13,
     fontWeight: "700",
-    letterSpacing: 0.2,
     color: "rgba(255,255,255,0.92)",
+    marginBottom: 4,
   },
   description: {
     fontSize: 12,

@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, {
-    Easing,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 import { LimitPeriod, LimitStatus } from "@/models/limit.model";
@@ -89,6 +89,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(17,24,39,0.6)",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
+    marginBottom: 16,
   },
   title: {
     color: "rgba(255,255,255,0.9)",

@@ -9,8 +9,12 @@ import { LimitCard } from "@/components/LimitCard/LimitCard";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
 import MonthlyExpenseList from "@/components/MonthlyExpenseList/MonthlyExpenseList";
 import SearchBar from "@/components/SearchBar/SearchBar";
+import { StreakBadge } from "@/components/StreakBadge/StreakBadge";
+import { StreakCelebration } from "@/components/StreakCelebration/StreakCelebration";
 import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useStreakCelebration } from "@/hooks/useStreakCelebrations";
+import { useStreakMetrics } from "@/hooks/useStreakMetrics";
 import { Category, Expense } from "@/models/expense.model";
 import {
   groupExpensesByMonth,
@@ -18,7 +22,7 @@ import {
 } from "@/utils/expenseGrouping";
 import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
 import { haptic } from "@/utils/haptics";
-import { calculateLimitStatus } from "@/utils/limitCalculation";
+import { calculateLimitStatus } from "@/utils/limitCalculations";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
@@ -112,6 +116,17 @@ export default function Index() {
     ...options,
     category: "all",
   });
+  
+const streakMetrics = useStreakMetrics({
+  expenses,
+  dailyLimit: LIMITS.daily,
+});
+
+const { celebration, dismiss } = useStreakCelebration(
+  streakMetrics.currentStreak,
+  expenses.length
+);
+
 
   const handleUpdate = (expense: Expense) => {
     updateExpense(expense);
@@ -143,17 +158,29 @@ export default function Index() {
         <View style={[styles.blob, styles.blobC]} />
 
         <SafeAreaView style={styles.safe}>
+          {celebration && (
+            <StreakCelebration result={celebration} onDismiss={dismiss} />
+          )}
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 180 }}
             keyboardDismissMode="on-drag"
           >
             <View style={styles.header}>
-              <Text style={styles.title}>Welcome To</Text>
-              <Text style={styles.subtitle}>Expense Manage Databoard</Text>
+              <View>
+                <Text style={styles.title}>Welcome To</Text>
+                <Text style={styles.subtitle}>Expense Manage Databoard</Text>
+              </View>
+              {streakMetrics.hasActiveStreak && (
+                <StreakBadge count={streakMetrics.currentStreak} />
+              )}
             </View>
 
-            <InsightSection expenses={expenses} mode={mode} />
+            <InsightSection
+              expenses={expenses}
+              mode={mode}
+              streakMetrics={streakMetrics}
+            />
             {limitResult && (
               <LimitCard
                 period={mode}
@@ -253,7 +280,12 @@ export default function Index() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   safe: { flex: 1, paddingHorizontal: 16, paddingTop: 6 },
-  header: { marginBottom: 10 },
+  header: {
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   title: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 28,

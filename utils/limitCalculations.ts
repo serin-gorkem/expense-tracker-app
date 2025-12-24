@@ -72,7 +72,7 @@ export function calculateLimitStatus({
 
   let status: LimitStatus;
 
-  if (ratio < 0.7) {
+  if (ratio < 0.5) {
     status = "safe";
   } else if (ratio < 1) {
     status = "warning";
