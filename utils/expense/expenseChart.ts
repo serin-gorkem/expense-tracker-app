@@ -1,6 +1,6 @@
 // utils/expenseChart.ts
 import { Category } from "@/models/expense.model";
-import { GroupedExpenses } from "@/utils/expenseGrouping";
+import { GroupedExpenses } from "./expenseGrouping";
 
 export type LineChartPoint = {
   label: string;

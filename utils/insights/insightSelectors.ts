@@ -5,7 +5,7 @@ import {
   getMonthlyChangeInsightData,
   getTopCategoryInsightData,
   getWeeklyAverageInsightData,
-} from "@/utils/expenseInsights";
+} from "@/utils/expense/expenseInsights";
 
 import { behavioralInsights } from "@/utils/insights/behavioralInsights";
 

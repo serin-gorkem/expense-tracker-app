@@ -1,6 +1,6 @@
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { Expense } from "@/models/expense.model";
-import { ViewMode } from "@/utils/expenseSelectors";
+import { ViewMode } from "@/utils/expense/expenseSelectors";
 import { selectInsights } from "@/utils/insights/insightSelectors";
 import { StreakMetrics } from "@/utils/streak/streakMetrics";
 import { Animated, StyleSheet, View } from "react-native";

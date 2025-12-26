@@ -1,10 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { ExpensesProvider } from "../../src/context/ExpenseContext";
 
 export default function TabLayout() {
   return (
-    <ExpensesProvider>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -66,6 +64,5 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </ExpensesProvider>
   );
 }

@@ -2,14 +2,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { buildMonthlyCategoryDonutData, buildWeeklyLineChartData } from "@/utils/expenseChart";
-import { groupExpensesByMonth, groupExpensesByWeek } from "@/utils/expenseGrouping";
+import { buildMonthlyCategoryDonutData, buildWeeklyLineChartData } from "@/utils/expense/expenseChart";
+import { groupExpensesByMonth, groupExpensesByWeek } from "@/utils/expense/expenseGrouping";
 import {
   getMonthlyChangeInsightData,
   getTopCategoryInsightData,
   getWeeklyAverageInsightData,
-} from "@/utils/expenseInsights";
-import { useExpensesStore } from "../../src/context/ExpenseContext";
+} from "@/utils/expense/expenseInsights";
+import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 // Bu iki component sende vardı (components/Charts altında olduğunu varsaydım)
 import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutChart";

@@ -1,18 +1,15 @@
 import AddExpenseForm from "@/components/AddExpenseForm/AddExpenseForm";
-import { LinearGradient } from "expo-linear-gradient";
+import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useExpensesStore } from "../../src/context/ExpenseContext";
+import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 export default function Add() {
   const { addExpense } = useExpensesStore();
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        colors={["#050816", "#070A2A", "#0B1238"]}
-        style={StyleSheet.absoluteFillObject}
-      />
+      <LiquidBackground />
 
       <SafeAreaView style={styles.safe}>
         <AddExpenseForm onSubmit={addExpense} />

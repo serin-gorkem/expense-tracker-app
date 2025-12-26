@@ -1,4 +1,4 @@
-import { ViewMode } from "@/utils/expenseSelectors";
+import { ViewMode } from "@/utils/expense/expenseSelectors";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";

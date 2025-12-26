@@ -1,6 +1,6 @@
 // utils/streak/streakMetrics.ts
 import { Expense } from "@/models/expense.model";
-import { calculateLimitStatus } from "@/utils/limitCalculations";
+import { calculateLimitStatus } from "@/utils/limit/limitCalculations";
 import { normalizeDay } from "./dateHelpers";
 
 export type StreakMetrics = {

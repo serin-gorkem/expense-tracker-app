@@ -1,11 +1,62 @@
+import CurrencyInput from "@/components/ui/CurrencyInput";
+import { LimitPeriod } from "@/models/limit.model";
 import Slider from "@react-native-community/slider";
 import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useExpensesStore } from "../../src/context/ExpenseContext";
+import { useExpensesStore } from "../../src/context/ExpensesContext";
+
+/* =========================
+   Helpers
+========================= */
+
+function getMaxLimit(period: LimitPeriod, monthlyIncome?: number | null) {
+  if (!monthlyIncome) return 10000;
+  if (period === "daily") return Math.floor(monthlyIncome / 10);
+  if (period === "weekly") return Math.floor(monthlyIncome / 2);
+  return monthlyIncome;
+}
+
+function formatCurrency(value: number | null) {
+  if (value == null) return "";
+  return new Intl.NumberFormat("tr-TR", {
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function parseCurrency(input: string) {
+  // nokta, boşluk vs temizle
+  const normalized = input.replace(/\D/g, "");
+  return Number(normalized) || 0;
+}
+
+/* =========================
+   Settings Screen
+========================= */
 
 export default function Settings() {
-  const { limits, updateLimit } = useExpensesStore();
+  const {
+    limits,
+    applyLimitChange,
+    financeProfile,
+    updateFinanceProfile,
+    enableAutoLimits,
+    disableAutoLimits,
+  } = useExpensesStore();
+
+  const [editingLimit, setEditingLimit] = useState<LimitPeriod | null>(null);
+  const [tempLimitValue, setTempLimitValue] = useState("");
+  const [editingField, setEditingField] = useState<"income" | "fixed" | null>(
+    null
+  );
 
   return (
     <View style={styles.root}>
@@ -15,53 +66,160 @@ export default function Settings() {
       />
 
       <SafeAreaView style={styles.safe}>
-        <Text style={styles.title}>Limits</Text>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+          <Text style={styles.title}>Settings</Text>
 
-        {Object.values(limits).map((limit) => (
-          <View key={limit.period} style={styles.card}>
+          {/* =========================
+              AUTO MODE
+          ========================= */}
+          <View style={styles.card}>
             <View style={styles.row}>
-              <Text style={styles.label}>
-                {limit.period.toUpperCase()}
-              </Text>
-
+              <Text style={styles.label}>Automatic limits</Text>
               <Switch
-                value={limit.active}
+                value={financeProfile.autoLimitEnabled}
                 onValueChange={(v) =>
-                  updateLimit(limit.period, { active: v })
+                  v ? enableAutoLimits() : disableAutoLimits()
                 }
               />
             </View>
-
-            <Text style={styles.amount}>
-              {limit.amount}
-            </Text>
-
-            <Slider
-              minimumValue={0}
-              maximumValue={
-                limit.period === "daily"
-                  ? 500
-                  : limit.period === "weekly"
-                  ? 3000
-                  : 10000
-              }
-              step={10}
-              value={limit.amount}
-              disabled={!limit.active}
-              onValueChange={(v) =>
-                updateLimit(limit.period, { amount: Math.round(v) })
-              }
-            />
           </View>
-        ))}
+
+          {/* =========================
+              INCOME + FIXED (AUTO)
+          ========================= */}
+          {financeProfile.autoLimitEnabled && (
+            <>
+              {/* Monthly income */}
+              <View style={styles.card}>
+                <Text style={styles.label}>Monthly income</Text>
+
+                <CurrencyInput
+                  value={financeProfile.monthlyIncome}
+                  onChange={(v) =>
+                    updateFinanceProfile({
+                      monthlyIncome: v,
+                    })
+                  }
+                  style={styles.input}
+                />
+              </View>
+
+              {/* Fixed expenses */}
+              <View style={styles.card}>
+                <Text style={styles.label}>Fixed expenses</Text>
+
+                <CurrencyInput
+                  value={financeProfile.fixedExpenses}
+                  onChange={(v) =>
+                    updateFinanceProfile({
+                      fixedExpenses: v,
+                    })
+                  }
+                  style={styles.input}
+                />
+
+                <Text style={styles.hint}>
+                  Used to calculate available spending
+                </Text>
+              </View>
+            </>
+          )}
+
+          {/* =========================
+              LIMITS
+          ========================= */}
+          {Object.values(limits).map((limit) => (
+            <View key={limit.period} style={styles.card}>
+              <View style={styles.row}>
+                <Text style={styles.label}>
+                  {limit.period.toUpperCase()}
+                  {limit.source === "auto" && " · AUTO"}
+                </Text>
+
+                <Switch
+                  value={limit.active}
+                  onValueChange={(v) =>
+                    applyLimitChange(limit.period, { active: v })
+                  }
+                />
+              </View>
+
+              {editingLimit === limit.period &&
+              !financeProfile.autoLimitEnabled ? (
+                <CurrencyInput
+                  autoFocus
+                  value={Number(tempLimitValue) || 0}
+                  onChange={(v) => setTempLimitValue(String(v))}
+                  style={styles.input}
+                  onBlur={() => {
+                    const num = Number(tempLimitValue);
+                    if (!isNaN(num)) {
+                      applyLimitChange(limit.period, { amount: num });
+                    }
+                    setEditingLimit(null);
+                  }}
+                  onSubmitEditing={() => {
+                    const num = Number(tempLimitValue);
+                    if (!isNaN(num)) {
+                      applyLimitChange(limit.period, { amount: num });
+                    }
+                    setEditingLimit(null);
+                  }}
+                />
+              ) : (
+                <Pressable
+                  disabled={financeProfile.autoLimitEnabled}
+                  onPress={() => {
+                    setEditingLimit(limit.period);
+                    setTempLimitValue(String(limit.amount));
+                  }}
+                >
+                  <Text style={styles.amount}>₺{limit.amount}</Text>
+                </Pressable>
+              )}
+
+              {financeProfile.autoLimitEnabled && (
+                <Text style={styles.hint}>
+                  Disable automatic limits to edit
+                </Text>
+              )}
+
+              <Slider
+                minimumValue={0}
+                maximumValue={getMaxLimit(
+                  limit.period,
+                  financeProfile.monthlyIncome
+                )}
+                step={10}
+                value={limit.amount}
+                disabled={!limit.active || financeProfile.autoLimitEnabled}
+                onValueChange={(v) =>
+                  applyLimitChange(limit.period, {
+                    amount: Math.round(v),
+                  })
+                }
+                minimumTrackTintColor="#6366F1"
+                maximumTrackTintColor="rgba(255,255,255,0.15)"
+                thumbTintColor="#6366F1"
+              />
+            </View>
+          ))}
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
 }
 
+/* =========================
+   Styles
+========================= */
+
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  safe: { flex: 1, padding: 16 },
+  safe: { flex: 1, paddingHorizontal: 16 },
 
   title: {
     fontSize: 26,
@@ -91,8 +249,25 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
+  input: {
+    borderBottomWidth: 1,
+    borderColor: "#6366F1",
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 16,
+    paddingVertical: 6,
+    marginTop: 6,
+  },
+
   amount: {
-    color: "rgba(255,255,255,0.7)",
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.85)",
+    marginBottom: 6,
+  },
+
+  hint: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.45)",
+    marginTop: 6,
   },
 });

@@ -1,5 +1,5 @@
 import { Category } from "@/models/expense.model";
-import { DonutChartItem } from "@/utils/expenseChart";
+import { DonutChartItem } from "@/utils/expense/expenseChart";
 import { haptic } from "@/utils/haptics";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";

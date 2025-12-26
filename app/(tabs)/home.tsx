@@ -16,16 +16,16 @@ import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList"
 import { useStreakCelebration } from "@/hooks/useStreakCelebrations";
 import { useStreakMetrics } from "@/hooks/useStreakMetrics";
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
-import { useExpensesStore } from "../../src/context/ExpenseContext";
+import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 import { Category, Expense } from "@/models/expense.model";
 import {
   groupExpensesByMonth,
   groupExpensesByWeek,
-} from "@/utils/expenseGrouping";
-import { selectVisibleExpenses, ViewMode } from "@/utils/expenseSelectors";
+} from "@/utils/expense/expenseGrouping";
+import { selectVisibleExpenses, ViewMode } from "@/utils/expense/expenseSelectors";
 import { haptic } from "@/utils/haptics";
-import { calculateLimitStatus } from "@/utils/limitCalculations";
+import { calculateLimitStatus } from "@/utils/limit/limitCalculations";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";

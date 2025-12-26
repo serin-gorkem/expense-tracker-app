@@ -1,7 +1,7 @@
 import { Expense } from "@/models/expense.model";
-import { buildWeeklyLineChartData } from "@/utils/expenseChart";
-import { GroupedExpenses } from "@/utils/expenseGrouping";
-import { calculateTotal } from "@/utils/expenseSummary";
+import { buildWeeklyLineChartData } from "@/utils/expense/expenseChart";
+import { GroupedExpenses } from "@/utils/expense/expenseGrouping";
+import { calculateTotal } from "@/utils/expense/expenseSummary";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import WeeklyLineChart from "../Charts/WeeklyLineChart";

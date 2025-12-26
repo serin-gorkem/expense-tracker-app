@@ -1,4 +1,4 @@
-import { LineChartPoint } from "@/utils/expenseChart";
+import { LineChartPoint } from "@/utils/expense/expenseChart";
 import React from "react";
 import { View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
