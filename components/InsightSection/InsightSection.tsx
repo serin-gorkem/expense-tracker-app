@@ -1,24 +1,39 @@
-import { useStreakMetrics } from "@/hooks/useStreakMetrics";
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { Expense } from "@/models/expense.model";
+import { ViewMode } from "@/utils/expenseSelectors";
 import { selectInsights } from "@/utils/insights/insightSelectors";
+import { StreakMetrics } from "@/utils/streak/streakMetrics";
 import { Animated, StyleSheet, View } from "react-native";
 import { StreakMilestoneCard } from "../StreakMilestoneCard/StreakMilestoneCard";
 import InsightCard from "./InsightCard";
 
 type Props = {
   expenses: Expense[];
-  mode: "daily" | "weekly" | "monthly";
-  streakMetrics: ReturnType<typeof useStreakMetrics>;
+  mode: ViewMode;
+  streakMetrics: StreakMetrics;
+  dailyLimit: number;
 };
 
-export default function InsightSection({ expenses, mode, streakMetrics }: Props) {
-  const insights = selectInsights(expenses);
-  const { newMilestone } = useStreakMilestones(streakMetrics.currentStreak);
+export default function InsightSection({
+  expenses,
+  mode,
+  streakMetrics,
+  dailyLimit,
+}: Props) {
+  const insights = selectInsights({
+    expenses,
+    dailyLimit,
+  });
+
+  const { newMilestone } = useStreakMilestones(
+    streakMetrics.currentStreak
+  );
 
   return (
     <View style={styles.container}>
-      {newMilestone && <StreakMilestoneCard milestone={newMilestone} />}
+      {newMilestone && (
+        <StreakMilestoneCard milestone={newMilestone} />
+      )}
 
       {insights.map((insight) => (
         <Animated.View key={insight.type}>

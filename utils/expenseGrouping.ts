@@ -9,7 +9,7 @@ export type GroupedExpenses = {
 
 // #region Week Grouping
 //Helper Functions
-function getStartOfWeek(date: Date): Date {
+export function getStartOfWeek(date: Date): Date {
   const d = new Date(date);
 
   d.setHours(0, 0, 0, 0);
@@ -77,12 +77,16 @@ export function groupExpensesByWeek(expenses: Expense[]): GroupedExpenses[] {
 //#region Month Grouping
 
 //Helper Functions
-function getStartOfMonth(date: Date): Date {
+export function getStartOfMonth(date: Date): Date {
   const d = new Date(date.getFullYear(), date.getMonth(), 1);
   d.setHours(0, 0, 0, 0);
   return d;
 }
-
+export function getEndOfMonth(date: Date): Date {
+  const d = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 function formatMonthLabel(startOfMonth: Date): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",

@@ -8,30 +8,41 @@ import GlassCard from "../ui/GlassCard";
 
 type Props = {
   data: DonutChartItem[];
-  monthLabel: string;
-  selectedCategory: Category | "all";
-  onSelectCategory: (category: Category | "all") => void;
+  monthLabel?: string;
+
+  // optional — Insights için
+  selectedCategory?: Category | "all";
+  onSelectCategory?: (category: Category | "all") => void;
 };
 
 export default function MonthlyCategoryDonutChart({
   data,
-  monthLabel,
+  monthLabel = "",
   selectedCategory,
   onSelectCategory,
 }: Props) {
   if (!data.length) return null;
 
+  // 🔒 Safe defaults (Insights uyumlu)
+  const resolvedSelectedCategory: Category | "all" =
+    selectedCategory ?? "all";
+
+  const resolvedOnSelectCategory =
+    onSelectCategory ?? (() => {});
+
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  const isFiltering = selectedCategory !== "all";
+  const isFiltering = resolvedSelectedCategory !== "all";
 
   const handleSelect = (label: Category) => {
     haptic.medium();
-    onSelectCategory(selectedCategory === label ? "all" : label);
+    resolvedOnSelectCategory(
+      resolvedSelectedCategory === label ? "all" : label
+    );
   };
 
   const getSliceShift = (index: number, total: number) => {
     const angle = (2 * Math.PI * index) / total;
-    const distance = 6; // 🔥 daha soft
+    const distance = 6;
 
     return {
       shiftX: Math.cos(angle) * distance,
@@ -39,7 +50,9 @@ export default function MonthlyCategoryDonutChart({
     };
   };
 
-  const activeItem = data.find(d => d.label === selectedCategory);
+  const activeItem = data.find(
+    (d) => d.label === resolvedSelectedCategory
+  );
 
   return (
     <GlassCard style={{ marginBottom: 16 }}>
@@ -49,35 +62,52 @@ export default function MonthlyCategoryDonutChart({
           radius={80}
           innerRadius={52}
           data={data.map((item, index) => {
-            const isActive = selectedCategory === item.label;
+            const isActive =
+              resolvedSelectedCategory === item.label;
+
             const shift = isActive
               ? getSliceShift(index, data.length)
               : { shiftX: 0, shiftY: 0 };
-              const dimColor = (color: string) =>
-                isFiltering && !isActive ? "rgba(255,255,255,0.15)" : color;
-              
+
+            const dimColor = (color: string) =>
+              isFiltering && !isActive
+                ? "rgba(255,255,255,0.15)"
+                : color;
+
             return {
               ...item,
               shiftX: shift.shiftX,
               shiftY: shift.shiftY,
 
-              // ✨ PREMIUM STROKE
               strokeWidth: isActive ? 3 : 1,
               strokeColor: isActive
                 ? "rgba(255,255,255,0.35)"
                 : "rgba(0,0,0,0.35)",
               color: dimColor(item.color),
               opacity: isFiltering ? (isActive ? 1 : 0.18) : 1,
-              onPress: () => handleSelect(item.label as Category),
+              onPress: () =>
+                handleSelect(item.label as Category),
             };
           })}
           centerLabelComponent={() => (
-            <Pressable onPress={() => onSelectCategory("all")} hitSlop={12}>
+            <Pressable
+              onPress={() =>
+                resolvedOnSelectCategory("all")
+              }
+              hitSlop={12}
+            >
               <View style={styles.center}>
-                <Text style={styles.month}>{monthLabel}</Text>
+                {monthLabel !== "" && (
+                  <Text style={styles.month}>
+                    {monthLabel}
+                  </Text>
+                )}
 
                 <Text style={styles.total}>
-                  ₺{(activeItem?.value ?? total).toLocaleString("en-US")}
+                  ₺
+                  {(activeItem?.value ?? total).toLocaleString(
+                    "en-US"
+                  )}
                 </Text>
 
                 {isFiltering && (
@@ -92,22 +122,31 @@ export default function MonthlyCategoryDonutChart({
       </View>
 
       <View style={styles.legend}>
-        {data.map(item => {
-          const isActive = selectedCategory === item.label;
+        {data.map((item) => {
+          const isActive =
+            resolvedSelectedCategory === item.label;
 
           return (
             <Pressable
               key={item.label}
-              onPress={() => handleSelect(item.label as Category)}
+              onPress={() =>
+                handleSelect(item.label as Category)
+              }
             >
               <View
                 style={[
                   styles.legendItem,
                   isActive && styles.legendItemActive,
-                  isFiltering && !isActive && { opacity: 0.35 },
+                  isFiltering &&
+                    !isActive && { opacity: 0.35 },
                 ]}
               >
-                <View style={[styles.dot, { backgroundColor: item.color }]} />
+                <View
+                  style={[
+                    styles.dot,
+                    { backgroundColor: item.color },
+                  ]}
+                />
                 <Text style={styles.legendText}>
                   {item.label} · ₺{item.value}
                 </Text>

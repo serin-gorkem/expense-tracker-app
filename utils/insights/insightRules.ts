@@ -18,7 +18,6 @@ export const INSIGHT_PRIORITY: InsightType[] = [
   "weekly_average",
   "behavioral_over_limit_frequency",
   "behavioral_inconsistent_days",
-  "behavioral_post_streak_break",
 ];
 
 /**

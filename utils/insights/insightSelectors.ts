@@ -1,12 +1,14 @@
-// utils/insightSelectors.ts
-
 import { Expense } from "@/models/expense.model";
 import { InsightItem, InsightType } from "@/models/insight.model";
+
 import {
   getMonthlyChangeInsightData,
   getTopCategoryInsightData,
   getWeeklyAverageInsightData,
 } from "@/utils/expenseInsights";
+
+import { behavioralInsights } from "@/utils/insights/behavioralInsights";
+
 import {
   INSIGHT_PRIORITY,
   MAX_VISIBLE_INSIGHTS,
@@ -16,9 +18,17 @@ import {
 /**
  * Builds UI-ready insights from raw expense data.
  */
-export function selectInsights(expenses: Expense[]): InsightItem[] {
-  // 1️⃣ Calculate raw insight data
-  const rawInsights: {
+export function selectInsights({
+  expenses,
+  dailyLimit,
+}: {
+  expenses: Expense[];
+  dailyLimit: number;
+}): InsightItem[] {
+  /**
+   * 1️⃣ Financial insight candidates
+   */
+  const financialCandidates: {
     type: InsightType;
     data: unknown;
   }[] = [
@@ -36,26 +46,66 @@ export function selectInsights(expenses: Expense[]): InsightItem[] {
     },
   ];
 
-  // 2️⃣ Filter eligible insights
-  const eligibleInsights = rawInsights.filter((item) =>
+  /**
+   * 2️⃣ Behavioral insights (already UI-ready)
+   */
+  const behavioral = behavioralInsights({
+    expenses,
+    dailyLimit,
+  });
+
+  const behavioralCandidates = behavioral.map((item) => ({
+    type: item.type,
+    data: item,
+  }));
+
+  /**
+   * 3️⃣ Merge all candidates
+   */
+  const allCandidates = [
+    ...financialCandidates,
+    ...behavioralCandidates,
+  ];
+
+  /**
+   * 4️⃣ Eligibility filter
+   */
+  const eligible = allCandidates.filter((item) =>
     isInsightEligible(item.type, item.data)
   );
 
-  // 3️⃣ Sort by priority
-  const sortedInsights = [...eligibleInsights].sort(
+  /**
+   * 5️⃣ Sort by priority
+   */
+  const sorted = [...eligible].sort(
     (a, b) =>
-      INSIGHT_PRIORITY.indexOf(a.type) - INSIGHT_PRIORITY.indexOf(b.type)
+      INSIGHT_PRIORITY.indexOf(a.type) -
+      INSIGHT_PRIORITY.indexOf(b.type)
   );
 
-  // 4️⃣ Limit count
-  const visibleInsights = sortedInsights.slice(0, MAX_VISIBLE_INSIGHTS);
+  /**
+   * 6️⃣ Limit visible count
+   */
+  const visible = sorted.slice(0, MAX_VISIBLE_INSIGHTS);
 
-  return visibleInsights.map(({ type, data }) => {
+  /**
+   * 7️⃣ Normalize to InsightItem
+   */
+  return visible.map(({ type, data }) => {
+    // Behavioral insights already return InsightItem
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "title" in data &&
+      "description" in data
+    ) {
+      return data as InsightItem;
+    }
+
+    // Financial insight mapping
     switch (type) {
       case "monthly_change": {
-        const d = data as {
-          percentageChange: number;
-        };
+        const d = data as { percentageChange: number };
         const abs = Math.abs(d.percentageChange);
 
         const tone =
@@ -70,12 +120,8 @@ export function selectInsights(expenses: Expense[]): InsightItem[] {
           title: "Monthly change",
           description:
             d.percentageChange > 0
-              ? `You spent ${Math.abs(
-                  d.percentageChange
-                )}% more than last month.`
-              : `You spent ${Math.abs(
-                  d.percentageChange
-                )}% less than last month.`,
+              ? `You spent ${abs}% more than last month.`
+              : `You spent ${abs}% less than last month.`,
           tone,
         };
       }
@@ -98,6 +144,7 @@ export function selectInsights(expenses: Expense[]): InsightItem[] {
         const d = data as {
           weeklyAverage: number;
         };
+
         if (d.weeklyAverage < 1) {
           return {
             type,
@@ -110,10 +157,13 @@ export function selectInsights(expenses: Expense[]): InsightItem[] {
         return {
           type,
           title: "Weekly average",
-          description: `Your weekly average is ${Math.round(d.weeklyAverage)}.`,
+          description: `Your weekly average is ${Math.round(
+            d.weeklyAverage
+          )}.`,
           tone: "neutral",
         };
       }
+
       default:
         return {
           type,

@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { LimitPeriod, LimitStatus } from "@/models/limit.model";
+import { LimitStatus } from "@/models/limit.model";
 
 const LIMIT_COLORS: Record<LimitStatus, string> = {
   safe: "#10B981",      // emerald-500
@@ -16,11 +16,11 @@ const LIMIT_COLORS: Record<LimitStatus, string> = {
 };
 
 type LimitCardProps = {
-  period: LimitPeriod;
+  period: "daily" | "weekly" | "monthly";
   total: number;
-  limitAmount: number;
   ratio: number;
-  status: LimitStatus;
+  status: "safe" | "warning" | "exceeded";
+  limitAmount: number;
 };
 
 export function LimitCard({
