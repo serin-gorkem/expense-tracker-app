@@ -1,5 +1,6 @@
 import { Expense } from "@/models/expense.model";
 import { LimitPeriod, LimitResult } from "@/models/limit.model";
+import { filterExpensesForLimit } from "@/utils/expense/expenseLimitFilter";
 
 function getDateRange(period: LimitPeriod) {
   const start = new Date();
@@ -45,13 +46,15 @@ export function calculateLimitStatus({
   if (limitAmount <= 0) return null;
 
   const { start, end } = getDateRange(period);
+  
+const relevantExpenses = filterExpensesForLimit(expenses, period);
 
-  const total = expenses
-    .filter(e => {
-      const d = new Date(e.date);
-      return d >= start && d <= end;
-    })
-    .reduce((sum, e) => sum + e.amount, 0);
+const total = relevantExpenses
+  .filter((e) => {
+    const d = new Date(e.date);
+    return d >= start && d <= end;
+  })
+  .reduce((sum, e) => sum + e.amount, 0);
 
   const ratio = total / limitAmount;
 

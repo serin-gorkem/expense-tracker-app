@@ -188,31 +188,38 @@ export function behavioralInsights({
   expenses,
   dailyLimit,
 }: BehavioralInsightsProps): InsightItem[] {
+
+  // ✅ SADECE BEHAVIORAL EXPENSES
+  const behavioralExpenses = expenses.filter(
+    (e) => e.kind === "behavioral"
+  );
+
+  if (behavioralExpenses.length === 0) return [];
+
   const weekendSpendingInsight = getWeekendSpendingInsight({
-    expenses,
-    dailyLimit,
-  });
-  const overLimitFrequencyInsight = getOverLimitFrequencyInsight({
-    expenses,
-    dailyLimit,
-  });
-  const mostExpensiveWeekdayInsight = getMostExpensiveWeekdayInsight({
-    expenses,
-    dailyLimit,
-  });
-  const inconsistentDaysInsight = getInconsistentDaysInsight({
-    expenses,
+    expenses: behavioralExpenses,
     dailyLimit,
   });
 
-  const insights = [
+  const overLimitFrequencyInsight = getOverLimitFrequencyInsight({
+    expenses: behavioralExpenses,
+    dailyLimit,
+  });
+
+  const mostExpensiveWeekdayInsight = getMostExpensiveWeekdayInsight({
+    expenses: behavioralExpenses,
+    dailyLimit,
+  });
+
+  const inconsistentDaysInsight = getInconsistentDaysInsight({
+    expenses: behavioralExpenses,
+    dailyLimit,
+  });
+
+  return [
     weekendSpendingInsight,
     overLimitFrequencyInsight,
     mostExpensiveWeekdayInsight,
     inconsistentDaysInsight,
-  ];
-
-  const filtered = insights.filter(isInsight);
-
-  return filtered;
+  ].filter(isInsight);
 }

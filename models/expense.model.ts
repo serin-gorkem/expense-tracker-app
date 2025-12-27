@@ -10,6 +10,26 @@ export type Category =
   | "education"
   | "other";
 
+
+  export type ExpenseKind = "behavioral" | "structural";
+
+  export const EXPENSE_KIND_META: Record<
+  ExpenseKind,
+  {
+    label: string;
+    description: string;
+  }
+> = {
+  behavioral: {
+    label: "Daily choice",
+    description: "Spending you can control",
+  },
+  structural: {
+    label: "Fixed",
+    description: "Required, recurring expenses",
+  },
+};
+
   export const CATEGORY_OPTIONS = [
     { key: "food", label: "Food" },
     { key: "transport", label: "Transport" },
@@ -27,5 +47,6 @@ export type Expense = {
   amount: number;
   category: Category;
   date: string; // ISO date String.
+  kind: ExpenseKind
 };
 

@@ -2,6 +2,7 @@
 
 import { Category, Expense } from "@/models/expense.model";
 import { groupExpensesByMonth, groupExpensesByWeek } from "./expenseGrouping";
+import { filterExpensesForLimit } from "./expenseLimitFilter";
 import { calculateTotal } from "./expenseSummary";
 
 /**
@@ -73,20 +74,23 @@ currentMonth.expenses.forEach((expense) => {
 /**
  * Calculates weekly average spending.
  */
+
 export function getWeeklyAverageInsightData(expenses: Expense[]): {
   weeklyAverage: number;
 } | null {
   const groups = groupExpensesByWeek(expenses);
   if (groups.length === 0) return null;
 
-  const weeklyTotals = groups.map((group) => {
-    return calculateTotal(group.expenses);
-  });
+  const weeklyTotals = groups.map((group) =>
+    calculateTotal(
+      filterExpensesForLimit(group.expenses, "weekly")
+    )
+  );
 
   const sum = weeklyTotals.reduce((a, b) => a + b, 0);
   const average = sum / weeklyTotals.length;
 
   return {
-    weeklyAverage: average,
+    weeklyAverage: Math.round(average),
   };
 }

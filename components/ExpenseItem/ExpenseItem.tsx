@@ -1,4 +1,4 @@
-import { Expense } from "@/models/expense.model";
+import { Expense, EXPENSE_KIND_META } from "@/models/expense.model";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -81,16 +81,34 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
 
               <View style={styles.metaRow}>
                 <Text style={styles.meta}>{formatDate(expense.date)}</Text>
+
                 <View style={styles.dot} />
+
+                {/* Category */}
                 <View style={styles.pill}>
                   <Text style={styles.pillText}>{expense.category}</Text>
+                </View>
+
+                {/* Expense kind */}
+                <View
+                  style={[
+                    styles.pill,
+                    expense.kind === "structural" && styles.pillFixed,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.pillText,
+                      expense.kind === "structural" && styles.pillFixedText,
+                    ]}
+                  >
+                    {EXPENSE_KIND_META[expense.kind].label}
+                  </Text>
                 </View>
               </View>
             </View>
 
-            <Text style={styles.amount}>
-              {formatAmount(expense.amount)}
-            </Text>
+            <Text style={styles.amount}>{formatAmount(expense.amount)}</Text>
           </View>
         </BlurView>
       </Pressable>
@@ -140,6 +158,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
     borderRadius: 18,
+  },
+  pillFixed: {
+    backgroundColor: "rgba(99,102,241,0.18)", // indigo tone
+    borderColor: "rgba(99,102,241,0.45)",
+  },
+
+  pillFixedText: {
+    color: "rgba(199,210,254,0.95)",
   },
   actionDelete: { backgroundColor: "rgba(239,68,68,0.75)" },
   actionEdit: { backgroundColor: "rgba(59,130,246,0.55)" },

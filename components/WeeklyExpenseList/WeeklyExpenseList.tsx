@@ -1,6 +1,7 @@
 import { Expense } from "@/models/expense.model";
 import { buildWeeklyLineChartData } from "@/utils/expense/expenseChart";
 import { GroupedExpenses } from "@/utils/expense/expenseGrouping";
+import { filterExpensesForLimit } from "@/utils/expense/expenseLimitFilter";
 import { calculateTotal } from "@/utils/expense/expenseSummary";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -18,17 +19,16 @@ export default function WeeklyExpenseList({
   onDelete,
   onEdit,
 }: WeeklyExpenseListProps) {
-  const chartData = useMemo(
-    () => buildWeeklyLineChartData(groups),
-    [groups]
-  );
+  const chartData = useMemo(() => buildWeeklyLineChartData(groups), [groups]);
 
   return (
     <View>
       <WeeklyLineChart data={chartData} />
 
       {groups.map((group) => {
-        const total = calculateTotal(group.expenses);
+        const total = calculateTotal(
+          filterExpensesForLimit(group.expenses, "weekly")
+        );
 
         return (
           <View key={group.label} style={styles.group}>

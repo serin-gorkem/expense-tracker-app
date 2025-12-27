@@ -1,6 +1,7 @@
 // utils/expenseChart.ts
 import { Category } from "@/models/expense.model";
 import { GroupedExpenses } from "./expenseGrouping";
+import { filterExpensesForLimit } from "./expenseLimitFilter";
 
 export type LineChartPoint = {
   label: string;
@@ -55,7 +56,9 @@ export function buildWeeklyLineChartData(
   groups.forEach((group) => {
     if (!group.startOfWeek) return;
 
-    group.expenses.forEach((expense) => {
+    const filtered = filterExpensesForLimit(group.expenses, "weekly");
+
+    filtered.forEach((expense) => {
       const date = new Date(expense.date);
       if (isNaN(date.getTime())) return;
 
