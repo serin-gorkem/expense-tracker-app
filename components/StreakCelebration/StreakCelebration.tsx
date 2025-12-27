@@ -2,12 +2,12 @@ import { streakCelebrationResult } from "@/utils/streak/streakCelebrationRules";
 import { Pressable, StyleSheet, Text } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
 import Animated, {
-    FadeIn,
-    FadeOut,
-    SlideInUp,
-    SlideOutDown,
-    ZoomIn,
-    ZoomOut,
+  FadeIn,
+  FadeOut,
+  SlideInUp,
+  SlideOutDown,
+  ZoomIn,
+  ZoomOut,
 } from "react-native-reanimated";
 
 type Props = {

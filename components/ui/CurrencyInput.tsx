@@ -112,6 +112,7 @@ export default function CurrencyInput({
       selection={selection}
       onSelectionChange={(e) => setSelection(e.nativeEvent.selection)}
       style={[styles.input, style]}
+      placeholderTextColor="rgba(255,255,255,0.45)"
     />
   );
 }
@@ -126,6 +127,6 @@ const styles = StyleSheet.create({
     borderColor: "#333",
     borderRadius: 10,
     padding: 12,
-    fontSize: 18,
+    fontSize: 14,
   },
 });

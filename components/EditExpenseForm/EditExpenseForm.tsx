@@ -8,7 +8,7 @@ import {
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import CurrencyInput from "../ui/CurrencyInput";
 
 type EditExpenseFormProps = {
@@ -17,18 +17,18 @@ type EditExpenseFormProps = {
   onCancel: () => void;
 };
 
-const EditExpenseForm = ({
+export default function EditExpenseForm({
   expense,
   onSubmit,
   onCancel,
-}: EditExpenseFormProps) => {
+}: EditExpenseFormProps) {
   const [title, setTitle] = useState(expense.title);
   const [amount, setAmount] = useState<number | null>(expense.amount);
   const [category, setCategory] = useState<Category>(expense.category);
   const [kind, setKind] = useState<ExpenseKind>(expense.kind);
 
-  const handleSubmit = () => {
-    if (!title || !amount) return;
+  function handleSubmit() {
+    if (!title || amount == null || amount <= 0 || !category) return;
 
     onSubmit({
       ...expense,
@@ -37,7 +37,7 @@ const EditExpenseForm = ({
       category,
       kind,
     });
-  };
+  }
 
   return (
     <View style={{ marginTop: 8 }}>
@@ -49,6 +49,18 @@ const EditExpenseForm = ({
 
         <Text style={styles.cardTitle}>Edit expense</Text>
 
+        {/* Title */}
+        <Text style={styles.label}>Title</Text>
+        <TextInput
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Expense title"
+          placeholderTextColor="rgba(255,255,255,0.45)"
+          style={styles.input}
+        />
+
+        {/* Amount */}
+        <Text style={styles.label}>Amount</Text>
         <CurrencyInput
           value={amount}
           onChange={setAmount}
@@ -56,6 +68,8 @@ const EditExpenseForm = ({
           style={styles.input}
         />
 
+        {/* Kind */}
+        <Text style={styles.label}>Expense type</Text>
         <View style={styles.kindRow}>
           {(["behavioral", "structural"] as ExpenseKind[]).map((k) => {
             const active = kind === k;
@@ -66,13 +80,15 @@ const EditExpenseForm = ({
                 style={[styles.kindPill, active && styles.kindPillActive]}
               >
                 <Text style={styles.kindText}>
-                  {EXPENSE_KIND_META[k].label}
+                  {EXPENSE_KIND_META[k]?.label}
                 </Text>
               </Pressable>
             );
           })}
         </View>
 
+        {/* Category */}
+        <Text style={styles.label}>Category</Text>
         <View style={styles.categoryRow}>
           {CATEGORY_OPTIONS.map((item) => {
             const active = category === item.key;
@@ -88,6 +104,7 @@ const EditExpenseForm = ({
           })}
         </View>
 
+        {/* Actions */}
         <View style={styles.row}>
           <Pressable onPress={onCancel} style={[styles.btn, styles.btnGhost]}>
             <Text style={styles.btnText}>Cancel</Text>
@@ -99,9 +116,7 @@ const EditExpenseForm = ({
       </BlurView>
     </View>
   );
-};
-
-export default EditExpenseForm;
+}
 
 /* =========================
    Styles
@@ -115,12 +130,21 @@ const styles = StyleSheet.create({
     padding: 14,
     overflow: "hidden",
   },
+
   cardTitle: {
     color: "rgba(255,255,255,0.9)",
     fontSize: 14,
     fontWeight: "800",
-    marginBottom: 10,
+    marginBottom: 12,
   },
+
+  label: {
+    color: "rgba(255,255,255,0.65)",
+    fontSize: 12,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+
   input: {
     backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1,
@@ -129,13 +153,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     color: "rgba(255,255,255,0.92)",
-    marginBottom: 10,
+    marginBottom: 12,
+    fontSize: 12,
   },
+
   kindRow: {
     flexDirection: "row",
     gap: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
+
   kindPill: {
     flex: 1,
     paddingVertical: 8,
@@ -145,21 +172,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.10)",
   },
+
   kindPillActive: {
     backgroundColor: "rgba(99,102,241,0.28)",
     borderColor: "rgba(99,102,241,0.5)",
   },
+
   kindText: {
     color: "rgba(255,255,255,0.85)",
     fontWeight: "800",
     fontSize: 12,
   },
+
   categoryRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
     marginBottom: 12,
   },
+
   category: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -168,16 +199,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.10)",
   },
+
   categoryActive: {
     backgroundColor: "rgba(91,124,255,0.22)",
     borderColor: "rgba(91,124,255,0.35)",
   },
+
   categoryText: {
     color: "rgba(255,255,255,0.75)",
     fontSize: 12,
     fontWeight: "800",
   },
-  row: { flexDirection: "row", gap: 10 },
+
+  row: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
   btn: {
     flex: 1,
     borderRadius: 14,
@@ -187,9 +225,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.14)",
   },
+
   btnGhost: {
     backgroundColor: "rgba(255,255,255,0.06)",
     borderColor: "rgba(255,255,255,0.10)",
   },
-  btnText: { color: "rgba(255,255,255,0.92)", fontWeight: "900" },
+
+  btnText: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+  },
 });

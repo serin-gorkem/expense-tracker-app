@@ -3,16 +3,29 @@ import {
   CATEGORY_OPTIONS,
   Expense,
   EXPENSE_KIND_META,
-  ExpenseKind
+  ExpenseKind,
 } from "@/models/expense.model";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import CurrencyInput from "../ui/CurrencyInput";
+
 type AddExpenseFormProps = {
   onSubmit: (expense: Expense) => void;
+};
+type ValidationError = {
+  title?: string;
+  amount?: string;
+  category?: string;
 };
 
 const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
@@ -21,25 +34,62 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
   const [category, setCategory] = useState<Category | null>(null);
   const [kind, setKind] = useState<ExpenseKind>("behavioral");
 
+  const [errors, setErrors] = useState<ValidationError>({});
+
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const resetForm = () => {
+    setTitle("");
+    setAmount(null);
+    setCategory(null);
+    setKind("behavioral");
+  };
+
   const handleSubmit = () => {
-    if (!title || !amount || !category) return;
+    const newErrors: ValidationError = {};
+
+    // Title validation
+    if (!title.trim()) {
+      newErrors.title = "Title is required";
+    }
+
+    // Amount validation
+    if (!amount || amount <= 0) {
+      newErrors.amount = "Enter a valid amount";
+    }
+
+    // Category validation
+    if (!category) {
+      newErrors.category = "Select a category";
+    }
+
+    // Eğer hata varsa → UI + haptic
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      haptic.warning();
+      return;
+    }
+    const safeAmount = amount as number;
+    const safeCategory = category as Category;
+
+    // ---- SUCCESS FLOW ----
 
     const expense: Expense = {
       id: Date.now().toString(),
-      title,
-      amount,
-      category,
+      title: title.trim(),
+      amount: safeAmount,
+      category: safeCategory,
       date: new Date().toISOString(),
       kind,
     };
 
     onSubmit(expense);
-    haptic.success();
 
-    setTitle("");
-    setAmount(null);
-    setCategory(null);
-    setKind("behavioral");
+    haptic.success();
+    setShowSuccess(true);
+
+    setErrors({});
+    resetForm();
   };
 
   return (
@@ -56,20 +106,29 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
         <Text style={styles.label}>Title</Text>
         <TextInput
           value={title}
-          onChangeText={setTitle}
+          onChangeText={(v) => {
+            setTitle(v);
+            if (errors.title) setErrors((e) => ({ ...e, title: undefined }));
+          }}
           placeholder="Expense title"
           placeholderTextColor="rgba(255,255,255,0.45)"
-          style={styles.input}
+          style={[styles.input, errors.title && styles.inputError]}
         />
+        {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
 
         {/* Amount */}
         <Text style={styles.label}>Amount</Text>
         <CurrencyInput
           value={amount}
-          onChange={setAmount}
+          onChange={(v) => {
+            setAmount(v);
+            if (errors.amount) setErrors((e) => ({ ...e, amount: undefined }));
+          }}
           placeholder="Amount"
-          style={styles.input}
+          placeholderTextColor="#"
+          style={[styles.input, errors.amount && styles.inputError]}
         />
+        {errors.amount && <Text style={styles.errorText}>{errors.amount}</Text>}
 
         {/* Kind */}
         <Text style={styles.label}>Expense type</Text>
@@ -83,7 +142,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
                 style={[styles.kindPill, active && styles.kindPillActive]}
               >
                 <Text style={styles.kindText}>
-                  {EXPENSE_KIND_META[k].label}
+                  {EXPENSE_KIND_META[k]?.label}
                 </Text>
               </Pressable>
             );
@@ -92,7 +151,12 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
 
         {/* Category */}
         <Text style={styles.label}>Category</Text>
-        <View style={styles.categoryRow}>
+        <View
+          style={[
+            styles.categoryRow,
+            errors.category && styles.categoryRowError,
+          ]}
+        >
           {CATEGORY_OPTIONS.map((item) => {
             const active = category === item.key;
             return (
@@ -105,12 +169,39 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
               </Pressable>
             );
           })}
+          {errors.category && (
+            <Text style={styles.errorText}>{errors.category}</Text>
+          )}
         </View>
 
         <Pressable onPress={handleSubmit} style={styles.btn}>
           <Text style={styles.btnText}>Add</Text>
         </Pressable>
       </BlurView>
+
+      {/* SUCCESS MODAL */}
+      <Modal
+        visible={showSuccess}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSuccess(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Expense added</Text>
+            <Text style={styles.modalText}>
+              Your expense has been saved successfully.
+            </Text>
+
+            <Pressable
+              onPress={() => setShowSuccess(false)}
+              style={styles.modalBtn}
+            >
+              <Text style={styles.modalBtnText}>Got it</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -222,5 +313,65 @@ const styles = StyleSheet.create({
   btnText: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
+  },
+
+  /* ---------- Modal ---------- */
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  modalCard: {
+    width: "80%",
+    borderRadius: 18,
+    padding: 16,
+    backgroundColor: "rgba(17,24,39,0.95)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+
+  modalTitle: {
+    color: "rgba(255,255,255,0.95)",
+    fontSize: 14,
+    fontWeight: "900",
+    marginBottom: 6,
+  },
+
+  modalText: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 12,
+    marginBottom: 12,
+  },
+
+  modalBtn: {
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
+
+  modalBtnText: {
+    color: "rgba(255,255,255,0.95)",
+    fontWeight: "800",
+  },
+  inputError: {
+    borderColor: "rgba(239,68,68,0.6)",
+  },
+
+  categoryRowError: {
+    padding: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(239,68,68,0.5)",
+  },
+
+  errorText: {
+    color: "rgba(239,68,68,0.9)",
+    fontSize: 11,
+    fontWeight: "700",
+    marginBottom: 6,
   },
 });

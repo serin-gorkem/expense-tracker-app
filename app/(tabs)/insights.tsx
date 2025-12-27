@@ -2,8 +2,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { buildMonthlyCategoryDonutData, buildWeeklyLineChartData } from "@/utils/expense/expenseChart";
-import { groupExpensesByMonth, groupExpensesByWeek } from "@/utils/expense/expenseGrouping";
+import {
+  buildMonthlyCategoryDonutData,
+  buildWeeklyLineChartData,
+} from "@/utils/expense/expenseChart";
+import {
+  groupExpensesByMonth,
+  groupExpensesByWeek,
+} from "@/utils/expense/expenseGrouping";
 import {
   getMonthlyChangeInsightData,
   getTopCategoryInsightData,
@@ -11,23 +17,50 @@ import {
 } from "@/utils/expense/expenseInsights";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
-// Bu iki component sende vardı (components/Charts altında olduğunu varsaydım)
 import BaselineCard from "@/components/BaseLineCard/BaseLineCard";
 import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutChart";
 import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
+import ConsistencyCalendar from "@/components/Consistency/ConsistencyCalendar";
+
+import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
+import { useMemo, useState } from "react";
 
 export default function Insights() {
-  const { expenses } = useExpensesStore();
+  const { expenses, limits } = useExpensesStore();
+  const dailyLimit = limits.daily.amount;
 
-  const monthGroups = groupExpensesByMonth(expenses);
-  const weekGroups = groupExpensesByWeek(expenses);
 
-  const donutData = buildMonthlyCategoryDonutData(monthGroups);
-  const lineData = buildWeeklyLineChartData(weekGroups);
+const monthGroups = groupExpensesByMonth(expenses);
+const weekGroups = groupExpensesByWeek(expenses);
 
-  const monthlyChange = getMonthlyChangeInsightData(expenses);
-  const topCategory = getTopCategoryInsightData(expenses);
-  const weeklyAvg = getWeeklyAverageInsightData(expenses);
+const donutData = buildMonthlyCategoryDonutData(monthGroups);
+const lineData = buildWeeklyLineChartData(weekGroups);
+
+const monthlyChange = getMonthlyChangeInsightData(expenses);
+const topCategory = getTopCategoryInsightData(expenses);
+const weeklyAvg = getWeeklyAverageInsightData(expenses);
+
+const [month, setMonth] = useState(() => {
+  const d = new Date();
+  d.setDate(1);
+  return d;
+});
+
+const dayMap = useMemo(
+  () =>
+    buildConsistencyDayMap({
+      expenses,
+      dailyLimit,
+      month,
+    }),
+  [expenses, dailyLimit, month]
+);
+
+  const goPrevMonth = () =>
+    setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+
+  const goNextMonth = () =>
+    setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
 
   return (
     <View style={styles.root}>
@@ -35,6 +68,7 @@ export default function Insights() {
         colors={["#050816", "#070A2A", "#0B1238", "#050816"]}
         style={StyleSheet.absoluteFillObject}
       />
+
       <SafeAreaView style={styles.safe}>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -54,16 +88,20 @@ export default function Insights() {
             </View>
           ) : (
             <View style={styles.container}>
-              {/* Baseline – reference */}
               <BaselineCard />
 
-              {/* Charts – raw data */}
+              <ConsistencyCalendar
+                month={month}
+                dayMap={dayMap}
+                onPrevMonth={goPrevMonth}
+                onNextMonth={goNextMonth}
+              />
+
               {donutData.length > 0 && (
                 <MonthlyCategoryDonutChart data={donutData} />
               )}
               {lineData.length > 0 && <WeeklyLineChart data={lineData} />}
 
-              {/* Quick insights */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Quick insights</Text>
 
@@ -95,34 +133,29 @@ export default function Insights() {
                 )}
               </View>
 
-    {/* Unlock preview */}
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>
-        More insights will unlock as you use the app
-      </Text>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>
+                  More insights will unlock as you use the app
+                </Text>
 
-      <Text style={styles.item}>
-        • Spending consistency over time
-      </Text>
+                <Text style={styles.item}>
+                  • Spending consistency over time
+                </Text>
+                <Text style={styles.item}>
+                  • Recovery after overspending days
+                </Text>
+                <Text style={styles.item}>
+                  • Your strongest and weakest days
+                </Text>
+                <Text style={styles.item}>• Limit behavior patterns</Text>
 
-      <Text style={styles.item}>
-        • Recovery after overspending days
-      </Text>
-
-      <Text style={styles.item}>
-        • Your strongest and weakest days
-      </Text>
-
-      <Text style={styles.item}>
-        • Limit behavior patterns
-      </Text>
-
-      <Text style={styles.itemMuted}>
-        These insights appear gradually as your data becomes meaningful.
-      </Text>
-    </View>
-  </View>
-)}
+                <Text style={styles.itemMuted}>
+                  These insights appear gradually as your data becomes
+                  meaningful.
+                </Text>
+              </View>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -144,10 +177,10 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   itemMuted: {
-  color: "rgba(255,255,255,0.45)",
-  fontSize: 11,
-  marginTop: 8,
-},
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 11,
+    marginTop: 8,
+  },
   container: { gap: 8 },
   emptyCard: {
     padding: 16,
@@ -156,7 +189,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
   },
-  emptyTitle: { color: "rgba(255,255,255,0.9)", fontWeight: "800", fontSize: 14 },
+  emptyTitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontWeight: "800",
+    fontSize: 14,
+  },
   emptyDesc: { color: "rgba(255,255,255,0.6)", marginTop: 6, fontSize: 12 },
   card: {
     padding: 16,
@@ -165,6 +202,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
   },
-  cardTitle: { color: "rgba(255,255,255,0.9)", fontWeight: "800", marginBottom: 8 },
+  cardTitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontWeight: "800",
+    marginBottom: 8,
+  },
   item: { color: "rgba(255,255,255,0.75)", fontSize: 12, marginBottom: 6 },
 });

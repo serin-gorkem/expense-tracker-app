@@ -131,7 +131,7 @@ export default function Home() {
 
   const keyboard = useAnimatedKeyboard();
   const searchBarStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: -keyboard.height.value }],
+    transform: [{ translateY: -keyboard.height.value + 60 }],
   }));
 
   return (
@@ -196,7 +196,6 @@ export default function Home() {
               />
             ) : (
               <>
-                {/* İstersen bunu Home’dan kaldırırız; Add tab’ı varken burada kalabalık yapıyor. */}
                 <AddExpenseForm onSubmit={addExpense} />
 
                 <CategoryFilter category={category} setCategory={setCategory} />

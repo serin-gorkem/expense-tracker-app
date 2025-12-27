@@ -1,8 +1,10 @@
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { Expense } from "@/models/expense.model";
+import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
 import { ViewMode } from "@/utils/expense/expenseSelectors";
 import { selectInsights } from "@/utils/insights/insightSelectors";
 import { StreakMetrics } from "@/utils/streak/streakMetrics";
+import { useMemo, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 import { StreakMilestoneCard } from "../StreakMilestoneCard/StreakMilestoneCard";
@@ -32,6 +34,28 @@ export default function InsightSection({
   const { newMilestone } = useStreakMilestones(
     streakMetrics.currentStreak
   );
+
+  const [month, setMonth] = useState(() => {
+  const d = new Date();
+  d.setDate(1);
+  return d;
+});
+
+const dayMap = useMemo(
+  () =>
+    buildConsistencyDayMap({
+      expenses,
+      dailyLimit,
+      month,
+    }),
+  [expenses, dailyLimit, month]
+);
+
+const goPrevMonth = () =>
+  setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+
+const goNextMonth = () =>
+  setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
 
   return (
     <View style={styles.container}>

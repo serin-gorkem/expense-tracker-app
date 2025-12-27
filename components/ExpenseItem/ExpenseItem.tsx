@@ -102,7 +102,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
                       expense.kind === "structural" && styles.pillFixedText,
                     ]}
                   >
-                    {EXPENSE_KIND_META[expense.kind].label}
+                    {EXPENSE_KIND_META[expense.kind]?.label}
                   </Text>
                 </View>
               </View>
