@@ -19,7 +19,6 @@ import React, {
 type LimitPatch = Partial<{
   amount: number;
   active: boolean;
-  source: "manual" | "auto";
 }>;
 
 type ExpensesStore = {
@@ -31,15 +30,17 @@ type ExpensesStore = {
   updateExpense(expense: Expense): void;
 
   limits: LimitsState;
-  applyLimitChange(
-    period: LimitPeriod,
-    patch: LimitPatch,
-  ): void;
+  applyLimitChange(period: LimitPeriod, patch: LimitPatch): void;
 
   financeProfile: FinanceProfile;
   updateFinanceProfile(patch: Partial<FinanceProfile>): void;
+
   enableAutoLimits(): void;
   disableAutoLimits(): void;
+  applySuggestedLimits(): void;
+
+  disposableIncome: number | null;
+  dailyBaseline: number | null;
 };
 
 const ExpensesContext = createContext<ExpensesStore | null>(null);
@@ -61,33 +62,17 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
     autoLimitEnabled: false,
   });
 
-useEffect(() => {
-  AsyncStorage.getItem("@finance_profile").then((raw) => {
-    if (!raw) return;
-
-    try {
-      const parsed = JSON.parse(raw);
-
-      setFinanceProfile({
-        monthlyIncome: parsed.monthlyIncome ?? null,
-        fixedExpenses: parsed.fixedExpenses ?? null,
-        autoLimitEnabled: parsed.autoLimitEnabled ?? false,
-      });
-    } catch {
-      setFinanceProfile({
-        monthlyIncome: null,
-        fixedExpenses: null,
-        autoLimitEnabled: false,
-      });
-    }
-  });
-}, []);
+  useEffect(() => {
+    AsyncStorage.getItem("@finance_profile").then((raw) => {
+      if (!raw) return;
+      try {
+        setFinanceProfile(JSON.parse(raw));
+      } catch {}
+    });
+  }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem(
-      "@finance_profile",
-      JSON.stringify(financeProfile)
-    );
+    AsyncStorage.setItem("@finance_profile", JSON.stringify(financeProfile));
   }, [financeProfile]);
 
   function updateFinanceProfile(patch: Partial<FinanceProfile>) {
@@ -95,18 +80,37 @@ useEffect(() => {
   }
 
   function enableAutoLimits() {
-    setFinanceProfile((prev) => ({
-      ...prev,
-      autoLimitEnabled: true,
-    }));
+    setFinanceProfile((p) => ({ ...p, autoLimitEnabled: true }));
   }
 
   function disableAutoLimits() {
-    setFinanceProfile((prev) => ({
-      ...prev,
-      autoLimitEnabled: false,
-    }));
+    setFinanceProfile((p) => ({ ...p, autoLimitEnabled: false }));
   }
+
+  /* =========================
+     Baseline Math (Phase 1)
+  ========================= */
+
+  const disposableIncome =
+    financeProfile.monthlyIncome != null &&
+    financeProfile.fixedExpenses != null
+      ? Math.max(
+          financeProfile.monthlyIncome - financeProfile.fixedExpenses,
+          0
+        )
+      : null;
+
+  const dailyBaseline =
+    disposableIncome != null
+      ? Math.floor(
+          disposableIncome /
+            new Date(
+              new Date().getFullYear(),
+              new Date().getMonth() + 1,
+              0
+            ).getDate()
+        )
+      : null;
 
   /* =========================
      Limits
@@ -120,151 +124,80 @@ useEffect(() => {
 
   const [limits, setLimits] = useState<LimitsState>(DEFAULT_LIMITS);
 
-useEffect(() => {
-  AsyncStorage.getItem("@limits").then((raw) => {
-    if (!raw) return;
-
-    try {
-      const parsed = JSON.parse(raw);
-
-      setLimits({
-        daily: {
-          ...DEFAULT_LIMITS.daily,
-          ...parsed.daily,
-          source: parsed.daily?.source ?? "manual",
-        },
-        weekly: {
-          ...DEFAULT_LIMITS.weekly,
-          ...parsed.weekly,
-          source: parsed.weekly?.source ?? "manual",
-        },
-        monthly: {
-          ...DEFAULT_LIMITS.monthly,
-          ...parsed.monthly,
-          source: parsed.monthly?.source ?? "manual",
-        },
-      });
-    } catch {
-      setLimits(DEFAULT_LIMITS);
-    }
-  });
-}, []);
+  useEffect(() => {
+    AsyncStorage.getItem("@limits").then((raw) => {
+      if (!raw) return;
+      try {
+        setLimits({ ...DEFAULT_LIMITS, ...JSON.parse(raw) });
+      } catch {}
+    });
+  }, []);
 
   useEffect(() => {
     AsyncStorage.setItem("@limits", JSON.stringify(limits));
   }, [limits]);
 
   /* =========================
-     USER ACTION → LIMIT CHANGE
+     Constraint Logic
   ========================= */
 
-  function enforceLimitConstraints(
-  next: LimitsState,
-  changed: LimitPeriod
-): LimitsState {
-  const daily = next.daily.amount;
-  const weekly = next.weekly.amount;
-  const monthly = next.monthly.amount;
+  function enforceConstraints(next: LimitsState, changed: LimitPeriod) {
+    const d = next.daily.amount;
+    const w = next.weekly.amount;
+    const m = next.monthly.amount;
 
-  if (changed === "daily") {
-    if (daily > weekly) next.weekly.amount = daily;
-    if (next.weekly.amount > monthly)
-      next.monthly.amount = next.weekly.amount;
-  }
-
-  if (changed === "weekly") {
-    if (weekly < daily) next.daily.amount = weekly;
-    if (weekly > monthly) next.monthly.amount = weekly;
-  }
-
-  if (changed === "monthly") {
-    if (monthly < weekly) next.weekly.amount = monthly;
-    if (next.weekly.amount < daily)
-      next.daily.amount = next.weekly.amount;
-  }
-
-  return next;
-}
-
-function applyLimitChange(period: LimitPeriod, patch: LimitPatch) {
-  setLimits((prev) => {
-    const next: LimitsState = {
-      daily: { ...prev.daily },
-      weekly: { ...prev.weekly },
-      monthly: { ...prev.monthly },
-    };
-
-    const now = new Date();
-    const daysInMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0
-    ).getDate();
-
-    const isAmountChange = patch.amount !== undefined;
-    const isActiveChange = patch.active !== undefined;
-
-    /* =========================
-       AUTO MODE
-    ========================= */
-
-    if (financeProfile.autoLimitEnabled && isAmountChange) {
-      if (period === "monthly") {
-        const daily = Math.floor(patch.amount! / daysInMonth);
-        next.monthly.amount = patch.amount!;
-        next.weekly.amount = daily * 7;
-        next.daily.amount = daily;
-      }
-
-      if (period === "weekly") {
-        const daily = Math.floor(patch.amount! / 7);
-        next.weekly.amount = patch.amount!;
-        next.daily.amount = daily;
-        next.monthly.amount = daily * daysInMonth;
-      }
-
-      if (period === "daily") {
-        next.daily.amount = patch.amount!;
-      }
-
-      enforceLimitConstraints(next, period);
-
-      (["daily", "weekly", "monthly"] as LimitPeriod[]).forEach((p) => {
-        next[p].source = "auto";
-      });
-
-      return next;
+    if (changed === "daily") {
+      if (d > w) next.weekly.amount = d;
+      if (next.weekly.amount > m)
+        next.monthly.amount = next.weekly.amount;
     }
 
-    /* =========================
-       MANUAL MODE
-    ========================= */
-
-    if ((isAmountChange || isActiveChange) && financeProfile.autoLimitEnabled) {
-      setFinanceProfile((fp) => ({
-        ...fp,
-        autoLimitEnabled: false,
-      }));
+    if (changed === "weekly") {
+      if (w < d) next.daily.amount = w;
+      if (w > m) next.monthly.amount = w;
     }
 
-    if (isAmountChange) {
-      next[period].amount = patch.amount!;
-      enforceLimitConstraints(next, period);
+    if (changed === "monthly") {
+      if (m < w) next.weekly.amount = m;
+      if (next.weekly.amount < d)
+        next.daily.amount = next.weekly.amount;
     }
-
-    if (isActiveChange) {
-      next[period].active = patch.active!;
-    }
-
-    next[period].source = "manual";
 
     return next;
-  });
-}
+  }
 
   /* =========================
-     AUTO LIMIT RECALC
-     🔥 KEY PART
+     User Limit Change
+  ========================= */
+
+  function applyLimitChange(period: LimitPeriod, patch: LimitPatch) {
+    setLimits((prev) => {
+      if (financeProfile.autoLimitEnabled && patch.amount !== undefined) {
+        return prev;
+      }
+
+      const next: LimitsState = {
+        daily: { ...prev.daily },
+        weekly: { ...prev.weekly },
+        monthly: { ...prev.monthly },
+      };
+
+      if (patch.amount !== undefined) {
+        next[period].amount = patch.amount;
+        enforceConstraints(next, period);
+        next[period].source = "manual";
+      }
+
+      if (patch.active !== undefined) {
+        next[period].active = patch.active;
+      }
+
+      return next;
+    });
+  }
+
+  /* =========================
+     Auto Limit Recalc
   ========================= */
 
   useEffect(() => {
@@ -273,34 +206,39 @@ function applyLimitChange(period: LimitPeriod, patch: LimitPatch) {
     const { monthlyIncome, fixedExpenses } = financeProfile;
     if (monthlyIncome == null || fixedExpenses == null) return;
 
-    const auto = calculateAutoLimits({
-      monthlyIncome,
-      fixedExpenses,
-    });
+    const auto = calculateAutoLimits({ monthlyIncome, fixedExpenses });
 
-    setLimits((prev: LimitsState) => ({
+    setLimits((prev) => ({
       ...prev,
-      daily: {
-        ...prev.daily,
-        amount: auto.daily,
-        source: "auto",
-      },
-      weekly: {
-        ...prev.weekly,
-        amount: auto.weekly,
-        source: "auto",
-      },
-      monthly: {
-        ...prev.monthly,
-        amount: auto.monthly,
-        source: "auto",
-      },
+      daily: { ...prev.daily, amount: auto.daily, source: "auto" },
+      weekly: { ...prev.weekly, amount: auto.weekly, source: "auto" },
+      monthly: { ...prev.monthly, amount: auto.monthly, source: "auto" },
     }));
   }, [
     financeProfile.monthlyIncome,
     financeProfile.fixedExpenses,
     financeProfile.autoLimitEnabled,
   ]);
+
+  /* =========================
+     Suggested Limits CTA
+  ========================= */
+
+  function applySuggestedLimits() {
+    const { monthlyIncome, fixedExpenses } = financeProfile;
+    if (monthlyIncome == null || fixedExpenses == null) return;
+
+    const auto = calculateAutoLimits({ monthlyIncome, fixedExpenses });
+
+    setLimits((prev) => ({
+      ...prev,
+      daily: { ...prev.daily, amount: auto.daily, source: "auto" },
+      weekly: { ...prev.weekly, amount: auto.weekly, source: "auto" },
+      monthly: { ...prev.monthly, amount: auto.monthly, source: "auto" },
+    }));
+
+    enableAutoLimits();
+  }
 
   /* =========================
      Context Value
@@ -315,8 +253,11 @@ function applyLimitChange(period: LimitPeriod, patch: LimitPatch) {
       updateFinanceProfile,
       enableAutoLimits,
       disableAutoLimits,
+      applySuggestedLimits,
+      disposableIncome,
+      dailyBaseline,
     }),
-    [store.expenses, store.loading, limits, financeProfile]
+    [store.expenses, store.loading, limits, financeProfile, disposableIncome, dailyBaseline]
   );
 
   return (

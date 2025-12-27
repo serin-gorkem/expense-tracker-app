@@ -167,23 +167,24 @@ export default function Home() {
                 <StreakBadge count={streakMetrics.currentStreak} />
               )}
             </View>
-
+            <View style={styles.topContent}>
             <InsightSection
               expenses={expenses}
               mode={mode}
               streakMetrics={streakMetrics}
               dailyLimit={limits.daily.amount}
-            />
+              />
 
             {limitResult && (
               <LimitCard
-                period={mode}
-                total={limitResult.total}
-                ratio={limitResult.ratio}
-                status={limitResult.status}
-                limitAmount={activeLimit.amount}
+              period={mode}
+              total={limitResult.total}
+              ratio={limitResult.ratio}
+              status={limitResult.status}
+              limitAmount={activeLimit.amount}
               />
             )}
+            </View>
 
             <ModeSwitcher value={mode} onChange={setMode} />
 
@@ -286,6 +287,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  topContent: {
+    marginBottom: 20,
+    flexDirection: "column",
+    gap: 12,
   },
   title: {
     color: "rgba(255,255,255,0.92)",

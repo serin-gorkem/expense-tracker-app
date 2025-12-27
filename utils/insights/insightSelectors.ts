@@ -15,23 +15,51 @@ import {
   isInsightEligible,
 } from "@/utils/insights/insightRules";
 
-/**
- * Builds UI-ready insights from raw expense data.
- */
+import {
+  getBaselineComparisonInsight,
+  getDailyBaselineInsight,
+} from "./baselineInsights";
+
+/* =========================
+   Types
+========================= */
+
+type InsightCandidate = {
+  type: InsightType;
+  data: unknown;
+};
+
+/* =========================
+   Selector
+========================= */
+
 export function selectInsights({
   expenses,
   dailyLimit,
+  dailyBaseline,
 }: {
   expenses: Expense[];
   dailyLimit: number;
+  dailyBaseline: number | null;
 }): InsightItem[] {
-  /**
-   * 1️⃣ Financial insight candidates
-   */
-  const financialCandidates: {
-    type: InsightType;
-    data: unknown;
-  }[] = [
+  /* =========================
+     Financial insight candidates
+  ========================= */
+
+  const weeklyAvgData = getWeeklyAverageInsightData(expenses);
+
+  const financialCandidates: InsightCandidate[] = [
+    {
+      type: "daily_baseline",
+      data: getDailyBaselineInsight(dailyBaseline),
+    },
+    {
+      type: "baseline_vs_spending",
+      data: getBaselineComparisonInsight({
+        dailyBaseline,
+        weeklyAverage: weeklyAvgData?.weeklyAverage ?? null,
+      }),
+    },
     {
       type: "monthly_change",
       data: getMonthlyChangeInsightData(expenses),
@@ -42,62 +70,69 @@ export function selectInsights({
     },
     {
       type: "weekly_average",
-      data: getWeeklyAverageInsightData(expenses),
+      data: weeklyAvgData,
     },
   ];
 
-  /**
-   * 2️⃣ Behavioral insights (already UI-ready)
-   */
+  /* =========================
+     Behavioral insights
+  ========================= */
+
   const behavioral = behavioralInsights({
     expenses,
     dailyLimit,
   });
 
-  const behavioralCandidates = behavioral.map((item) => ({
+  const behavioralCandidates: InsightCandidate[] = behavioral.map((item) => ({
     type: item.type,
     data: item,
   }));
 
-  /**
-   * 3️⃣ Merge all candidates
-   */
-  const allCandidates = [
+  /* =========================
+     Merge candidates
+  ========================= */
+
+  const allCandidates: InsightCandidate[] = [
     ...financialCandidates,
     ...behavioralCandidates,
   ];
 
-  /**
-   * 4️⃣ Eligibility filter
-   */
+  /* =========================
+     Eligibility filter
+  ========================= */
+
   const eligible = allCandidates.filter((item) =>
     isInsightEligible(item.type, item.data)
   );
 
-  /**
-   * 5️⃣ Sort by priority
-   */
+  /* =========================
+     Priority sorting
+  ========================= */
+
   const sorted = [...eligible].sort(
     (a, b) =>
       INSIGHT_PRIORITY.indexOf(a.type) -
       INSIGHT_PRIORITY.indexOf(b.type)
   );
 
-  /**
-   * 6️⃣ Limit visible count
-   */
+  /* =========================
+     Limit visible insights
+  ========================= */
+
   const visible = sorted.slice(0, MAX_VISIBLE_INSIGHTS);
 
-  /**
-   * 7️⃣ Normalize to InsightItem
-   */
-  return visible.map(({ type, data }) => {
-    // Behavioral insights already return InsightItem
+  /* =========================
+     Normalize to InsightItem
+  ========================= */
+
+  return visible.map(({ type, data }): InsightItem => {
+    // Behavioral & baseline insights already return InsightItem
     if (
       typeof data === "object" &&
       data !== null &&
       "title" in data &&
-      "description" in data
+      "description" in data &&
+      "tone" in data
     ) {
       return data as InsightItem;
     }
@@ -164,13 +199,10 @@ export function selectInsights({
         };
       }
 
-      default:
-        return {
-          type,
-          title: "Insight",
-          description: "",
-          tone: "neutral",
-        };
+      default: {
+        // Bu noktaya düşmemeli
+        throw new Error(`Unhandled insight type: ${type}`);
+      }
     }
   });
 }

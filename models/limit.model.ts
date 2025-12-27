@@ -15,6 +15,7 @@ export type LimitConfig = {
   active: boolean;
 
   source: LimitSource;
+  graceDaysPerMonth?: number;
 };
 export type LimitsState = {
   daily: LimitConfig;

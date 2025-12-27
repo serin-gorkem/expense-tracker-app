@@ -1,6 +1,8 @@
 // models/insight.model.ts
 
 export type InsightType =
+  | "daily_baseline"
+  | "baseline_vs_spending"
   | "monthly_change"
   | "top_category"
   | "weekly_average"
@@ -8,7 +10,7 @@ export type InsightType =
   | "streak_longest"
   | "behavioral_weekend_spike"
   | "behavioral_inconsistent_days"
-  | "behavioral_over_limit_frequency"
+  | "behavioral_over_limit_frequency";
   
 export type InsightTone =
   | "positive"

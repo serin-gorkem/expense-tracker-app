@@ -12,6 +12,8 @@ export const MAX_VISIBLE_INSIGHTS = 2;
  * Insight priority order (highest → lowest)
  */
 export const INSIGHT_PRIORITY: InsightType[] = [
+  "daily_baseline",
+  "baseline_vs_spending",
   "monthly_change",
   "behavioral_weekend_spike",
   "top_category",

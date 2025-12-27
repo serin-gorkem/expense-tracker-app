@@ -2,9 +2,11 @@ import CurrencyInput from "@/components/ui/CurrencyInput";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
-  value: number | null;
+  monthlyIncome: number | null;
   onChange(value: number): void;
-} & Omit<TextInputProps, "value" | "onChangeText" | "onChange">;
+  onNext(): void;
+  onBack(): void;
+};
 
 export default function IncomeStep({
   monthlyIncome,

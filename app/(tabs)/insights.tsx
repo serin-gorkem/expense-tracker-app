@@ -12,6 +12,7 @@ import {
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 // Bu iki component sende vardı (components/Charts altında olduğunu varsaydım)
+import BaselineCard from "@/components/BaseLineCard/BaseLineCard";
 import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutChart";
 import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
 
@@ -40,38 +41,50 @@ export default function Insights() {
           contentContainerStyle={{ paddingBottom: 28 }}
         >
           <Text style={styles.title}>Insights</Text>
-          <Text style={styles.subtitle}>Charts and analytics based on your expenses.</Text>
+          <Text style={styles.subtitle}>
+            Charts and analytics based on your expenses.
+          </Text>
 
           {expenses.length === 0 ? (
             <View style={styles.emptyCard}>
               <Text style={styles.emptyTitle}>No data yet</Text>
-              <Text style={styles.emptyDesc}>Add a few expenses to unlock insights.</Text>
+              <Text style={styles.emptyDesc}>
+                Add a few expenses to unlock insights.
+              </Text>
             </View>
           ) : (
-            <>
-              {/* Charts */}
-              {donutData.length > 0 && <MonthlyCategoryDonutChart data={donutData} />}
+            <View style={styles.container}>
+              {/* Baseline – reference */}
+              <BaselineCard />
+
+              {/* Charts – raw data */}
+              {donutData.length > 0 && (
+                <MonthlyCategoryDonutChart data={donutData} />
+              )}
               {lineData.length > 0 && <WeeklyLineChart data={lineData} />}
 
-              {/* Insight Cards */}
+              {/* Quick insights */}
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Quick Insights</Text>
+                <Text style={styles.cardTitle}>Quick insights</Text>
 
                 {monthlyChange && (
                   <Text style={styles.item}>
-                    • Monthly change: {monthlyChange.percentageChange}% (this month {monthlyChange.currentMonthTotal}, prev {monthlyChange.previousMonthTotal})
+                    You spent {Math.abs(monthlyChange.percentageChange)}%
+                    {monthlyChange.percentageChange > 0 ? " more" : " less"}{" "}
+                    than last month.
                   </Text>
                 )}
 
                 {topCategory && (
                   <Text style={styles.item}>
-                    • Top category this month: {topCategory.category} ({topCategory.total})
+                    Most of your spending went to {topCategory.category}.
                   </Text>
                 )}
 
                 {weeklyAvg && (
                   <Text style={styles.item}>
-                    • Weekly average: {Math.round(weeklyAvg.weeklyAverage)}
+                    Your weekly average is ₺
+                    {Math.round(weeklyAvg.weeklyAverage)}.
                   </Text>
                 )}
 
@@ -81,8 +94,35 @@ export default function Insights() {
                   </Text>
                 )}
               </View>
-            </>
-          )}
+
+    {/* Unlock preview */}
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>
+        More insights will unlock as you use the app
+      </Text>
+
+      <Text style={styles.item}>
+        • Spending consistency over time
+      </Text>
+
+      <Text style={styles.item}>
+        • Recovery after overspending days
+      </Text>
+
+      <Text style={styles.item}>
+        • Your strongest and weakest days
+      </Text>
+
+      <Text style={styles.item}>
+        • Limit behavior patterns
+      </Text>
+
+      <Text style={styles.itemMuted}>
+        These insights appear gradually as your data becomes meaningful.
+      </Text>
+    </View>
+  </View>
+)}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -103,8 +143,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 14,
   },
+  itemMuted: {
+  color: "rgba(255,255,255,0.45)",
+  fontSize: 11,
+  marginTop: 8,
+},
+  container: { gap: 8 },
   emptyCard: {
-    marginTop: 14,
     padding: 16,
     borderRadius: 16,
     backgroundColor: "rgba(17,24,39,0.6)",
@@ -114,7 +159,6 @@ const styles = StyleSheet.create({
   emptyTitle: { color: "rgba(255,255,255,0.9)", fontWeight: "800", fontSize: 14 },
   emptyDesc: { color: "rgba(255,255,255,0.6)", marginTop: 6, fontSize: 12 },
   card: {
-    marginTop: 14,
     padding: 16,
     borderRadius: 16,
     backgroundColor: "rgba(17,24,39,0.6)",

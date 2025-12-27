@@ -55,7 +55,7 @@ export default function MonthlyCategoryDonutChart({
   );
 
   return (
-    <GlassCard style={{ marginBottom: 16 }}>
+    <GlassCard>
       <View style={styles.container}>
         <PieChart
           donut
