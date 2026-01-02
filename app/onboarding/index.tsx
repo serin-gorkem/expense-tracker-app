@@ -1,6 +1,7 @@
 import AutoLimitStep from "./steps/AutoLimitStep";
 import DoneStep from "./steps/DoneStep";
 import FixedExpensesStep from "./steps/FixedExpensesStep";
+import { GoalWizardStep } from "./steps/GoalWizardStep";
 import IncomeStep from "./steps/IncomeStep";
 import ManualLimitsStep from "./steps/ManuelLimitStep";
 import PreviewStep from "./steps/PreviewStep";
@@ -47,7 +48,10 @@ export default function Onboarding() {
   if (step === 4)
   return <ManualLimitsStep onFinish={next} onBack={back} />;
 
+
   if (step === 5)
+    return <GoalWizardStep />;
+  if (step === 6)
     return (
       <PreviewStep
         monthlyIncome={data.monthlyIncome!}

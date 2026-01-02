@@ -7,6 +7,7 @@ export type LimitSource = "manual" | "auto";
 export type LimitResult = {
   total: number;
   ratio: number; // total / limit
+  remaining:number;
   status: LimitStatus;
 };
 export type LimitConfig = {

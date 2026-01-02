@@ -1,7 +1,8 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
+import GlassCard from "@/components/ui/GlassCard";
+import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { LimitPeriod } from "@/models/limit.model";
 import Slider from "@react-native-community/slider";
-import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
   Pressable,
@@ -25,19 +26,6 @@ function getMaxLimit(period: LimitPeriod, monthlyIncome?: number | null) {
   return monthlyIncome;
 }
 
-function formatCurrency(value: number | null) {
-  if (value == null) return "";
-  return new Intl.NumberFormat("tr-TR", {
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function parseCurrency(input: string) {
-  // nokta, boşluk vs temizle
-  const normalized = input.replace(/\D/g, "");
-  return Number(normalized) || 0;
-}
-
 /* =========================
    Settings Screen
 ========================= */
@@ -54,28 +42,22 @@ export default function Settings() {
 
   const [editingLimit, setEditingLimit] = useState<LimitPeriod | null>(null);
   const [tempLimitValue, setTempLimitValue] = useState("");
-  const [editingField, setEditingField] = useState<"income" | "fixed" | null>(
-    null
-  );
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        colors={["#050816", "#070A2A", "#0B1238"]}
-        style={StyleSheet.absoluteFillObject}
-      />
+      <LiquidBackground />
 
       <SafeAreaView style={styles.safe}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 40, flex: 1, gap: 16 }}
         >
           <Text style={styles.title}>Settings</Text>
 
           {/* =========================
               AUTO MODE
           ========================= */}
-          <View style={styles.card}>
+          <GlassCard>
             <View style={styles.row}>
               <Text style={styles.label}>Automatic limits</Text>
               <Switch
@@ -85,46 +67,36 @@ export default function Settings() {
                 }
               />
             </View>
-          </View>
+          </GlassCard>
 
           {/* =========================
               INCOME + FIXED (AUTO)
           ========================= */}
           {financeProfile.autoLimitEnabled && (
             <>
-              {/* Monthly income */}
-              <View style={styles.card}>
+              <GlassCard>
                 <Text style={styles.label}>Monthly income</Text>
 
                 <CurrencyInput
                   value={financeProfile.monthlyIncome}
-                  onChange={(v) =>
-                    updateFinanceProfile({
-                      monthlyIncome: v,
-                    })
-                  }
+                  onChange={(v) => updateFinanceProfile({ monthlyIncome: v })}
                   style={styles.input}
                 />
-              </View>
+              </GlassCard>
 
-              {/* Fixed expenses */}
-              <View style={styles.card}>
+              <GlassCard>
                 <Text style={styles.label}>Fixed expenses</Text>
 
                 <CurrencyInput
                   value={financeProfile.fixedExpenses}
-                  onChange={(v) =>
-                    updateFinanceProfile({
-                      fixedExpenses: v,
-                    })
-                  }
+                  onChange={(v) => updateFinanceProfile({ fixedExpenses: v })}
                   style={styles.input}
                 />
 
                 <Text style={styles.hint}>
                   Used to calculate available spending
                 </Text>
-              </View>
+              </GlassCard>
             </>
           )}
 
@@ -132,7 +104,7 @@ export default function Settings() {
               LIMITS
           ========================= */}
           {Object.values(limits).map((limit) => (
-            <View key={limit.period} style={styles.card}>
+            <GlassCard key={limit.period}>
               <View style={styles.row}>
                 <Text style={styles.label}>
                   {limit.period.toUpperCase()}
@@ -205,7 +177,7 @@ export default function Settings() {
                 maximumTrackTintColor="rgba(255,255,255,0.15)"
                 thumbTintColor="#6366F1"
               />
-            </View>
+            </GlassCard>
           ))}
         </ScrollView>
       </SafeAreaView>
@@ -218,22 +190,13 @@ export default function Settings() {
 ========================= */
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  safe: { flex: 1, paddingHorizontal: 16 },
+  root: { flex: 1, },
+  safe: { flex: 1, paddingHorizontal: 16, },
 
   title: {
     fontSize: 26,
     fontWeight: "800",
     color: "rgba(255,255,255,0.9)",
-    marginBottom: 16,
-  },
-
-  card: {
-    padding: 14,
-    borderRadius: 16,
-    backgroundColor: "rgba(17,24,39,0.6)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
     marginBottom: 16,
   },
 

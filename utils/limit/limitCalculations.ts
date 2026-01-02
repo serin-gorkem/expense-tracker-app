@@ -57,10 +57,11 @@ const total = relevantExpenses
   .reduce((sum, e) => sum + e.amount, 0);
 
   const ratio = total / limitAmount;
+  const remaining = Math.max(limitAmount - total,0);
 
   let status: LimitResult["status"] = "safe";
   if (ratio >= 1) status = "exceeded";
   else if (ratio >= 0.6) status = "warning";
 
-  return { total, ratio, status };
+  return { total, ratio, status, remaining };
 }

@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,6 +21,7 @@ import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutC
 import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
 import ConsistencyCalendar from "@/components/Consistency/ConsistencyCalendar";
 
+import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
 import { useMemo, useState } from "react";
 
@@ -64,10 +64,8 @@ const dayMap = useMemo(
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        colors={["#050816", "#070A2A", "#0B1238", "#050816"]}
-        style={StyleSheet.absoluteFillObject}
-      />
+      <LiquidBackground />
+
 
       <SafeAreaView style={styles.safe}>
         <ScrollView

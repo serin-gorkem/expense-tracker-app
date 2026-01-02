@@ -8,7 +8,7 @@ export default function TabLayout() {
           headerShown: false,
           tabBarStyle: {
             backgroundColor: "rgba(17,24,39,0.95)",
-            borderTopColor: "rgba(255,255,255,0.1)",
+            borderTopColor: "rgba(17,24,39,0.95)",
           },
           tabBarActiveTintColor: "#6366F1",
           tabBarInactiveTintColor: "rgba(255,255,255,0.5)",
@@ -25,9 +25,10 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="goals"
+          name="goals/index"
           options={{
             title: "Goals",
+            tabBarLabel: "Goals",
             tabBarIcon: ({ color, size }) => (
               <Feather name="target" size={size} color={color} />
             ),

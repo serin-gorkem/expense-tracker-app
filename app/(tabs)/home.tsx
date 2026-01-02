@@ -23,15 +23,20 @@ import {
   groupExpensesByMonth,
   groupExpensesByWeek,
 } from "@/utils/expense/expenseGrouping";
-import { selectVisibleExpenses, ViewMode } from "@/utils/expense/expenseSelectors";
+import {
+  selectVisibleExpenses,
+  ViewMode,
+} from "@/utils/expense/expenseSelectors";
 import { haptic } from "@/utils/haptics";
 import { calculateLimitStatus } from "@/utils/limit/limitCalculations";
 
+import GoalApplyModal from "@/components/Goals/GoalApplyModal";
+import { useGoalsStore } from "@/src/context/GoalContext";
+import dayEndCoordinator from "@/utils/dayEndCoordinator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedKeyboard,
   useAnimatedStyle,
@@ -61,6 +66,27 @@ export default function Home() {
     updateExpense,
     loading,
   } = useExpensesStore();
+
+  const { activeGoal, applyDailyRemainingToGoal } = useGoalsStore();
+
+  const [showGoalApplyModal, setShowGoalApplyModal] = useState(false);
+  const [remainingAmount, setRemainingAmount] = useState<number | null>(null);
+  const [projectedRemainingDays, setProjectedRemainingDays] = useState<
+    number | null
+  >(null);
+  useEffect(() => {
+    const event = dayEndCoordinator({
+      dailyLimit: limits.daily.amount,
+      expenses,
+      activeGoal: activeGoal ?? null,
+    });
+
+    if (event.type === "ASK_GOAL_APPLY") {
+      setRemainingAmount(event.remainingAmount);
+      setProjectedRemainingDays(event.projectedRemainingDays);
+      setShowGoalApplyModal(true);
+    }
+  }, [expenses, activeGoal, limits.daily.amount]);
 
   const activeLimit = limits[mode];
 
@@ -135,146 +161,160 @@ export default function Home() {
   }));
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.root}>
-        <LinearGradient
-          colors={["#050816", "#070A2A", "#0B1238", "#050816"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
+    <View style={styles.root}>
+      <LinearGradient
+        colors={["#050816", "#070A2A", "#0B1238", "#050816"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+      />
 
-        <View style={[styles.blob, styles.blobA]} />
-        <View style={[styles.blob, styles.blobB]} />
-        <View style={[styles.blob, styles.blobC]} />
+      <View style={[styles.blob, styles.blobA]} />
+      <View style={[styles.blob, styles.blobB]} />
+      <View style={[styles.blob, styles.blobC]} />
 
-        <SafeAreaView style={styles.safe}>
-          {celebration && (
-            <StreakCelebration result={celebration} onDismiss={dismiss} />
-          )}
+      <SafeAreaView style={styles.safe}>
+        {celebration && (
+          <StreakCelebration result={celebration} onDismiss={dismiss} />
+        )}
 
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 180 }}
-            keyboardDismissMode="on-drag"
-          >
-            <View style={styles.header}>
-              <View>
-                <Text style={styles.title}>Home</Text>
-                <Text style={styles.subtitle}>Expense Manage Dashboard</Text>
-              </View>
-              {streakMetrics.hasActiveStreak && (
-                <StreakBadge count={streakMetrics.currentStreak} />
-              )}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 180 }}
+          keyboardDismissMode="on-drag"
+        >
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.title}>Home</Text>
+              <Text style={styles.subtitle}>Expense Manage Dashboard</Text>
             </View>
-            <View style={styles.topContent}>
+            {streakMetrics.hasActiveStreak && (
+              <StreakBadge count={streakMetrics.currentStreak} />
+            )}
+          </View>
+          <View style={styles.topContent}>
             <InsightSection
               expenses={expenses}
               mode={mode}
               streakMetrics={streakMetrics}
               dailyLimit={limits.daily.amount}
-              />
+            />
 
             {limitResult && (
               <LimitCard
-              period={mode}
-              total={limitResult.total}
-              ratio={limitResult.ratio}
-              status={limitResult.status}
-              limitAmount={activeLimit.amount}
+                period={mode}
+                total={limitResult.total}
+                ratio={limitResult.ratio}
+                status={limitResult.status}
+                limitAmount={activeLimit.amount}
               />
             )}
+          </View>
+
+          <ModeSwitcher value={mode} onChange={setMode} />
+
+          {editingExpense ? (
+            <EditExpenseForm
+              expense={editingExpense}
+              onSubmit={handleUpdate}
+              onCancel={() => setEditingExpense(null)}
+            />
+          ) : (
+            <>
+              <AddExpenseForm onSubmit={addExpense} />
+
+              <CategoryFilter category={category} setCategory={setCategory} />
+              {showExpenseHint && (
+                <ExpenseListHint onDismiss={dismissExpenseHint} />
+              )}
+
+              {query.length > 0 && (
+                <Text style={styles.searchMeta}>
+                  Showing results for “{query}”
+                </Text>
+              )}
+
+              {!loading && isGlobalEmpty && (
+                <EmptyState
+                  title="No expenses yet"
+                  description="Start adding your expenses to see them here."
+                />
+              )}
+
+              {!loading && isFilteredEmpty && (
+                <EmptyState
+                  title="No expenses found"
+                  description="Try adjusting your search or filter to find what you're looking for."
+                />
+              )}
+
+              {loading && <Text style={styles.loading}>Loading...</Text>}
+
+              {!loading &&
+                !isGlobalEmpty &&
+                !isFilteredEmpty &&
+                (mode === "weekly" ? (
+                  <WeeklyExpenseList
+                    groups={groupExpensesByWeek(visibleExpenses)}
+                    onDelete={handleDelete}
+                    onEdit={setEditingExpense}
+                  />
+                ) : mode === "monthly" ? (
+                  <MonthlyExpenseList
+                    groups={groupExpensesByMonth(visibleExpenses)}
+                    chartGroups={groupExpensesByMonth(monthlyChartExpenses)}
+                    selectedCategory={category}
+                    onSelectCategory={setCategory}
+                    onDelete={handleDelete}
+                    onEdit={setEditingExpense}
+                  />
+                ) : (
+                  <ExpenseList
+                    expenses={visibleExpenses}
+                    onDelete={handleDelete}
+                    onEdit={setEditingExpense}
+                  />
+                ))}
+            </>
+          )}
+
+          {lastDeletedExpense && (
+            <View style={styles.toast}>
+              <Text style={styles.toastText}>Expense deleted</Text>
+              <Pressable
+                onPress={() => {
+                  addExpense(lastDeletedExpense);
+                  setLastDeletedExpense(null);
+                }}
+                hitSlop={10}
+              >
+                <Text style={styles.toastAction}>UNDO</Text>
+              </Pressable>
             </View>
+          )}
+        </ScrollView>
 
-            <ModeSwitcher value={mode} onChange={setMode} />
+        <GoalApplyModal
+          visible={showGoalApplyModal}
+          remainingAmount={remainingAmount ?? 0}
+          projectedRemainingDays={projectedRemainingDays ?? 0}
+          goalTitle={activeGoal?.title ?? ""}
+          onDecision={(decision) => {
+            if (decision === "APPLY_TO_GOAL" && remainingAmount) {
+              applyDailyRemainingToGoal(remainingAmount);
+            }
 
-            {editingExpense ? (
-              <EditExpenseForm
-                expense={editingExpense}
-                onSubmit={handleUpdate}
-                onCancel={() => setEditingExpense(null)}
-              />
-            ) : (
-              <>
-                <AddExpenseForm onSubmit={addExpense} />
+            setShowGoalApplyModal(false);
+            setRemainingAmount(null);
+            setProjectedRemainingDays(null);
+          }}
+        />
 
-                <CategoryFilter category={category} setCategory={setCategory} />
-                {showExpenseHint && (
-                  <ExpenseListHint onDismiss={dismissExpenseHint} />
-                )}
-
-                {query.length > 0 && (
-                  <Text style={styles.searchMeta}>
-                    Showing results for “{query}”
-                  </Text>
-                )}
-
-                {!loading && isGlobalEmpty && (
-                  <EmptyState
-                    title="No expenses yet"
-                    description="Start adding your expenses to see them here."
-                  />
-                )}
-
-                {!loading && isFilteredEmpty && (
-                  <EmptyState
-                    title="No expenses found"
-                    description="Try adjusting your search or filter to find what you're looking for."
-                  />
-                )}
-
-                {loading && <Text style={styles.loading}>Loading...</Text>}
-
-                {!loading &&
-                  !isGlobalEmpty &&
-                  !isFilteredEmpty &&
-                  (mode === "weekly" ? (
-                    <WeeklyExpenseList
-                      groups={groupExpensesByWeek(visibleExpenses)}
-                      onDelete={handleDelete}
-                      onEdit={setEditingExpense}
-                    />
-                  ) : mode === "monthly" ? (
-                    <MonthlyExpenseList
-                      groups={groupExpensesByMonth(visibleExpenses)}
-                      chartGroups={groupExpensesByMonth(monthlyChartExpenses)}
-                      selectedCategory={category}
-                      onSelectCategory={setCategory}
-                      onDelete={handleDelete}
-                      onEdit={setEditingExpense}
-                    />
-                  ) : (
-                    <ExpenseList
-                      expenses={visibleExpenses}
-                      onDelete={handleDelete}
-                      onEdit={setEditingExpense}
-                    />
-                  ))}
-              </>
-            )}
-
-            {lastDeletedExpense && (
-              <View style={styles.toast}>
-                <Text style={styles.toastText}>Expense deleted</Text>
-                <Pressable
-                  onPress={() => {
-                    addExpense(lastDeletedExpense);
-                    setLastDeletedExpense(null);
-                  }}
-                  hitSlop={10}
-                >
-                  <Text style={styles.toastAction}>UNDO</Text>
-                </Pressable>
-              </View>
-            )}
-          </ScrollView>
-
-          <Animated.View style={[styles.searchWrapper, searchBarStyle]}>
-            <SearchBar value={query} onChange={setQuery} />
-          </Animated.View>
-        </SafeAreaView>
-      </View>
-    </GestureHandlerRootView>
+        <Animated.View style={[styles.searchWrapper, searchBarStyle]}>
+          <SearchBar value={query} onChange={setQuery} />
+        </Animated.View>
+      </SafeAreaView>
+    </View>
   );
 }
 

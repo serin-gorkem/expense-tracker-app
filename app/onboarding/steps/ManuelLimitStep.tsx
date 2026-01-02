@@ -49,6 +49,7 @@ function EditableAmount({
   return (
     <Pressable onPress={() => setEditing(true)}>
       <Text style={styles.amountText}>₺{value}</Text>
+      <Text style={styles.editHint}>Tap to edit</Text>
     </Pressable>
   );
 }
@@ -82,21 +83,22 @@ type Props = {
   onBack(): void;
 };
 
-
-export default function ManualLimitsStep({
-  onFinish,
-  onBack,
-}: Props) {
+export default function ManualLimitsStep({ onFinish, onBack }: Props) {
   const { limits, applyLimitChange, financeProfile } =
     useExpensesStore();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Set your limits</Text>
+      <Text style={styles.subtitle}>
+        Adjust how much you can spend per period.
+      </Text>
 
       {Object.values(limits).map((limit) => (
         <View key={limit.period} style={styles.card}>
-          <Text style={styles.label}>{limit.period.toUpperCase()}</Text>
+          <Text style={styles.label}>
+            {limit.period.toUpperCase()}
+          </Text>
 
           <EditableAmount
             value={limit.amount}
@@ -120,7 +122,7 @@ export default function ManualLimitsStep({
               })
             }
             minimumTrackTintColor="#6366F1"
-            maximumTrackTintColor="rgba(255,255,255,0.15)"
+            maximumTrackTintColor="rgba(0,0,0,0.1)"
             thumbTintColor="#6366F1"
           />
         </View>
@@ -131,8 +133,8 @@ export default function ManualLimitsStep({
           <Text style={styles.back}>Back</Text>
         </Pressable>
 
-        <Pressable style={styles.button} onPress={onFinish}>
-          <Text style={styles.buttonText}>Finish</Text>
+        <Pressable style={styles.primaryBtn} onPress={onFinish}>
+          <Text style={styles.primaryText}>Finish</Text>
         </Pressable>
       </View>
     </View>
@@ -147,32 +149,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
+    backgroundColor: "#FFFFFF",
   },
 
   title: {
     fontSize: 22,
-    fontWeight: "700",
+    fontWeight: "800",
+    color: "#0B1020",
+    marginBottom: 6,
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: "rgba(0,0,0,0.55)",
     marginBottom: 24,
   },
 
   card: {
     padding: 16,
     borderRadius: 16,
-    backgroundColor: "rgba(17,24,39,0.6)",
+    backgroundColor: "#F8FAFC",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
+    borderColor: "rgba(0,0,0,0.08)",
     marginBottom: 16,
   },
 
   label: {
     fontWeight: "700",
+    color: "#0B1020",
     marginBottom: 8,
-    opacity: 0.8,
   },
 
   amountText: {
     fontSize: 28,
     fontWeight: "800",
+    color: "#0B1020",
+  },
+
+  editHint: {
+    fontSize: 11,
+    color: "rgba(0,0,0,0.4)",
     marginBottom: 12,
   },
 
@@ -183,28 +199,31 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#6366F1",
     paddingVertical: 2,
+    color: "#0B1020",
   },
 
   actions: {
-    marginTop: 32,
+    marginTop: "auto",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
 
   back: {
-    opacity: 0.6,
+    fontSize: 14,
+    color: "rgba(0,0,0,0.6)",
+    fontWeight: "600",
   },
 
-  button: {
+  primaryBtn: {
     backgroundColor: "#6366F1",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
   },
 
-  buttonText: {
-    color: "white",
+  primaryText: {
+    color: "#FFFFFF",
     fontWeight: "700",
   },
 });
