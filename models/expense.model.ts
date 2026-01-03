@@ -30,7 +30,7 @@ export type Category =
   },
 };
 
-  export const CATEGORY_OPTIONS = [
+export const CATEGORY_OPTIONS = [
     { key: "food", label: "Food" },
     { key: "transport", label: "Transport" },
     { key: "entertainment", label: "Entertainment" },
@@ -48,5 +48,10 @@ export type Expense = {
   category: Category;
   date: string; // ISO date String.
   kind: ExpenseKind
+  
+    // 🔥 GOAL BOOST
+  isGoalBoost?: boolean;
+  goalId?: string;
+  boostAmount?: number;
 };
 

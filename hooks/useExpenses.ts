@@ -22,7 +22,9 @@ export function useExpenses() {
 
   /* SAVE */
   useEffect(() => {
-    AsyncStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses)).catch(() => {});
+    AsyncStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses)).catch(
+      () => {}
+    );
   }, [expenses]);
 
   const addExpense = (expense: Expense) =>
@@ -33,7 +35,7 @@ export function useExpenses() {
 
   const updateExpense = (expense: Expense) =>
     setExpenses((prev) =>
-      prev.map((e) => (e.id === expense.id ? expense : e))
+      prev.map((e) => (e.id === expense.id ? { ...e, ...expense } : e))
     );
 
   return {

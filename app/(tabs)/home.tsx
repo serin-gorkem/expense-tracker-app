@@ -1,9 +1,9 @@
-import AddExpenseForm from "@/components/AddExpenseForm/AddExpenseForm";
 import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
-import EditExpenseForm from "@/components/EditExpenseForm/EditExpenseForm";
 import EmptyState from "@/components/EmptyState/EmptyState";
-import ExpenseList from "@/components/ExpenseList/ExpenseList";
-import ExpenseListHint from "@/components/ExpenseListHint/ExpenseListHint";
+import AddExpenseForm from "@/components/Expense/AddExpenseForm";
+import EditExpenseForm from "@/components/Expense/EditExpenseForm";
+import ExpenseList from "@/components/Expense/ExpenseList";
+import ExpenseListHint from "@/components/Expense/ExpenseListHint";
 import InsightSection from "@/components/InsightSection/InsightSection";
 import { LimitCard } from "@/components/LimitCard/LimitCard";
 import ModeSwitcher from "@/components/ModeSwitcher/ModeSwitcher";
@@ -12,6 +12,10 @@ import SearchBar from "@/components/SearchBar/SearchBar";
 import { StreakBadge } from "@/components/StreakBadge/StreakBadge";
 import { StreakCelebration } from "@/components/StreakCelebration/StreakCelebration";
 import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { useStreakCelebration } from "@/hooks/useStreakCelebrations";
 import { useStreakMetrics } from "@/hooks/useStreakMetrics";
@@ -41,7 +45,6 @@ import Animated, {
   useAnimatedKeyboard,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const [mode, setMode] = useState<ViewMode>("daily");
@@ -52,6 +55,8 @@ export default function Home() {
     null
   );
   const [showExpenseHint, setShowExpenseHint] = useState(false);
+  const [goalApplyDecision, setGoalApplyDecision] =
+  useState<"APPLY" | "SKIP" | null>(null);
 
   const options = useMemo(
     () => ({ mode, category, query }),
@@ -67,7 +72,7 @@ export default function Home() {
     loading,
   } = useExpensesStore();
 
-  const { activeGoal, applyDailyRemainingToGoal } = useGoalsStore();
+  const { activeGoal } = useGoalsStore();
 
   const [showGoalApplyModal, setShowGoalApplyModal] = useState(false);
   const [remainingAmount, setRemainingAmount] = useState<number | null>(null);
@@ -156,9 +161,18 @@ export default function Home() {
   };
 
   const keyboard = useAnimatedKeyboard();
-  const searchBarStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: -keyboard.height.value + 60 }],
-  }));
+  const insets = useSafeAreaInsets();
+  const TAB_BAR_HEIGHT = 64;
+const searchBarStyle = useAnimatedStyle(() => {
+  const keyboardHeight = keyboard.height.value;
+
+  return {
+    bottom:
+      keyboardHeight > 0
+        ? keyboardHeight - 48
+        : TAB_BAR_HEIGHT + insets.bottom - 70,
+  };
+});
 
   return (
     <View style={styles.root}>
@@ -300,11 +314,14 @@ export default function Home() {
           projectedRemainingDays={projectedRemainingDays ?? 0}
           goalTitle={activeGoal?.title ?? ""}
           onDecision={(decision) => {
-            if (decision === "APPLY_TO_GOAL" && remainingAmount) {
-              applyDailyRemainingToGoal(remainingAmount);
+            setShowGoalApplyModal(false);
+
+            if (decision === "APPLY_TO_GOAL") {
+              setGoalApplyDecision("APPLY");
+            } else {
+              setGoalApplyDecision("SKIP");
             }
 
-            setShowGoalApplyModal(false);
             setRemainingAmount(null);
             setProjectedRemainingDays(null);
           }}
@@ -375,19 +392,17 @@ const styles = StyleSheet.create({
   },
   toastText: { color: "rgba(255,255,255,0.85)" },
   toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
-
-  searchWrapper: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: "rgba(17,24,39,0.55)",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    zIndex: 999,
-    elevation: 12,
-  },
+searchWrapper: {
+  position: "absolute",
+  left: 16,
+  right: 16,
+  backgroundColor: "rgba(17,24,39,0.55)",
+  borderRadius: 16,
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.12)",
+  zIndex: 999,
+  elevation: 12,
+},
   searchMeta: {
     marginTop: 8,
     marginBottom: 4,

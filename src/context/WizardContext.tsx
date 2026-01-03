@@ -1,3 +1,4 @@
+import { Category } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
 import React, {
   createContext,
@@ -13,7 +14,7 @@ export type GoalDraft = {
   type?: "savings" | "purchase" | "budget";
   durationInDays?: number;
   targetAmount?: number;
-  categoryId?: string;
+  category?: Category;
   customTitle?: string;
 };
 
@@ -29,8 +30,10 @@ type WizardContextType = {
 
   next(): void;
   back(): void;
+  goTo(step: WizardStep): void;
   reset(): void;
 
+  setCategory(category?: Category): void;
   setType(type: GoalDraft["type"]): void;
   setTitle(customTitle: string): void;
   setDurationInDays(days: number): void;
@@ -55,11 +58,19 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
 
   const canGoNext = useMemo(() => {
     if (step === "type") return !!draft.type;
-    if (step === "duration") return !!draft.durationInDays;
-    if (step === "target") return !!draft.targetAmount;
+    if (step === "duration")
+      return (
+        typeof draft.durationInDays === "number" && draft.durationInDays > 0
+      );
+
+    if (step === "target")
+      return typeof draft.targetAmount === "number" && draft.targetAmount > 0;
     return true;
   }, [step, draft]);
 
+  const setCategory = useCallback((category?: Category) => {
+    setDraft((d) => ({ ...d, category }));
+  }, []);
   const next = useCallback(() => {
     setStep((s) => ORDER[Math.min(ORDER.indexOf(s) + 1, ORDER.length - 1)]);
   }, []);
@@ -73,6 +84,9 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     setStep("type");
     setIsEditMode(false);
     setEditingGoalId(null);
+  }, []);
+  const goTo = useCallback((step: WizardStep) => {
+    setStep(step);
   }, []);
 
   const setType = useCallback((type: GoalDraft["type"]) => {
@@ -116,12 +130,14 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
 
         next,
         back,
+        goTo,
         reset,
 
         setType,
         setDurationInDays,
         setTargetAmount,
         setTitle,
+        setCategory,
 
         startFromGoal,
       }}

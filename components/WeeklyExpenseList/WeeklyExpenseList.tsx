@@ -6,7 +6,7 @@ import { calculateTotal } from "@/utils/expense/expenseSummary";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import WeeklyLineChart from "../Charts/WeeklyLineChart";
-import ExpenseList from "../ExpenseList/ExpenseList";
+import ExpenseList from "../Expense/ExpenseList";
 
 type WeeklyExpenseListProps = {
   groups: GroupedExpenses[];

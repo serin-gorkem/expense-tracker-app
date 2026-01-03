@@ -1,10 +1,18 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
+import { CATEGORY_OPTIONS } from "@/models/expense.model";
 import { useWizard } from "@/src/context/WizardContext";
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function StepTarget() {
-  const { draft, setTargetAmount, setTitle, next, canGoNext } = useWizard();
+  const {
+    draft,
+    setTargetAmount,
+    setTitle,
+    next,
+    canGoNext,
+    setCategory,
+  } = useWizard();
 
   return (
     <View style={styles.container}>
@@ -14,10 +22,9 @@ export default function StepTarget() {
       {/* TARGET AMOUNT */}
       <View style={styles.card}>
         <Text style={styles.label}>Target amount</Text>
-
         <CurrencyInput
           value={draft.targetAmount ?? 0}
-          onChange={(value) => setTargetAmount(value)}
+          onChange={setTargetAmount}
           placeholder="e.g. 5.000"
           style={styles.currencyInput}
         />
@@ -25,15 +32,51 @@ export default function StepTarget() {
 
       {/* GOAL TITLE */}
       <View style={styles.card}>
-        <Text style={styles.label}>Goal title</Text>
-
+        <Text style={styles.label}>Goal title (optional)</Text>
         <TextInput
           value={draft.customTitle ?? ""}
           onChangeText={setTitle}
+          maxLength={32}
           placeholder="e.g. New Laptop"
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
         />
+      </View>
+
+      {/* CATEGORY */}
+      <View style={styles.card}>
+        <Text style={styles.label}>What is this goal related to?</Text>
+        <Text style={styles.helper}>
+          Optional. Helps us connect this goal with your spending.
+        </Text>
+
+        <View style={styles.categoryGrid}>
+          {CATEGORY_OPTIONS.map((c) => {
+            const isActive = draft.category === c.key;
+
+            return (
+              <Pressable
+                key={c.key}
+                onPress={() =>
+                  setCategory(isActive ? undefined : c.key)
+                }
+                style={[
+                  styles.categoryItem,
+                  isActive && styles.categoryActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    isActive && styles.categoryTextActive,
+                  ]}
+                >
+                  {c.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       <Pressable
@@ -90,6 +133,42 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     paddingVertical: 6,
   },
+  helper: {
+  marginTop: 4,
+  marginBottom: 10,
+  fontSize: 11,
+  color: "rgba(255,255,255,0.45)",
+},
+
+categoryGrid: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: 8,
+},
+
+categoryItem: {
+  paddingHorizontal: 12,
+  paddingVertical: 8,
+  borderRadius: 999,
+  backgroundColor: "rgba(255,255,255,0.06)",
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.12)",
+},
+
+categoryActive: {
+  borderColor: "#6366F1",
+  backgroundColor: "rgba(99,102,241,0.15)",
+},
+
+categoryText: {
+  color: "rgba(255,255,255,0.75)",
+  fontSize: 12,
+  fontWeight: "700",
+},
+
+categoryTextActive: {
+  color: "#fff",
+},
 
   input: {
     marginTop: 6,
@@ -103,7 +182,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.10)",
   },
-
+  categoryRow: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  categoryPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
   primaryBtn: {
     marginTop: "auto",
     marginBottom: 32,

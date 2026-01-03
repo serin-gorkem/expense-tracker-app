@@ -9,7 +9,7 @@ export function createGoalFromDraft(draft: GoalDraft): Goal {
   const title =
     draft.customTitle ??
     (draft.type === "savings"
-      ? "New Savings Goal"
+      ? "Savings Goal"
       : draft.type === "purchase"
       ? "Planned Purchase"
       : "Budget Goal");
@@ -18,10 +18,13 @@ export function createGoalFromDraft(draft: GoalDraft): Goal {
     id: Crypto.randomUUID(),
     title,
     description: undefined,
+
     targetAmount: draft.targetAmount,
-    savedAmount: 0,
     startDate: new Date(),
     durationInDays: draft.durationInDays,
+
+    category: draft.category, // 👈 sadece pass-through
+
     status: "active",
   };
 }

@@ -5,7 +5,7 @@ import { calculateTotal } from "@/utils/expense/expenseSummary";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import MonthlyCategoryDonutChart from "../Charts/MonthlyCategoryDonutChart";
-import ExpenseList from "../ExpenseList/ExpenseList";
+import ExpenseList from "../Expense/ExpenseList";
 
 type MonthlyExpenseListProps = {
   // LIST (filtreli olabilir)

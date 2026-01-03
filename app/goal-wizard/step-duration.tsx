@@ -1,10 +1,9 @@
 import { useWizard } from "@/src/context/WizardContext";
-import React, { useState } from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function StepDuration() {
   const { draft, setDurationInDays, next, canGoNext } = useWizard();
-  const [value, setValue] = useState(String(draft.durationInDays ?? ""));
 
   return (
     <View style={styles.container}>
@@ -14,11 +13,14 @@ export default function StepDuration() {
       <View style={styles.card}>
         <Text style={styles.label}>Duration (days)</Text>
         <TextInput
-          value={value}
+          value={draft.durationInDays?.toString() ?? ""}
           onChangeText={(t) => {
-            setValue(t);
             const n = Number(t);
-            if (!Number.isNaN(n)) setDurationInDays(n);
+            if (Number.isInteger(n) && n > 0) {
+              setDurationInDays(n);
+            } else {
+              setDurationInDays(undefined as any);
+            }
           }}
           keyboardType="number-pad"
           placeholder="e.g. 30"

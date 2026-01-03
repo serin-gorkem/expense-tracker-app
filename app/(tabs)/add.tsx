@@ -1,4 +1,4 @@
-import AddExpenseForm from "@/components/AddExpenseForm/AddExpenseForm";
+import AddExpenseForm from "@/components/Expense/AddExpenseForm";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useWizard } from "@/src/context/WizardContext";

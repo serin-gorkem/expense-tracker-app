@@ -1,10 +1,8 @@
+import { CATEGORY_OPTIONS } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
+import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
-import React from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-
+import { Pressable, StyleSheet, Text, View } from "react-native";
 type Props = {
   goal: Goal;
   isActive: boolean;
@@ -12,147 +10,149 @@ type Props = {
 };
 
 export default function GoalListItem({ goal, isActive, onEdit }: Props) {
-  const { toggleGoal, deleteGoal } = useGoalsStore();
+  const { expenses } = useExpensesStore();
+  const { toggleGoal, calculateGoalProgress } = useGoalsStore();
 
-  const progress = goal.savedAmount / goal.targetAmount;
-  const percent = Math.min(Math.round(progress * 100), 100);
+  const savedAmount = calculateGoalProgress(goal.id, expenses);
 
-  const statusColor =
-    goal.status === "completed"
-      ? "#22c55e"
-      : goal.status === "active"
-      ? "#6366F1"
-      : "rgba(255,255,255,0.35)";
+  const categoryLabel = goal.category
+    ? CATEGORY_OPTIONS.find((c) => c.key === goal.category)?.label
+    : null;
+  const progress =
+    goal.targetAmount > 0 ? Math.min(savedAmount / goal.targetAmount, 1) : 0;
 
-  /* =========================
-     Delete confirmation
-  ========================= */
-
-  const confirmDelete = () => {
-    Alert.alert(
-      "Delete Goal",
-      "Are you sure you want to delete this goal?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => deleteGoal(goal.id),
-        },
-      ]
-    );
-  };
-
-  /* =========================
-     Swipe action
-  ========================= */
-
-  const renderRightActions = () => (
-    <Pressable
-      onPress={confirmDelete}
-      style={[styles.action, styles.actionDelete]}
-    >
-      <Text style={styles.actionText}>Delete</Text>
-    </Pressable>
-  );
+  const percentage = Math.round(progress * 100);
+  const isCompleted = goal.status === "completed";
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ReanimatedSwipeable
-        enabled={goal.status !== "completed"}
-        renderRightActions={renderRightActions}
-      >
-        <Pressable
-          onPress={() => toggleGoal(goal.id)}
-          onLongPress={() => onEdit(goal)}
-          delayLongPress={300}
-          style={[
-            styles.row,
-            isActive && styles.activeRow,
-            goal.status === "completed" && styles.completedRow,
-          ]}
-        >
-          <View style={styles.left}>
-            <Text style={styles.title}>{goal.title}</Text>
+    <Pressable
+      onPress={() => {
+        if (isCompleted) return;
+        toggleGoal(goal.id);
+      }}
+      onLongPress={() => onEdit(goal)}
+      style={[
+        styles.card,
+        isActive && styles.active,
+        isCompleted && styles.completed,
+      ]}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>{goal.title}</Text>
+        {isActive && <Text style={styles.badge}>ACTIVE</Text>}
+      </View>
 
-            <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${percent}%`,
-                    backgroundColor: statusColor,
-                  },
-                ]}
-              />
-            </View>
-          </View>
+      <View style={styles.metaRow}>
+        <Text style={styles.amount}>
+          {savedAmount} / {goal.targetAmount}
+        </Text>
+        <Text style={styles.percent}>{percentage}%</Text>
+      </View>
+      {categoryLabel && <Text style={styles.category}>{categoryLabel}</Text>}
 
-          <Text style={[styles.percent, { color: statusColor }]}>
-            {percent}%
-          </Text>
-        </Pressable>
-      </ReanimatedSwipeable>
-    </GestureHandlerRootView>
+      <View style={styles.track}>
+        <View style={[styles.fill, { width: `${percentage}%` }]} />
+      </View>
+    </Pressable>
   );
 }
+
 const styles = StyleSheet.create({
-  row: {
+  card: {
     padding: 14,
-    borderRadius: 14,
+    borderRadius: 16,
+    marginBottom: 10,
+    backgroundColor: "rgba(17,24,39,0.65)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    backgroundColor: "#020617",
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+
+  active: {
+    borderColor: "#6366F1",
+    backgroundColor: "rgba(99,102,241,0.18)",
+  },
+
+  completed: {
+    opacity: 0.5,
+  },
+
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  activeRow: {
-    borderColor: "rgba(99,102,241,0.5)",
-  },
-  completedRow: {
-    opacity: 0.45,
-  },
-  left: {
-    flex: 1,
-    marginRight: 12,
-  },
-  title: {
-    fontSize: 14,
-    color: "#e5e7eb",
-    fontWeight: "700",
+    gap: 8,
     marginBottom: 6,
   },
-  progressTrack: {
+
+  title: {
+    flex: 1,
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "800",
+    fontSize: 14,
+  },
+
+  titleCompleted: {
+    textDecorationLine: "line-through",
+  },
+
+  badge: {
+    fontSize: 10,
+    fontWeight: "900",
+    color: "#6366F1",
+    borderWidth: 1,
+    borderColor: "#6366F1",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+  },
+
+  badgeCompleted: {
+    fontSize: 10,
+    fontWeight: "900",
+    color: "#22c55e",
+    borderWidth: 1,
+    borderColor: "#22c55e",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+  },
+  category: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.55)",
+    marginBottom: 6,
+  },
+
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+
+  amount: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.65)",
+    fontWeight: "600",
+  },
+
+  percent: {
+    fontSize: 12,
+    color: "#a5b4fc",
+    fontWeight: "800",
+  },
+
+  track: {
     height: 6,
     borderRadius: 999,
     backgroundColor: "rgba(255,255,255,0.08)",
     overflow: "hidden",
   },
-  progressFill: {
+
+  fill: {
     height: "100%",
-    borderRadius: 999,
-  },
-  percent: {
-    fontSize: 12,
-    fontWeight: "800",
-    minWidth: 42,
-    textAlign: "right",
+    backgroundColor: "#6366F1",
   },
 
-  action: {
-    width: 86,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-    borderRadius: 14,
-  },
-  actionDelete: {
-    backgroundColor: "rgba(239,68,68,0.75)",
-  },
-  actionText: {
-    color: "rgba(255,255,255,0.95)",
-    fontWeight: "900",
+  fillCompleted: {
+    backgroundColor: "#22c55e",
   },
 });

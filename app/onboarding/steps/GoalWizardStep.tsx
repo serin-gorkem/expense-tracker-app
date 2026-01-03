@@ -2,7 +2,7 @@ import { useWizard } from "@/src/context/WizardContext";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export function GoalWizardStep() {
+export default function GoalWizardStep() {
   const router = useRouter();
   const { reset } = useWizard();
 

@@ -1,20 +1,22 @@
+import { Expense } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
 import { createContext, useContext, useState } from "react";
 
 /* =========================
    Types
 ========================= */
-
 type GoalsStore = {
   goals: Goal[];
-  activeGoal?: Goal | undefined;
+  activeGoal?: Goal;
 
   createGoal(goal: Goal): void;
-  updateGoal(goal: Goal): void;
   deleteGoal(id: string): void;
   setActiveGoal(id: string): void;
-  applyDailyRemainingToGoal(amount: number): void;
+  updateGoal(id: string,patch: Partial<Goal>): void;
+  
   toggleGoal(id: string): void;
+
+  calculateGoalProgress(goalId: string, expenses: Expense[]): number;
 };
 
 /* =========================
@@ -36,8 +38,8 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
     updateGoal,
     deleteGoal,
     setActiveGoal,
-    applyDailyRemainingToGoal,
     toggleGoal,
+    calculateGoalProgress,
   };
 
   function toggleGoal(id: string) {
@@ -65,10 +67,22 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
     setGoals(mappedGoals);
     setActiveGoalId(exists.status === "active" ? null : id);
   }
-  function updateGoal(updated: Goal) {
-    setGoals((prev) =>
-      prev.map((g) => (g.id === updated.id ? { ...g, ...updated } : g))
-    );
+function updateGoal(id: string, patch: Partial<Goal>) {
+  setGoals((prev) =>
+    prev.map((g) =>
+      g.id === id
+        ? {
+            ...g,
+            ...patch,
+          }
+        : g
+    )
+  );
+}
+  function calculateGoalProgress(goalId: string, expenses: Expense[]) {
+    return expenses
+      .filter((e) => e.isGoalBoost && e.goalId === goalId)
+      .reduce((sum, e) => sum + (e.boostAmount ?? e.amount), 0);
   }
 
   function deleteGoal(id: string) {
@@ -117,42 +131,6 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
     });
     setGoals(mappedGoals);
     setActiveGoalId(id);
-  }
-
-  function applyDailyRemainingToGoal(amount: number) {
-    if (amount <= 0) {
-      return;
-    }
-    if (
-      !goals.find((goal) => {
-        return goal.status === "active";
-      })
-    ) {
-      return;
-    }
-    let didCompleted = false;
-    const mappedGoals = goals.map((goal) => {
-      if (goal.status === "active") {
-        const newAmount = goal.savedAmount + amount;
-        if (newAmount >= goal.targetAmount) {
-          didCompleted = true;
-          return {
-            ...goal,
-            status: "completed" as const,
-            savedAmount: newAmount as number,
-          };
-        } else {
-          return { ...goal, status: "active" as const };
-        }
-      } else {
-        return { ...goal };
-      }
-    });
-
-    setGoals(mappedGoals);
-    if (didCompleted) {
-      setActiveGoalId(null);
-    }
   }
 
   return (

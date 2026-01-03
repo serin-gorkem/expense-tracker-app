@@ -5,6 +5,7 @@ import {
   EXPENSE_KIND_META,
   ExpenseKind,
 } from "@/models/expense.model";
+import { useGoalsStore } from "@/src/context/GoalContext";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -30,6 +31,7 @@ type ValidationError = {
 
 const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
   const [title, setTitle] = useState("");
+  const [originalTitle, setOriginalTitle] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [kind, setKind] = useState<ExpenseKind>("behavioral");
@@ -38,11 +40,16 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
 
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const { activeGoal } = useGoalsStore();
+  const [boostGoal, setBoostGoal] = useState(false);
+
   const resetForm = () => {
     setTitle("");
+    setOriginalTitle(null);
     setAmount(null);
     setCategory(null);
     setKind("behavioral");
+    setBoostGoal(false);
   };
 
   const handleSubmit = () => {
@@ -59,7 +66,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
     }
 
     // Category validation
-    if (!category) {
+    if (!boostGoal && !category) {
       newErrors.category = "Select a category";
     }
 
@@ -81,15 +88,21 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
       category: safeCategory,
       date: new Date().toISOString(),
       kind,
-    };
 
+      ...(boostGoal && activeGoal
+        ? {
+            isGoalBoost: true,
+            goalId: activeGoal.id,
+            boostAmount: safeAmount,
+          }
+        : {}),
+    };
     onSubmit(expense);
 
     haptic.success();
     setShowSuccess(true);
 
     setErrors({});
-    resetForm();
   };
 
   return (
@@ -106,16 +119,27 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
         <Text style={styles.label}>Title</Text>
         <TextInput
           value={title}
+          maxLength={30}
           onChangeText={(v) => {
             setTitle(v);
-            if (errors.title) setErrors((e) => ({ ...e, title: undefined }));
+
+            // Kullanıcı elle değiştirirse
+            if (boostGoal && originalTitle === null) {
+              setOriginalTitle(v);
+            }
+
+            if (errors.title) {
+              setErrors((e) => ({ ...e, title: undefined }));
+            }
           }}
           placeholder="Expense title"
           placeholderTextColor="rgba(255,255,255,0.45)"
           style={[styles.input, errors.title && styles.inputError]}
         />
         {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
-
+        {boostGoal && (
+          <Text style={styles.boostTitleHint}>Linked to active goal</Text>
+        )}
         {/* Amount */}
         <Text style={styles.label}>Amount</Text>
         <CurrencyInput
@@ -173,7 +197,47 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
             <Text style={styles.errorText}>{errors.category}</Text>
           )}
         </View>
+        {/* GOAL BOOST */}
+        {activeGoal && (
+          <Pressable
+            onPress={() => {
+              setBoostGoal((prev) => {
+                const next = !prev;
 
+                if (next && activeGoal) {
+                  // 🔥 Boost AÇILIYOR
+                  if (!originalTitle) {
+                    setOriginalTitle(title);
+                  }
+                  setTitle(`Goal: ${activeGoal.title}`);
+                  setKind("behavioral");
+                  setCategory("other");
+                }
+
+                if (!next) {
+                  // 🔄 Boost KAPANIYOR
+                  if (originalTitle !== null) {
+                    setTitle(originalTitle);
+                    setOriginalTitle(null);
+                  }
+                }
+
+                return next;
+              });
+            }}
+            style={[styles.boostCard, boostGoal && styles.boostCardActive]}
+          >
+            <Text style={styles.boostTitle}>🎯 Boost active goal</Text>
+
+            <Text style={styles.boostSub}>{activeGoal.title}</Text>
+
+            {boostGoal && (
+              <Text style={styles.boostHint}>
+                This amount will be added to your goal
+              </Text>
+            )}
+          </Pressable>
+        )}
         <Pressable onPress={handleSubmit} style={styles.btn}>
           <Text style={styles.btnText}>Add</Text>
         </Pressable>
@@ -188,13 +252,20 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Expense added</Text>
-            <Text style={styles.modalText}>
-              Your expense has been saved successfully.
+            <Text style={styles.modalTitle}>
+              {boostGoal ? "Added to your goal 🎯" : "Expense added"}
             </Text>
 
+            <Text style={styles.modalText}>
+              {boostGoal
+                ? "This amount has been added to your active goal."
+                : "Your expense has been saved successfully."}
+            </Text>
             <Pressable
-              onPress={() => setShowSuccess(false)}
+              onPress={() => {
+                setShowSuccess(false);
+                resetForm();
+              }}
               style={styles.modalBtn}
             >
               <Text style={styles.modalBtnText}>Got it</Text>
@@ -300,6 +371,40 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
+  boostCard: {
+    marginVertical: 6,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(17,24,39,0.55)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+
+  boostCardActive: {
+    borderColor: "#22c55e",
+    backgroundColor: "rgba(34,197,94,0.18)",
+  },
+
+  boostTitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontWeight: "800",
+    fontSize: 13,
+  },
+
+  boostSub: {
+    marginTop: 4,
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  boostHint: {
+    marginTop: 6,
+    color: "#22c55e",
+    fontSize: 11,
+    fontWeight: "700",
+  },
+
   btn: {
     marginTop: 4,
     borderRadius: 14,
@@ -345,7 +450,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 12,
   },
-
+  boostTitleHint: {
+    marginTop: -6,
+    marginBottom: 6,
+    fontSize: 11,
+    color: "#22c55e",
+    fontWeight: "700",
+  },
   modalBtn: {
     borderRadius: 12,
     paddingVertical: 10,

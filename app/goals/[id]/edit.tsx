@@ -2,12 +2,12 @@ import { useGoalsStore } from "@/src/context/GoalContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Alert,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 export default function EditGoalScreen() {
@@ -54,8 +54,7 @@ export default function EditGoalScreen() {
       return;
     }
 
-    updateGoal({
-      ...goal,
+    updateGoal(goal.id, {
       title,
       targetAmount,
       durationInDays,
@@ -65,21 +64,17 @@ export default function EditGoalScreen() {
   };
 
   const confirmDelete = () => {
-    Alert.alert(
-      "Delete Goal",
-      "This action cannot be undone. Are you sure?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            deleteGoal(goal.id);
-            router.replace("/(tabs)/goals");
-          },
+    Alert.alert("Delete Goal", "This action cannot be undone. Are you sure?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          deleteGoal(goal.id);
+          router.replace("/(tabs)/goals");
         },
-      ]
-    );
+      },
+    ]);
   };
 
   /* =========================

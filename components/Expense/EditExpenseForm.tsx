@@ -5,12 +5,12 @@ import {
   EXPENSE_KIND_META,
   ExpenseKind,
 } from "@/models/expense.model";
+import { useGoalsStore } from "@/src/context/GoalContext";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import CurrencyInput from "../ui/CurrencyInput";
-
 type EditExpenseFormProps = {
   expense: Expense;
   onSubmit: (expense: Expense) => void;
@@ -26,7 +26,12 @@ export default function EditExpenseForm({
   const [amount, setAmount] = useState<number | null>(expense.amount);
   const [category, setCategory] = useState<Category>(expense.category);
   const [kind, setKind] = useState<ExpenseKind>(expense.kind);
-
+  const { goals, activeGoal } = useGoalsStore();
+  const [isGoalBoost, setIsGoalBoost] = useState(expense.isGoalBoost ?? false);
+  const [goalId, setGoalId] = useState<string | undefined>(expense.goalId);
+  const [boostAmount, setBoostAmount] = useState<number | null>(
+    expense.boostAmount ?? expense.amount
+  );
   function handleSubmit() {
     if (!title || amount == null || amount <= 0 || !category) return;
 
@@ -36,6 +41,10 @@ export default function EditExpenseForm({
       amount,
       category,
       kind,
+
+      isGoalBoost,
+      goalId: isGoalBoost ? goalId : undefined,
+      boostAmount: isGoalBoost ? boostAmount ?? amount : undefined,
     });
   }
 
@@ -63,7 +72,12 @@ export default function EditExpenseForm({
         <Text style={styles.label}>Amount</Text>
         <CurrencyInput
           value={amount}
-          onChange={setAmount}
+          onChange={(v) => {
+            setAmount(v);
+            if (isGoalBoost) {
+              setBoostAmount(v);
+            }
+          }}
           placeholder="Amount"
           style={styles.input}
         />
@@ -103,6 +117,38 @@ export default function EditExpenseForm({
             );
           })}
         </View>
+        {/* GOAL */}
+        <Text style={styles.label}>Goal contribution</Text>
+
+        <Pressable
+          onPress={() => setIsGoalBoost((v) => !v)}
+          style={[styles.goalToggle, isGoalBoost && styles.goalToggleActive]}
+        >
+          <Text style={styles.goalToggleText}>
+            {isGoalBoost
+              ? "This expense contributes to a goal"
+              : "Not a goal contribution"}
+          </Text>
+        </Pressable>
+        {isGoalBoost && (
+          <>
+            {/* Goal selection */}
+            <View style={styles.categoryRow}>
+              {goals.map((g) => {
+                const active = goalId === g.id;
+                return (
+                  <Pressable
+                    key={g.id}
+                    onPress={() => setGoalId(g.id)}
+                    style={[styles.category, active && styles.categoryActive]}
+                  >
+                    <Text style={styles.categoryText}>{g.title}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </>
+        )}
 
         {/* Actions */}
         <View style={styles.row}>
@@ -225,7 +271,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.14)",
   },
+  goalToggle: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.10)",
+    marginBottom: 12,
+  },
 
+  goalToggleActive: {
+    backgroundColor: "rgba(34,197,94,0.18)",
+    borderColor: "rgba(34,197,94,0.4)",
+  },
+
+  goalToggleText: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 12,
+    fontWeight: "800",
+  },
   btnGhost: {
     backgroundColor: "rgba(255,255,255,0.06)",
     borderColor: "rgba(255,255,255,0.10)",

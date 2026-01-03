@@ -1,8 +1,7 @@
 import { Expense } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
-import { calculateDailyRemaining } from "@/utils/daily/calculateDailyRemaning";
 
-type DayEndCoorinatorProps = {
+type DayEndCoordinatorProps = {
   dailyLimit: number;
   expenses: Expense[];
   activeGoal: Goal | null;
@@ -20,21 +19,32 @@ export default function dayEndCoordinator({
   dailyLimit,
   expenses,
   activeGoal,
-}: DayEndCoorinatorProps): DayEndEvent {
-  const remainingAmount = calculateDailyRemaining(
-    dailyLimit,
-    expenses
-  ).remaining;
+}: DayEndCoordinatorProps): DayEndEvent {
+  const spentToday = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const remainingAmount = dailyLimit - spentToday;
+
   if (remainingAmount <= 0 || !activeGoal) {
     return { type: "NO_ACTION" };
-  } else{
-    const dailyTarget = activeGoal.targetAmount / activeGoal.durationInDays;
-    const remainingToSave = activeGoal.targetAmount - (activeGoal.savedAmount + remainingAmount);
-    const projectedRemainingDays = Math.ceil(remainingToSave / dailyTarget);
-    return {
-      type: "ASK_GOAL_APPLY",
-      remainingAmount,
-      projectedRemainingDays,
-    };
   }
+
+  // 🔥 Goal progress EXPENSE'TEN
+  const savedAmount = expenses
+    .filter((e) => e.isGoalBoost && e.goalId === activeGoal.id)
+    .reduce((sum, e) => sum + (e.boostAmount ?? 0), 0);
+
+  const dailyTarget =
+    activeGoal.targetAmount / activeGoal.durationInDays;
+
+  const remainingToSave =
+    activeGoal.targetAmount - (savedAmount + remainingAmount);
+
+  const projectedRemainingDays = Math.ceil(
+    remainingToSave / dailyTarget
+  );
+
+  return {
+    type: "ASK_GOAL_APPLY",
+    remainingAmount,
+    projectedRemainingDays,
+  };
 }

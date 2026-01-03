@@ -32,6 +32,7 @@ const formatAmount = (n: number) => {
 };
 
 const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
+  const isGoalBoost = expense.isGoalBoost === true;
   const confirmDelete = () => {
     Alert.alert(
       "Delete Expense",
@@ -67,7 +68,11 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
         android_ripple={{ color: "rgba(255,255,255,0.06)" }}
         style={{ marginBottom: 10 }}
       >
-        <BlurView intensity={22} tint="dark" style={styles.card}>
+        <BlurView
+          intensity={22}
+          tint="dark"
+          style={[styles.card, isGoalBoost && styles.cardGoalBoost]}
+        >
           <LinearGradient
             colors={["rgba(255,255,255,0.10)", "rgba(255,255,255,0.03)"]}
             style={StyleSheet.absoluteFillObject}
@@ -75,40 +80,56 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
 
           <View style={styles.rowTop}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.title} numberOfLines={1}>
-                {expense.title}
-              </Text>
+              <View style={styles.titleRow}>
+                <Text
+                  style={styles.title}
+                  ellipsizeMode="tail"
+                  numberOfLines={1}
+                >
+                  {expense.title}
+                </Text>
+
+                {isGoalBoost && (
+                  <View style={styles.goalBadge}>
+                    <Text style={styles.goalBadgeText}>🎯 Goal</Text>
+                  </View>
+                )}
+              </View>
 
               <View style={styles.metaRow}>
-                <Text style={styles.meta}>{formatDate(expense.date)}</Text>
+                <Text style={styles.meta}>
+                  {isGoalBoost ? "Goal contribution" : formatDate(expense.date)}
+                </Text>
+                <View style={styles.metaCol}>
+                  <View style={styles.dot} />
+                  {/* Category */}
+                  <View style={styles.pill}>
+                    <Text style={styles.pillText}>{expense.category}</Text>
+                  </View>
 
-                <View style={styles.dot} />
-
-                {/* Category */}
-                <View style={styles.pill}>
-                  <Text style={styles.pillText}>{expense.category}</Text>
-                </View>
-
-                {/* Expense kind */}
-                <View
-                  style={[
-                    styles.pill,
-                    expense.kind === "structural" && styles.pillFixed,
-                  ]}
-                >
-                  <Text
+                  {/* Expense kind */}
+                  <View
                     style={[
-                      styles.pillText,
-                      expense.kind === "structural" && styles.pillFixedText,
+                      styles.pill,
+                      expense.kind === "structural" && styles.pillFixed,
                     ]}
                   >
-                    {EXPENSE_KIND_META[expense.kind]?.label}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.pillText,
+                        expense.kind === "structural" && styles.pillFixedText,
+                      ]}
+                    >
+                      {EXPENSE_KIND_META[expense.kind]?.label}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
 
-            <Text style={styles.amount}>{formatAmount(expense.amount)}</Text>
+            <Text style={[styles.amount, isGoalBoost && { color: "#22c55e" }]}>
+              {formatAmount(expense.amount)}
+            </Text>
           </View>
         </BlurView>
       </Pressable>
@@ -128,9 +149,35 @@ const styles = StyleSheet.create({
   },
   rowTop: { flexDirection: "row", alignItems: "center", gap: 12 },
   title: { color: "rgba(255,255,255,0.92)", fontWeight: "900", fontSize: 15 },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  cardGoalBoost: {
+    borderColor: "#22c55e",
+    backgroundColor: "rgba(34,197,94,0.08)",
+  },
+
+  goalBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(34,197,94,0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(34,197,94,0.45)",
+  },
+
+  goalBadgeText: {
+    fontSize: 11,
+    fontWeight: "900",
+    color: "#22c55e",
+  },
   amount: { color: "rgba(255,255,255,0.92)", fontWeight: "900", fontSize: 14 },
 
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
+  metaRow: { flexDirection: "row",alignItems: "center", flexWrap: "wrap", gap: 8, marginTop: 8 },
+  metaCol: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
   meta: { color: "rgba(255,255,255,0.55)", fontSize: 12, fontWeight: "700" },
   dot: {
     width: 4,
