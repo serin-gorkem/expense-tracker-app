@@ -7,7 +7,6 @@ import {
   getWeeklyAverageInsightData,
 } from "@/utils/expense/expenseInsights";
 
-import { behavioralInsights } from "@/utils/insights/behavioralInsights";
 
 import {
   INSIGHT_PRIORITY,
@@ -33,7 +32,7 @@ type InsightCandidate = {
    Selector
 ========================= */
 
-export function selectInsights({
+export function insightSelectors({
   expenses,
   dailyLimit,
   dailyBaseline,
@@ -75,26 +74,11 @@ export function selectInsights({
   ];
 
   /* =========================
-     Behavioral insights
-  ========================= */
-
-  const behavioral = behavioralInsights({
-    expenses,
-    dailyLimit,
-  });
-
-  const behavioralCandidates: InsightCandidate[] = behavioral.map((item) => ({
-    type: item.type,
-    data: item,
-  }));
-
-  /* =========================
      Merge candidates
   ========================= */
 
   const allCandidates: InsightCandidate[] = [
     ...financialCandidates,
-    ...behavioralCandidates,
   ];
 
   /* =========================

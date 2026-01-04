@@ -15,11 +15,8 @@ export const INSIGHT_PRIORITY: InsightType[] = [
   "daily_baseline",
   "baseline_vs_spending",
   "monthly_change",
-  "behavioral_weekend_spike",
   "top_category",
   "weekly_average",
-  "behavioral_over_limit_frequency",
-  "behavioral_inconsistent_days",
 ];
 
 /**

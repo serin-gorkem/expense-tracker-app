@@ -21,40 +21,40 @@ import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutC
 import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
 import ConsistencyCalendar from "@/components/Consistency/ConsistencyCalendar";
 
+import BehavioralInsightSection from "@/components/InsightSection/BehavioralInsightSection";
+import FinancialInsightSection from "@/components/InsightSection/FinancialInsightSection";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
 import { useMemo, useState } from "react";
-
 export default function Insights() {
   const { expenses, limits } = useExpensesStore();
   const dailyLimit = limits.daily.amount;
 
+  const monthGroups = groupExpensesByMonth(expenses);
+  const weekGroups = groupExpensesByWeek(expenses);
 
-const monthGroups = groupExpensesByMonth(expenses);
-const weekGroups = groupExpensesByWeek(expenses);
+  const donutData = buildMonthlyCategoryDonutData(monthGroups);
+  const lineData = buildWeeklyLineChartData(weekGroups);
 
-const donutData = buildMonthlyCategoryDonutData(monthGroups);
-const lineData = buildWeeklyLineChartData(weekGroups);
+  const monthlyChange = getMonthlyChangeInsightData(expenses);
+  const topCategory = getTopCategoryInsightData(expenses);
+  const weeklyAvg = getWeeklyAverageInsightData(expenses);
 
-const monthlyChange = getMonthlyChangeInsightData(expenses);
-const topCategory = getTopCategoryInsightData(expenses);
-const weeklyAvg = getWeeklyAverageInsightData(expenses);
+  const [month, setMonth] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    return d;
+  });
 
-const [month, setMonth] = useState(() => {
-  const d = new Date();
-  d.setDate(1);
-  return d;
-});
-
-const dayMap = useMemo(
-  () =>
-    buildConsistencyDayMap({
-      expenses,
-      dailyLimit,
-      month,
-    }),
-  [expenses, dailyLimit, month]
-);
+  const dayMap = useMemo(
+    () =>
+      buildConsistencyDayMap({
+        expenses,
+        dailyLimit,
+        month,
+      }),
+    [expenses, dailyLimit, month]
+  );
 
   const goPrevMonth = () =>
     setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
@@ -65,7 +65,6 @@ const dayMap = useMemo(
   return (
     <View style={styles.root}>
       <LiquidBackground />
-
 
       <SafeAreaView style={styles.safe}>
         <ScrollView
@@ -99,38 +98,11 @@ const dayMap = useMemo(
                 <MonthlyCategoryDonutChart data={donutData} />
               )}
               {lineData.length > 0 && <WeeklyLineChart data={lineData} />}
-
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>Quick insights</Text>
-
-                {monthlyChange && (
-                  <Text style={styles.item}>
-                    You spent {Math.abs(monthlyChange.percentageChange)}%
-                    {monthlyChange.percentageChange > 0 ? " more" : " less"}{" "}
-                    than last month.
-                  </Text>
-                )}
-
-                {topCategory && (
-                  <Text style={styles.item}>
-                    Most of your spending went to {topCategory.category}.
-                  </Text>
-                )}
-
-                {weeklyAvg && (
-                  <Text style={styles.item}>
-                    Your weekly average is ₺
-                    {Math.round(weeklyAvg.weeklyAverage)}.
-                  </Text>
-                )}
-
-                {!monthlyChange && !topCategory && !weeklyAvg && (
-                  <Text style={styles.item}>
-                    Not enough history for comparisons yet.
-                  </Text>
-                )}
-              </View>
-
+              <FinancialInsightSection expenses={expenses} />
+              <BehavioralInsightSection
+                expenses={expenses}
+                dailyLimit={dailyLimit}
+              />
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>
                   More insights will unlock as you use the app

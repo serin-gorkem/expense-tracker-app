@@ -1,7 +1,7 @@
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { Expense } from "@/models/expense.model";
 import { ViewMode } from "@/utils/expense/expenseSelectors";
-import { selectInsights } from "@/utils/insights/insightSelectors";
+import { insightSelectors } from "@/utils/insights/insightSelectors";
 import { StreakMetrics } from "@/utils/streak/streakMetrics";
 import { Animated, StyleSheet, View } from "react-native";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
@@ -23,7 +23,7 @@ export default function InsightSection({
   dailyLimit,
 }: Props) {
   const { dailyBaseline } = useExpensesStore();
-  const insights = selectInsights({
+  const insights = insightSelectors({
     expenses,
     dailyLimit,
     dailyBaseline,

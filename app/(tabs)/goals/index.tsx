@@ -14,27 +14,33 @@ export default function GoalsScreen() {
   const { goals, activeGoal } = useGoalsStore();
   const { reset } = useWizard();
 
-const handleEditGoal = (goal: Goal) => {
-  router.push(`../goals/${goal.id}/edit`);
-};
+  const handleEditGoal = (goal: Goal) => {
+    router.push(`../goals/${goal.id}/edit`);
+  };
 
   return (
     <View style={styles.container}>
       <LiquidBackground />
 
-      <Pressable
-        style={styles.button}
-        onPress={() => {
-          reset(); // ⬅️ CREATE MODE
-          router.push("/goal-wizard");
-        }}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.buttonText}>Create Goal</Text>
-      </Pressable>
+        {/* CREATE GOAL */}
+        <Pressable
+          style={styles.button}
+          onPress={() => {
+            reset();
+            router.push("/goal-wizard");
+          }}
+        >
+          <Text style={styles.buttonText}>Create Goal</Text>
+        </Pressable>
 
-      {activeGoal ? <ActiveGoalCard goal={activeGoal} /> : null}
+        {/* ACTIVE GOAL */}
+        {activeGoal && <ActiveGoalCard goal={activeGoal} />}
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* GOALS LIST */}
         <GoalsList
           goals={goals}
           activeGoalId={activeGoal?.id}
@@ -44,18 +50,20 @@ const handleEditGoal = (goal: Goal) => {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    gap: 16,
-    justifyContent:"center",
-    paddingVertical:64,
     backgroundColor: "#020617",
+    paddingVertical:32,
   },
+
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 120, // ⬅️ What-if modal + bottom bar safety
+    gap: 16,
+  },
+
   button: {
-    marginBottom: 12,
     paddingVertical: 12,
     borderRadius: 14,
     alignItems: "center",
@@ -63,6 +71,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(99,102,241,0.35)",
   },
+
   buttonText: {
     color: "rgba(255,255,255,0.9)",
     fontWeight: "800",
