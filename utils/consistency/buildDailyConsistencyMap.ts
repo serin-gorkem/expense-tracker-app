@@ -1,12 +1,13 @@
 import { Expense } from "@/models/expense.model";
+import { Goal } from "@/models/goal.model";
 
 export type DayKey = string;
 
 export type CalendarDayStatus =
-  | "gold"    // active streak
-  | "green"   // completed but not active streak
-  | "break"   // missed (X)
-  | "empty";  // future / no data
+  | "gold" // active streak
+  | "green" // completed but not active streak
+  | "break" // missed (X)
+  | "empty"; // future / no data
 
 export type DayInfo = {
   total: number;
@@ -14,14 +15,19 @@ export type DayInfo = {
   hasEntry: boolean;
   pass: boolean;
   status: CalendarDayStatus;
+
+  contributedToGoal?: boolean;
+  goalAmount?: number;
+  goalId?: string;
 };
 
 /* ---------- Date helpers ---------- */
 
 export function toDayKeyLocal(d: Date): DayKey {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-    d.getDate()
-  ).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function fromDayKeyLocal(key: DayKey): Date {
@@ -48,10 +54,12 @@ export function buildConsistencyDayMap({
   expenses = [],
   dailyLimit,
   month,
+  activeGoal,
 }: {
   expenses?: Expense[];
   dailyLimit: number;
   month: Date;
+  activeGoal: Goal | null;
 }): Record<DayKey, DayInfo> {
   const todayKey = getTodayKeyLocal();
   const todayDate = fromDayKeyLocal(todayKey);
@@ -107,6 +115,32 @@ export function buildConsistencyDayMap({
     if (!map[key]?.pass) break;
     activeStreak.add(key);
     cursor = addDays(cursor, -1);
+  }
+
+  /* 4.5️⃣ Goal contribution mapping */
+  if (activeGoal) {
+    for (const e of expenses) {
+      if (!e.isGoalBoost || e.goalId !== activeGoal.id) {
+        continue;
+      }
+
+      const date = new Date(e.date);
+
+      if (
+        date.getFullYear() !== month.getFullYear() ||
+        date.getMonth() !== month.getMonth()
+      ) {
+        continue;
+      }
+
+      const key = toDayKeyLocal(date);
+      const day = map[key];
+      if (!day) continue;
+
+      day.contributedToGoal = true;
+      day.goalId = activeGoal.id;
+      day.goalAmount = (day.goalAmount ?? 0) + (e.boostAmount ?? e.amount);
+    }
   }
 
   /* 5️⃣ Status assignment */

@@ -44,7 +44,7 @@ function next() {
    * step === 4 → ManualLimits bitti
    * step === 5 → Preview bitti
    */
-  if (step === 4 || step === 5) {
+  if (step === 5 || step === 6) {
     router.replace("/home");
     finishOnboarding();
     return;

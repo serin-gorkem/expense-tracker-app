@@ -2,6 +2,7 @@
 import { STREAK_MILESTONE_REGISTRY } from "@/constants/streakMilestoneRegistry";
 import { isStreakMilestone } from "@/constants/streakMilestones";
 import { AchievedMilestone } from "@/models/milestones.model";
+import { checkStreakAchievements } from "@/utils/achievements/achievementUnlockers";
 import {
   isMilestoneUnlocked,
   unlockMilestone
@@ -11,6 +12,11 @@ import { useEffect, useState } from "react";
 export function useStreakMilestones(currentStreak: number) {
   const [newMilestone, setNewMilestone] =
     useState<AchievedMilestone | null>(null);
+    useEffect(() => {
+      if (currentStreak > 0) {
+        checkStreakAchievements(currentStreak);
+      }
+    }, [currentStreak]);
 
   useEffect(() => {
     if (!isStreakMilestone(currentStreak)) return;

@@ -1,8 +1,4 @@
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-
+import { Expense } from "@/models/expense.model";
 import {
   DayInfo,
   DayKey,
@@ -12,6 +8,11 @@ import {
   buildMonthGrid,
   formatMonthLabel,
 } from "@/utils/consistency/calenderUtils";
+import { getWeekStreakSegments } from "@/utils/consistency/getWeekStreakSegments";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useMemo } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import CalendarDay from "./CalendarDay";
 
 /* ---------- Types ---------- */
@@ -19,6 +20,8 @@ import CalendarDay from "./CalendarDay";
 type Props = {
   month: Date;
   dayMap: Record<DayKey, DayInfo>;
+  expensesByDay: Map<string, Expense[]>;
+  onSelectDay: (dayKey: DayKey) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
 };
@@ -40,16 +43,15 @@ export default function ConsistencyCalendar({
   dayMap,
   onPrevMonth,
   onNextMonth,
+  expensesByDay,
+  onSelectDay,
 }: Props) {
   const weeks = useMemo<(number | null)[][]>(
     () => buildMonthGrid(month),
     [month]
   );
 
-  const monthTitle = useMemo<string>(
-    () => formatMonthLabel(month),
-    [month]
-  );
+  const monthTitle = useMemo<string>(() => formatMonthLabel(month), [month]);
 
   const today = new Date();
 
@@ -94,76 +96,88 @@ export default function ConsistencyCalendar({
         <View style={styles.grid}>
           {weeks.map((week, weekIndex) => (
             <View key={weekIndex} style={styles.weekRow}>
+              {/* STREAK BACKGROUNDS */}
+              {(() => {
+                const weekInfos = week.map((day) => {
+                  if (day == null) return undefined;
+                  const key = toDayKeyLocal(
+                    new Date(month.getFullYear(), month.getMonth(), day, 12)
+                  );
+                  return dayMap[key];
+                });
+
+                const segments = getWeekStreakSegments(weekInfos);
+
+                return segments.map((seg, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.streakTrack,
+                      {
+                        left: `${(seg.startIndex / 7) * 100}%`,
+                        width: `${
+                          ((seg.endIndex - seg.startIndex + 1) / 7) * 100
+                        }%`,
+                      },
+                    ]}
+                  />
+                ));
+              })()}
+
+              {/* DAY CELLS */}
               {week.map((day, dayIndex) => {
                 if (day === null) {
-                  return (
-                    <CalendarDay
-                      key={`${weekIndex}-${dayIndex}`}
-                      day={null}
-                    />
-                  );
+                  return <CalendarDay key={dayIndex} day={null} />;
                 }
 
                 const date = new Date(
                   month.getFullYear(),
                   month.getMonth(),
                   day,
-                  12,
-                  0,
-                  0,
-                  0
+                  12
                 );
 
                 const dayKey = toDayKeyLocal(date);
-                const info: DayInfo | undefined = dayMap[dayKey];
-                const status = info?.status ?? "empty";
+                const info = dayMap[dayKey];
+                const segments = getWeekStreakSegments(
+                  week.map((d) =>
+                    d == null
+                      ? undefined
+                      : dayMap[
+                          toDayKeyLocal(
+                            new Date(
+                              month.getFullYear(),
+                              month.getMonth(),
+                              d,
+                              12
+                            )
+                          )
+                        ]
+                  )
+                );
 
-                const isToday =
+                const isStreakStart =
+                  info?.status === "gold" &&
+                  segments.some((s) => s.startIndex === dayIndex);
+
+                const isStreakEnd =
+                  info?.status === "gold" &&
                   isSameMonthAsToday &&
                   date.getDate() === today.getDate();
 
-                /* ---------- Duolingo-style horizontal streak logic ---------- */
-
-                const prevDay = dayIndex > 0 ? week[dayIndex - 1] : null;
-                const nextDay = dayIndex < 6 ? week[dayIndex + 1] : null;
-
-                let connectsFromPrev = false;
-                let connectsToNext = false;
-
-                if (status === "gold") {
-                  if (prevDay !== null) {
-                    const prevKey = toDayKeyLocal(
-                      new Date(
-                        month.getFullYear(),
-                        month.getMonth(),
-                        prevDay,
-                        12
-                      )
-                    );
-                    connectsFromPrev = dayMap[prevKey]?.status === "gold";
-                  }
-
-                  if (nextDay !== null) {
-                    const nextKey = toDayKeyLocal(
-                      new Date(
-                        month.getFullYear(),
-                        month.getMonth(),
-                        nextDay,
-                        12
-                      )
-                    );
-                    connectsToNext = dayMap[nextKey]?.status === "gold";
-                  }
-                }
-
                 return (
                   <CalendarDay
-                    key={`${weekIndex}-${dayIndex}`}
+                    key={dayIndex}
                     day={day}
-                    status={status}
-                    isToday={isToday}
-                    connectsFromPrev={connectsFromPrev}
-                    connectsToNext={connectsToNext}
+                    status={info?.status}
+                    isToday={
+                      isSameMonthAsToday && date.getDate() === today.getDate()
+                    }
+                    contributedToGoal={info?.contributedToGoal}
+                    goalAmount={info?.goalAmount}
+                    isStreakStart={isStreakStart}
+                    isStreakEnd={isStreakEnd}
+                    onPress={() => onSelectDay(dayKey)}
                   />
                 );
               })}
@@ -175,6 +189,7 @@ export default function ConsistencyCalendar({
         <View style={styles.legendRow}>
           <LegendDot color="#F59E0B" label="Active streak" />
           <LegendDot color="#22C55E" label="Completed" />
+          <LegendDot color="#22D3EE" label="Goal" />
           <LegendX label="Missed" />
         </View>
       </BlurView>
@@ -184,13 +199,7 @@ export default function ConsistencyCalendar({
 
 /* ---------- Legend components ---------- */
 
-function LegendDot({
-  color,
-  label,
-}: {
-  color: string;
-  label: string;
-}) {
+function LegendDot({ color, label }: { color: string; label: string }) {
   return (
     <View style={styles.legendItem}>
       <View style={[styles.legendDot, { backgroundColor: color }]} />
@@ -280,11 +289,19 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.03)",
     paddingVertical: 6,
   },
-
+  streakTrack: {
+    position: "absolute",
+    top: "50%",
+    transform: [{ translateY: -17 }], // SIZE / 2
+    height: 34,
+    backgroundColor: "rgba(245,158,11,0.22)",
+    borderRadius: 999,
+    zIndex: 0,
+  },
   weekRow: {
     flexDirection: "row",
+    position: "relative",
   },
-
   legendRow: {
     flexDirection: "row",
     justifyContent: "space-between",

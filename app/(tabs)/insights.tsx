@@ -9,11 +9,6 @@ import {
   groupExpensesByMonth,
   groupExpensesByWeek,
 } from "@/utils/expense/expenseGrouping";
-import {
-  getMonthlyChangeInsightData,
-  getTopCategoryInsightData,
-  getWeeklyAverageInsightData,
-} from "@/utils/expense/expenseInsights";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 import BaselineCard from "@/components/BaseLineCard/BaseLineCard";
@@ -21,13 +16,20 @@ import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutC
 import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
 import ConsistencyCalendar from "@/components/Consistency/ConsistencyCalendar";
 
+import DayDetailModal from "@/components/Consistency/DayDetailsModal";
 import BehavioralInsightSection from "@/components/InsightSection/BehavioralInsightSection";
 import FinancialInsightSection from "@/components/InsightSection/FinancialInsightSection";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { useGoalsStore } from "@/src/context/GoalContext";
 import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
+import { getExpensesByDay } from "@/utils/insights/insightRules";
 import { useMemo, useState } from "react";
 export default function Insights() {
   const { expenses, limits } = useExpensesStore();
+  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+
+const expensesByDay = useMemo(() => getExpensesByDay(expenses), [expenses]);
+  const { activeGoal } = useGoalsStore();
   const dailyLimit = limits.daily.amount;
 
   const monthGroups = groupExpensesByMonth(expenses);
@@ -35,11 +37,6 @@ export default function Insights() {
 
   const donutData = buildMonthlyCategoryDonutData(monthGroups);
   const lineData = buildWeeklyLineChartData(weekGroups);
-
-  const monthlyChange = getMonthlyChangeInsightData(expenses);
-  const topCategory = getTopCategoryInsightData(expenses);
-  const weeklyAvg = getWeeklyAverageInsightData(expenses);
-
   const [month, setMonth] = useState(() => {
     const d = new Date();
     d.setDate(1);
@@ -52,8 +49,9 @@ export default function Insights() {
         expenses,
         dailyLimit,
         month,
+        activeGoal: activeGoal ?? null,
       }),
-    [expenses, dailyLimit, month]
+    [expenses, dailyLimit, month, activeGoal]
   );
 
   const goPrevMonth = () =>
@@ -90,8 +88,18 @@ export default function Insights() {
               <ConsistencyCalendar
                 month={month}
                 dayMap={dayMap}
+                expensesByDay={expensesByDay}
+                onSelectDay={setSelectedDayKey}
                 onPrevMonth={goPrevMonth}
                 onNextMonth={goNextMonth}
+              />
+              <DayDetailModal
+                dayKey={selectedDayKey}
+                dayInfo={selectedDayKey ? dayMap[selectedDayKey] : null}
+                expenses={
+                  selectedDayKey ? expensesByDay.get(selectedDayKey) ?? [] : []
+                }
+                onClose={() => setSelectedDayKey(null)}
               />
 
               {donutData.length > 0 && (

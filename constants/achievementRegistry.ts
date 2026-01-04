@@ -74,6 +74,7 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     emoji: "📈",
     rarity: "rare",
   },
+  
 
   /* =====================
      CONSISTENCY

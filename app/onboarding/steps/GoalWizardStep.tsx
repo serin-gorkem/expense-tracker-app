@@ -2,7 +2,12 @@ import { useWizard } from "@/src/context/WizardContext";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function GoalWizardStep() {
+type Props = {
+  onNext(): void;
+  onBack(): void;
+};
+
+export default function GoalWizardStep({ onNext, onBack }: Props) {
   const router = useRouter();
   const { reset } = useWizard();
 
@@ -29,14 +34,20 @@ export default function GoalWizardStep() {
 
       {/* ACTIONS */}
       <View style={styles.actions}>
-        <Pressable
-          onPress={() => {
-            reset();
-            router.replace("/(tabs)/home");
-          }}
-        >
-          <Text style={styles.skip}>Skip for now</Text>
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable onPress={onBack}>
+            <Text style={styles.back}>Go Back</Text>
+          </Pressable>
+          <Text>or</Text>
+          <Pressable
+            onPress={() => {
+              reset();
+              onNext();
+            }}
+          >
+            <Text style={styles.skip}>Skip for now</Text>
+          </Pressable>
+        </View>
 
         <Pressable
           style={styles.primaryBtn}
@@ -98,11 +109,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap:8,
   },
 
   skip: {
     fontSize: 14,
     color: "#6366F1",
+    fontWeight: "600",
+  },
+  back: {
+    fontSize: 14,
+    color: "rgba(0,0,0,0.6)",
     fontWeight: "600",
   },
 

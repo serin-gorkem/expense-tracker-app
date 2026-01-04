@@ -1,11 +1,5 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   fixedExpenses: number | null;
@@ -42,16 +36,14 @@ export default function FixedExpensesStep({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fixed expenses</Text>
-      <Text style={styles.subtitle}>
-        Rent, bills, subscriptions, etc.
-      </Text>
+      <Text style={styles.subtitle}>Rent, bills, subscriptions, etc.</Text>
 
-<CurrencyInput
-  value={fixedExpenses}
-  onChange={onChange}
-  placeholder="Total fixed expenses"
-  style={styles.input}
-/>
+      <CurrencyInput
+        value={fixedExpenses}
+        onChange={onChange}
+        placeholder="Total fixed expenses"
+        style={styles.input}
+      />
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
