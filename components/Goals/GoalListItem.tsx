@@ -22,7 +22,7 @@ export default function GoalListItem({ goal, isActive, onEdit }: Props) {
     goal.targetAmount > 0 ? Math.min(savedAmount / goal.targetAmount, 1) : 0;
 
   const percentage = Math.round(progress * 100);
-  const isCompleted = goal.status === "completed";
+  const isCompleted = goal.status === "archived";
 
   return (
     <Pressable

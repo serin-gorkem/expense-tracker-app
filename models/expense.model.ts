@@ -11,7 +11,7 @@ export type Category =
   | "other";
 
 
-  export type ExpenseKind = "behavioral" | "structural";
+  export type ExpenseKind = "behavioral" | "structural" | "goal";
 
   export const EXPENSE_KIND_META: Record<
   ExpenseKind,
@@ -27,6 +27,10 @@ export type Category =
   structural: {
     label: "Fixed",
     description: "Required, recurring expenses",
+  },
+  goal: {
+    label: "Goal",
+    description: "Goal, add to your goal.",
   },
 };
 

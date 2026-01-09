@@ -1,21 +1,15 @@
 // components/goals/GoalApplyModal.tsx
 
+import { Goal } from "@/models/goal.model";
 import React from "react";
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 type DecisionEvent = "APPLY_TO_GOAL" | "SKIP_FOR_TODAY";
 
 type GoalModalProps = {
   visible: boolean;
   remainingAmount: number;
-  projectedRemainingDays: number;
-  goalTitle: string;
+  goal: Goal;
   onDecision: (event: DecisionEvent) => void;
 };
 
@@ -29,8 +23,7 @@ const formatCurrency = (value: number) =>
 export default function GoalApplyModal({
   visible,
   remainingAmount,
-  projectedRemainingDays,
-  goalTitle,
+  goal,
   onDecision,
 }: GoalModalProps) {
   return (
@@ -43,32 +36,22 @@ export default function GoalApplyModal({
       <View style={styles.backdrop}>
         <View style={styles.container}>
           {/* Title */}
-          <Text style={styles.title}>
-            Bugün artan bir miktar var
-          </Text>
+          <Text style={styles.title}>You have money left today</Text>
 
-          {/* Main Amount */}
+          {/* Amount */}
           <Text style={styles.amount}>
             {formatCurrency(remainingAmount)}
           </Text>
+
           <Text style={styles.subtle}>
-            Bu tutar günlük harcama limitinden arttı.
+            This amount is under your daily spending limit.
           </Text>
 
-          {/* Goal Context */}
+          {/* Context */}
           <Text style={styles.context}>
-            İstersen bu tutar{" "}
-            <Text style={styles.goalTitle}>{goalTitle}</Text>{" "}
-            hedefine eklenebilir.
+            You can add this amount to your goal{" "}
+            <Text style={styles.goalTitle}>{goal?.title}</Text>.
           </Text>
-
-          {/* Projection */}
-          {projectedRemainingDays > 0 && (
-            <Text style={styles.projection}>
-              Bu şekilde devam edersen hedef yaklaşık{" "}
-              {projectedRemainingDays} gün içinde tamamlanır.
-            </Text>
-          )}
 
           {/* Actions */}
           <View style={styles.actions}>
@@ -76,18 +59,14 @@ export default function GoalApplyModal({
               style={[styles.button, styles.primary]}
               onPress={() => onDecision("APPLY_TO_GOAL")}
             >
-              <Text style={styles.primaryText}>
-                Hedefime ekle
-              </Text>
+              <Text style={styles.primaryText}>Add to goal</Text>
             </Pressable>
 
             <Pressable
               style={[styles.button, styles.secondary]}
               onPress={() => onDecision("SKIP_FOR_TODAY")}
             >
-              <Text style={styles.secondaryText}>
-                Bugün pas geç
-              </Text>
+              <Text style={styles.secondaryText}>Skip for today</Text>
             </Pressable>
           </View>
         </View>
@@ -133,11 +112,6 @@ const styles = StyleSheet.create({
   goalTitle: {
     color: "#f9fafb",
     fontWeight: "600",
-  },
-  projection: {
-    color: "#9ca3af",
-    fontSize: 12,
-    marginTop: 12,
   },
   actions: {
     marginTop: 24,

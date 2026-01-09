@@ -12,8 +12,9 @@ type GoalsStore = {
 
   createGoal(goal: Goal): void;
   deleteGoal(id: string): void;
-  setActiveGoal(id: string): void;
+  setActiveGoal(id: string | null): void;
   updateGoal(id: string, patch: Partial<Goal>): void;
+  archiveGoal(id:string): void;
 
   toggleGoal(id: string): void;
 
@@ -69,6 +70,7 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
     activeGoal,
     createGoal,
     updateGoal,
+    archiveGoal,
     deleteGoal,
     setActiveGoal,
     toggleGoal,
@@ -105,7 +107,7 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
 
   function toggleGoal(id: string) {
     const exists = goals.find((g) => g.id === id);
-    if (!exists || exists.status === "completed") return;
+    if (!exists) return;
 
     const mappedGoals = goals.map((goal) => {
       if (goal.id === id) {
@@ -140,6 +142,14 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
       )
     );
   }
+  function archiveGoal(id: string) {
+  setGoals((prev) =>
+    prev.map((g) =>
+      g.id === id ? { ...g, status: "archived" as const } : g
+    )
+  );
+  setActiveGoalId((prev) => (prev === id ? null : prev));
+}
   function calculateGoalProgress(goalId: string, expenses: Expense[]) {
     return expenses
       .filter((e) => e.isGoalBoost && e.goalId === goalId)

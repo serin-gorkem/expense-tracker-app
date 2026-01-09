@@ -1,40 +1,53 @@
 import { Expense } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
-import { calculateDailyRemaining } from "@/utils/daily/calculateDailyRemaning";
+import dayEndCoordinator from "@/utils/dayEnd/dayEndCoordinator";
+import { getExpensesByDay } from "@/utils/insights/insightRules";
 
 type ServiceProps = {
-    dailyLimit:number,
-    expenses: Expense[],
-    activeGoal? : Goal | null, 
+  dailyLimit: number;
+  expenses: Expense[];
+  activeGoal: Goal | null;
+  timeOfLatestDay: Date;
+};
+export type DayChangeResult =
+  | { type: "NO_ACTION" }
+  | { type: "ASK_GOAL_APPLY"; remainingAmount: number };
+
+function toDayKey(date: Date) {
+  return date.toISOString().slice(0, 10);
 }
 
-type ServiceResults = {
-    shouldShowModal: boolean,
-    remaining?: number,
-    projectedRemainingDays?: number,
-}
+export function dayChangeService({
+  dailyLimit,
+  expenses,
+  activeGoal,
+  timeOfLatestDay,
+}: ServiceProps): DayChangeResult {
+  const today = new Date();
 
-export function dayChangeService({dailyLimit,expenses,activeGoal}:ServiceProps) : ServiceResults{
-    const dailyRemaining = calculateDailyRemaining(dailyLimit,expenses).remaining;
+  // ❌ Gün değişmediyse hiçbir şey yapma
+  if (today.toDateString() === timeOfLatestDay.toDateString()) {
+    return { type: "NO_ACTION" };
+  }
 
-    if(dailyRemaining<= 0 ){
-        return {
-            shouldShowModal : false
-        }
-    }
-    if (!activeGoal || activeGoal.status !== "active") {
-      return {
-        shouldShowModal: false,
-      };
-    }else{
-        const dailyTarget = activeGoal.targetAmount / activeGoal.durationInDays;
-        const remainingAmount = activeGoal.targetAmount - (activeGoal.savedAmount + dailyRemaining);
-        const projectedRemainingDays = Math.ceil(remainingAmount / dailyTarget)
-        return{
-            shouldShowModal:true,
-            remaining: dailyRemaining,
-            projectedRemainingDays,
-        }
-    }
+  if (!activeGoal || activeGoal.status !== "active") {
+    return { type: "NO_ACTION" };
+  }
 
+  const expensesByDay = getExpensesByDay(expenses);
+
+  const yesterdayKey = toDayKey(timeOfLatestDay);
+  const yesterdayExpenses = expensesByDay.get(yesterdayKey) ?? [];
+
+  const result = dayEndCoordinator({
+    dailyLimit,
+    expenses: yesterdayExpenses,
+    activeGoal,
+  });
+
+  if (result.type === "ASK_GOAL_APPLY") {
+    return { type: "ASK_GOAL_APPLY", remainingAmount: result.remainingAmount };
+  } else {
+    return { type: "NO_ACTION" };
+  }
 }

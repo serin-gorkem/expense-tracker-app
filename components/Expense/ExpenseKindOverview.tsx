@@ -11,7 +11,6 @@ export default function ExpenseKindOverview() {
   const total = totals.behavioral + totals.structural || 1;
 
   const behavioralPct = Math.round((totals.behavioral / total) * 100);
-  const structuralPct = 100 - behavioralPct;
 
   return (
     <View style={styles.container}>

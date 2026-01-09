@@ -7,7 +7,7 @@ export type Goal = {
   targetAmount: number
   startDate: Date
   durationInDays: number
-  status: "active" | "completed" | "paused"
+  status: "active" | "archived" | "paused"
 
     // 🧠 Contextual
   category?: Category;

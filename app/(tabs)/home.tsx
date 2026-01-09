@@ -35,8 +35,12 @@ import { haptic } from "@/utils/haptics";
 import { calculateLimitStatus } from "@/utils/limit/limitCalculations";
 
 import GoalApplyModal from "@/components/Goals/GoalApplyModal";
+import GoalOutcomeModal from "@/components/Goals/GoalOutcomeModal";
+import { useDayEndFlow } from "@/hooks/useDayEndFlow";
+import { useGoalOutcomeWatcher } from "@/hooks/useGoalOutcomeWatcher";
+import { Goal } from "@/models/goal.model";
 import { useGoalsStore } from "@/src/context/GoalContext";
-import dayEndCoordinator from "@/utils/dayEndCoordinator";
+import { buildGoalBoostExpense } from "@/utils/goals/applyLeftoverToGoal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
@@ -45,7 +49,6 @@ import Animated, {
   useAnimatedKeyboard,
   useAnimatedStyle,
 } from "react-native-reanimated";
-
 export default function Home() {
   const [mode, setMode] = useState<ViewMode>("daily");
   const [category, setCategory] = useState<Category | "all">("all");
@@ -55,8 +58,12 @@ export default function Home() {
     null
   );
   const [showExpenseHint, setShowExpenseHint] = useState(false);
-  const [goalApplyDecision, setGoalApplyDecision] =
-  useState<"APPLY" | "SKIP" | null>(null);
+
+  type GoalModalType = "success" | "failure" | null;
+const [goalModal, setGoalModal] = useState<GoalModalType>(null);
+const [modalGoal, setModalGoal] = useState<Goal | null>(null);
+  
+
 
   const options = useMemo(
     () => ({ mode, category, query }),
@@ -72,26 +79,28 @@ export default function Home() {
     loading,
   } = useExpensesStore();
 
-  const { activeGoal } = useGoalsStore();
+  const { activeGoal,archiveGoal } = useGoalsStore();
+  const { showModal, closeModal, remainingAmount } = useDayEndFlow({
+    dailyLimit: limits.daily.amount,
+    expenses,
+    activeGoal,
+    lastExpenseDate: new Date(expenses.at(-1)?.date ?? Date.now()),
+  });
 
-  const [showGoalApplyModal, setShowGoalApplyModal] = useState(false);
-  const [remainingAmount, setRemainingAmount] = useState<number | null>(null);
-  const [projectedRemainingDays, setProjectedRemainingDays] = useState<
-    number | null
-  >(null);
-  useEffect(() => {
-    const event = dayEndCoordinator({
-      dailyLimit: limits.daily.amount,
-      expenses,
-      activeGoal: activeGoal ?? null,
-    });
+  useGoalOutcomeWatcher({
+    activeGoal,
+    expenses,
 
-    if (event.type === "ASK_GOAL_APPLY") {
-      setRemainingAmount(event.remainingAmount);
-      setProjectedRemainingDays(event.projectedRemainingDays);
-      setShowGoalApplyModal(true);
-    }
-  }, [expenses, activeGoal, limits.daily.amount]);
+    onSuccess: (goal) => {
+      setModalGoal(goal); // snapshot
+      setGoalModal("success"); // modal aç
+    },
+
+    onFailure: (goal) => {
+      setModalGoal(goal); // snapshot
+      setGoalModal("failure"); // modal aç
+    },
+  });
 
   const activeLimit = limits[mode];
 
@@ -163,16 +172,16 @@ export default function Home() {
   const keyboard = useAnimatedKeyboard();
   const insets = useSafeAreaInsets();
   const TAB_BAR_HEIGHT = 64;
-const searchBarStyle = useAnimatedStyle(() => {
-  const keyboardHeight = keyboard.height.value;
+  const searchBarStyle = useAnimatedStyle(() => {
+    const keyboardHeight = keyboard.height.value;
 
-  return {
-    bottom:
-      keyboardHeight > 0
-        ? keyboardHeight - 48
-        : TAB_BAR_HEIGHT + insets.bottom - 70,
-  };
-});
+    return {
+      bottom:
+        keyboardHeight > 0
+          ? keyboardHeight - 48
+          : TAB_BAR_HEIGHT + insets.bottom - 70,
+    };
+  });
 
   return (
     <View style={styles.root}>
@@ -226,6 +235,28 @@ const searchBarStyle = useAnimatedStyle(() => {
           </View>
 
           <ModeSwitcher value={mode} onChange={setMode} />
+          <GoalOutcomeModal
+            visible={goalModal === "success"}
+            type="success"
+            goal={modalGoal}
+            onClose={() => {
+              if (modalGoal) {
+                archiveGoal(modalGoal.id); // ✅ success sonrası archive
+              }
+              setGoalModal(null);
+              setModalGoal(null);
+            }}
+          />
+
+          <GoalOutcomeModal
+            visible={goalModal === "failure"}
+            type="failure"
+            goal={modalGoal}
+            onClose={() => {
+              setGoalModal(null);
+              setModalGoal(null);
+            }}
+          />
 
           {editingExpense ? (
             <EditExpenseForm
@@ -307,23 +338,20 @@ const searchBarStyle = useAnimatedStyle(() => {
             </View>
           )}
         </ScrollView>
-
         <GoalApplyModal
-          visible={showGoalApplyModal}
+          visible={showModal}
           remainingAmount={remainingAmount ?? 0}
-          projectedRemainingDays={projectedRemainingDays ?? 0}
-          goalTitle={activeGoal?.title ?? ""}
+          goal={activeGoal!}
           onDecision={(decision) => {
-            setShowGoalApplyModal(false);
+            closeModal();
 
-            if (decision === "APPLY_TO_GOAL") {
-              setGoalApplyDecision("APPLY");
-            } else {
-              setGoalApplyDecision("SKIP");
+            if (decision === "APPLY_TO_GOAL" && activeGoal) {
+              // TODO
+              // Check if the activeGoal completed.
+              addExpense(
+                buildGoalBoostExpense(remainingAmount ?? 0, activeGoal)
+              );
             }
-
-            setRemainingAmount(null);
-            setProjectedRemainingDays(null);
           }}
         />
 
@@ -392,17 +420,17 @@ const styles = StyleSheet.create({
   },
   toastText: { color: "rgba(255,255,255,0.85)" },
   toastAction: { color: "#93C5FD", fontWeight: "800", letterSpacing: 0.2 },
-searchWrapper: {
-  position: "absolute",
-  left: 16,
-  right: 16,
-  backgroundColor: "rgba(17,24,39,0.55)",
-  borderRadius: 16,
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.12)",
-  zIndex: 999,
-  elevation: 12,
-},
+  searchWrapper: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    backgroundColor: "rgba(17,24,39,0.55)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    zIndex: 999,
+    elevation: 12,
+  },
   searchMeta: {
     marginTop: 8,
     marginBottom: 4,

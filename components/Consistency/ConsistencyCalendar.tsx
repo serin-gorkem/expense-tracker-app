@@ -1,4 +1,3 @@
-import { Expense } from "@/models/expense.model";
 import {
   DayInfo,
   DayKey,
@@ -20,7 +19,6 @@ import CalendarDay from "./CalendarDay";
 type Props = {
   month: Date;
   dayMap: Record<DayKey, DayInfo>;
-  expensesByDay: Map<string, Expense[]>;
   onSelectDay: (dayKey: DayKey) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
@@ -43,7 +41,6 @@ export default function ConsistencyCalendar({
   dayMap,
   onPrevMonth,
   onNextMonth,
-  expensesByDay,
   onSelectDay,
 }: Props) {
   const weeks = useMemo<(number | null)[][]>(

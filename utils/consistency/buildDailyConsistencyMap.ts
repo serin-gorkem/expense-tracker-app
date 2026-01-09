@@ -87,9 +87,10 @@ export function buildConsistencyDayMap({
   }
 
   /* 2️⃣ Aggregate expenses */
+  /* 2️⃣ Aggregate expenses */
   for (const e of expenses) {
-    if (e.kind !== "behavioral") continue;
     const date = new Date(e.date);
+
     if (
       date.getFullYear() !== month.getFullYear() ||
       date.getMonth() !== month.getMonth()
@@ -97,8 +98,14 @@ export function buildConsistencyDayMap({
       continue;
 
     const key = toDayKeyLocal(date);
-    map[key].total += e.amount;
-    map[key].hasEntry = true;
+
+    // ❗ SADECE behavioral harcamalar daily limit'i etkiler
+    if (e.kind === "behavioral") {
+      map[key].total += e.amount;
+      map[key].hasEntry = true;
+    }
+
+    // ❗ goal sadece işaret, limit davranışına girmez
   }
 
   /* 3️⃣ Pass calculation */

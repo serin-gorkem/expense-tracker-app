@@ -38,6 +38,7 @@ export default function CalendarDay({
     return <View style={styles.emptyCell} />;
   }
 
+  const hasGoal = contributedToGoal === true;
   const isGold = status === "gold";
   const isGreen = status === "green";
   const isEdgeDay = isGold && (isStreakStart || isStreakEnd);
@@ -52,6 +53,7 @@ export default function CalendarDay({
               styles.cell,
               isEdgeDay && styles.streakEdgeCell,
               isGreen && styles.greenCell,
+              hasGoal && styles.goalCellOverlay,
             ]}
           >
             {status === "break" ? (
@@ -128,7 +130,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.6)",
   },
-
+  goalCellOverlay: {
+    boxShadow: "0 0 0 2px rgba(34,211,238,0.9)", // web benzeri
+    borderWidth: 1,
+    borderColor: "#22D3EE",
+  },
   goalDot: {
     position: "absolute",
     top: -3,
@@ -139,5 +145,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#22D3EE",
     borderWidth: 1.5,
     borderColor: "rgba(17,24,39,0.9)",
+    zIndex: 10,
   },
 });

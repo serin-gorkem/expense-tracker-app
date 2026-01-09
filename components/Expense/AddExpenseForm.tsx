@@ -157,7 +157,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
         {/* Kind */}
         <Text style={styles.label}>Expense type</Text>
         <View style={styles.kindRow}>
-          {(["behavioral", "structural"] as ExpenseKind[]).map((k) => {
+          {(["behavioral", "structural","goal"] as ExpenseKind[]).map((k) => {
             const active = kind === k;
             return (
               <Pressable
@@ -201,21 +201,22 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
         {activeGoal && (
           <Pressable
             onPress={() => {
+              // Check if the activeGoal completed.
               setBoostGoal((prev) => {
                 const next = !prev;
 
                 if (next && activeGoal) {
-                  // 🔥 Boost AÇILIYOR
+                  // Open Boost
                   if (!originalTitle) {
                     setOriginalTitle(title);
                   }
                   setTitle(`Goal: ${activeGoal.title}`);
-                  setKind("behavioral");
+                  setKind("goal");
                   setCategory("other");
                 }
 
                 if (!next) {
-                  // 🔄 Boost KAPANIYOR
+                  // Close Boost.
                   if (originalTitle !== null) {
                     setTitle(originalTitle);
                     setOriginalTitle(null);

@@ -88,7 +88,6 @@ const expensesByDay = useMemo(() => getExpensesByDay(expenses), [expenses]);
               <ConsistencyCalendar
                 month={month}
                 dayMap={dayMap}
-                expensesByDay={expensesByDay}
                 onSelectDay={setSelectedDayKey}
                 onPrevMonth={goPrevMonth}
                 onNextMonth={goNextMonth}
