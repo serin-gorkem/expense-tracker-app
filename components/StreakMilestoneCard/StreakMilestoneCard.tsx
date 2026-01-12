@@ -1,4 +1,4 @@
-// components/StreakMilestoneCard/StreakMilestoneCard.tsx
+import { useTranslation } from "@/hooks/useTranslation";
 import { AchievedMilestone } from "@/models/milestones.model";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -7,13 +7,16 @@ type Props = {
 };
 
 export function StreakMilestoneCard({ milestone }: Props) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.card}>
       <Text style={styles.emoji}>{milestone.emoji}</Text>
-      <Text style={styles.title}>{milestone.title}</Text>
-      <Text style={styles.desc}>{milestone.description}</Text>
+      <Text style={styles.title}>{t(milestone.titleKey)}</Text>
+      <Text style={styles.desc}>{t(milestone.descriptionKey)}</Text>
       <Text style={styles.date}>
-        Achieved on {new Date(milestone.achievedAt).toLocaleDateString()}
+        {t("streak.achievedOn")}{" "}
+        {new Date(milestone.achievedAt).toLocaleDateString()}
       </Text>
     </View>
   );

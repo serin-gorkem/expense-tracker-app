@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ import {
 
 export default function EditGoalScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { goals, updateGoal, deleteGoal } = useGoalsStore();
@@ -50,7 +52,10 @@ export default function EditGoalScreen() {
     const durationInDays = Number(duration);
 
     if (!title || targetAmount <= 0 || durationInDays <= 0) {
-      Alert.alert("Invalid input", "Please fill all fields correctly.");
+      Alert.alert(
+        t("errors.invalidInput.title"),
+        t("errors.invalidInput.message")
+      );
       return;
     }
 
@@ -64,10 +69,10 @@ export default function EditGoalScreen() {
   };
 
   const confirmDelete = () => {
-    Alert.alert("Delete Goal", "This action cannot be undone. Are you sure?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("goals.delete.title"), t("goals.delete.message"), [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: "Delete",
+        text: t("common.delete"),
         style: "destructive",
         onPress: () => {
           deleteGoal(goal.id);
@@ -83,35 +88,35 @@ export default function EditGoalScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>Edit Goal</Text>
-      <Text style={styles.p}>Update or delete your goal</Text>
+      <Text style={styles.h1}>{t("goals.edit.title")}</Text>
+      <Text style={styles.p}>{t("goals.edit.subtitle")}</Text>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Title</Text>
+        <Text style={styles.label}>{t("goals.edit.fields.title")}</Text>
         <TextInput
           value={title}
           onChangeText={setTitle}
-          placeholder="Goal title"
+          placeholder={t("goals.edit.placeholders.title")}
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
         />
 
-        <Text style={styles.label}>Target amount</Text>
+        <Text style={styles.label}>{t("goals.edit.fields.target")}</Text>
         <TextInput
           value={target}
           onChangeText={setTarget}
           keyboardType="number-pad"
-          placeholder="e.g. 5000"
+          placeholder={t("goals.edit.placeholders.target")}
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
         />
 
-        <Text style={styles.label}>Duration (days)</Text>
+        <Text style={styles.label}>{t("goals.edit.fields.duration")}</Text>
         <TextInput
           value={duration}
           onChangeText={setDuration}
           keyboardType="number-pad"
-          placeholder="e.g. 30"
+          placeholder={t("goals.edit.placeholders.duration")}
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
         />
@@ -119,16 +124,16 @@ export default function EditGoalScreen() {
 
       <View style={styles.row}>
         <Pressable style={styles.secondaryBtn} onPress={() => router.back()}>
-          <Text style={styles.secondaryText}>Cancel</Text>
+          <Text style={styles.secondaryText}>{t("common.cancel")}</Text>
         </Pressable>
 
         <Pressable style={styles.primaryBtn} onPress={handleSave}>
-          <Text style={styles.primaryText}>Save</Text>
+          <Text style={styles.primaryText}>{t("common.save")}</Text>
         </Pressable>
       </View>
 
       <Pressable style={styles.deleteBtn} onPress={confirmDelete}>
-        <Text style={styles.deleteText}>Delete Goal</Text>
+        <Text style={styles.deleteText}>{t("common.delete")}</Text>
       </Pressable>
     </View>
   );

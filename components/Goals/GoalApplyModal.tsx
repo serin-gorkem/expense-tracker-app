@@ -1,15 +1,15 @@
 // components/goals/GoalApplyModal.tsx
 
+import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
 import React from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-
 type DecisionEvent = "APPLY_TO_GOAL" | "SKIP_FOR_TODAY";
 
 type GoalModalProps = {
   visible: boolean;
   remainingAmount: number;
-  goal: Goal;
+  goal?: Goal;
   onDecision: (event: DecisionEvent) => void;
 };
 
@@ -26,6 +26,8 @@ export default function GoalApplyModal({
   goal,
   onDecision,
 }: GoalModalProps) {
+  const { t } = useTranslation();
+  if (!goal) return null;
   return (
     <Modal
       visible={visible}
@@ -36,21 +38,17 @@ export default function GoalApplyModal({
       <View style={styles.backdrop}>
         <View style={styles.container}>
           {/* Title */}
-          <Text style={styles.title}>You have money left today</Text>
+          <Text style={styles.title}>{t("goalApply.title")}</Text>
 
           {/* Amount */}
-          <Text style={styles.amount}>
-            {formatCurrency(remainingAmount)}
-          </Text>
+          <Text style={styles.amount}>{formatCurrency(remainingAmount)}</Text>
 
-          <Text style={styles.subtle}>
-            This amount is under your daily spending limit.
-          </Text>
+          <Text style={styles.subtle}>{t("goalApply.subtle")}</Text>
 
           {/* Context */}
           <Text style={styles.context}>
-            You can add this amount to your goal{" "}
-            <Text style={styles.goalTitle}>{goal?.title}</Text>.
+            {t("goalApply.context")}{" "}
+            <Text style={styles.goalTitle}>{goal.title}</Text>.
           </Text>
 
           {/* Actions */}
@@ -59,14 +57,18 @@ export default function GoalApplyModal({
               style={[styles.button, styles.primary]}
               onPress={() => onDecision("APPLY_TO_GOAL")}
             >
-              <Text style={styles.primaryText}>Add to goal</Text>
+              <Text style={styles.primaryText}>
+                {t("goalApply.actions.apply")}
+              </Text>
             </Pressable>
 
             <Pressable
               style={[styles.button, styles.secondary]}
               onPress={() => onDecision("SKIP_FOR_TODAY")}
             >
-              <Text style={styles.secondaryText}>Skip for today</Text>
+              <Text style={styles.secondaryText}>
+                {t("goalApply.actions.skip")}
+              </Text>
             </Pressable>
           </View>
         </View>

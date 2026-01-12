@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   Category,
   CATEGORY_OPTIONS,
@@ -19,7 +20,6 @@ import {
   View,
 } from "react-native";
 import CurrencyInput from "../ui/CurrencyInput";
-
 type AddExpenseFormProps = {
   onSubmit: (expense: Expense) => void;
 };
@@ -35,7 +35,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
   const [amount, setAmount] = useState<number | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [kind, setKind] = useState<ExpenseKind>("behavioral");
-
+const { t } = useTranslation();
   const [errors, setErrors] = useState<ValidationError>({});
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -113,17 +113,17 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
           style={StyleSheet.absoluteFillObject}
         />
 
-        <Text style={styles.cardTitle}>Add expense</Text>
+        <Text style={styles.cardTitle}>{t("expense.add.title")}</Text>
 
         {/* Title */}
-        <Text style={styles.label}>Title</Text>
+        <Text style={styles.label}>{t("expense.fields.title")}</Text>
+
         <TextInput
           value={title}
           maxLength={30}
           onChangeText={(v) => {
             setTitle(v);
 
-            // Kullanıcı elle değiştirirse
             if (boostGoal && originalTitle === null) {
               setOriginalTitle(v);
             }
@@ -132,32 +132,39 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
               setErrors((e) => ({ ...e, title: undefined }));
             }
           }}
-          placeholder="Expense title"
+          placeholder={t("expense.placeholders.title")}
           placeholderTextColor="rgba(255,255,255,0.45)"
           style={[styles.input, errors.title && styles.inputError]}
         />
-        {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+
+        {errors.title && (
+          <Text style={styles.errorText}>{t("expense.errors.title")}</Text>
+        )}
+
         {boostGoal && (
-          <Text style={styles.boostTitleHint}>Linked to active goal</Text>
+          <Text style={styles.boostTitleHint}>{t("expense.goal.linked")}</Text>
         )}
         {/* Amount */}
-        <Text style={styles.label}>Amount</Text>
+        <Text style={styles.label}>{t("expense.fields.amount")}</Text>
+
         <CurrencyInput
           value={amount}
           onChange={(v) => {
             setAmount(v);
             if (errors.amount) setErrors((e) => ({ ...e, amount: undefined }));
           }}
-          placeholder="Amount"
-          placeholderTextColor="#"
+          placeholder={t("expense.placeholders.amount")}
           style={[styles.input, errors.amount && styles.inputError]}
         />
-        {errors.amount && <Text style={styles.errorText}>{errors.amount}</Text>}
+
+        {errors.amount && (
+          <Text style={styles.errorText}>{t("expense.errors.amount")}</Text>
+        )}
 
         {/* Kind */}
-        <Text style={styles.label}>Expense type</Text>
+        <Text style={styles.label}>{t("expense.fields.kind")}</Text>
         <View style={styles.kindRow}>
-          {(["behavioral", "structural","goal"] as ExpenseKind[]).map((k) => {
+          {(["behavioral", "structural", "goal"] as ExpenseKind[]).map((k) => {
             const active = kind === k;
             return (
               <Pressable
@@ -166,7 +173,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
                 style={[styles.kindPill, active && styles.kindPillActive]}
               >
                 <Text style={styles.kindText}>
-                  {EXPENSE_KIND_META[k]?.label}
+                  {t(EXPENSE_KIND_META[k].labelKey)}
                 </Text>
               </Pressable>
             );
@@ -174,7 +181,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
         </View>
 
         {/* Category */}
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>{t("expense.fields.category")}</Text>
         <View
           style={[
             styles.categoryRow,
@@ -189,12 +196,14 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
                 onPress={() => setCategory(item.key)}
                 style={[styles.category, active && styles.categoryActive]}
               >
-                <Text style={styles.categoryText}>{item.label}</Text>
+                <Text style={styles.categoryText}>
+                  {t(`categories.${item.key}`)}
+                </Text>
               </Pressable>
             );
           })}
           {errors.category && (
-            <Text style={styles.errorText}>{errors.category}</Text>
+            <Text style={styles.errorText}>{t("expense.errors.category")}</Text>
           )}
         </View>
         {/* GOAL BOOST */}
@@ -228,19 +237,21 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
             }}
             style={[styles.boostCard, boostGoal && styles.boostCardActive]}
           >
-            <Text style={styles.boostTitle}>🎯 Boost active goal</Text>
+            <Text style={styles.boostTitle}>
+              🎯 {t("expense.goal.boostTitle")}
+            </Text>
 
             <Text style={styles.boostSub}>{activeGoal.title}</Text>
 
             {boostGoal && (
               <Text style={styles.boostHint}>
-                This amount will be added to your goal
+                {t("expense.goal.boostHint")}
               </Text>
             )}
           </Pressable>
         )}
         <Pressable onPress={handleSubmit} style={styles.btn}>
-          <Text style={styles.btnText}>Add</Text>
+          <Text style={styles.btnText}>{t("expense.add.action")}</Text>
         </Pressable>
       </BlurView>
 
@@ -254,14 +265,17 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>
-              {boostGoal ? "Added to your goal 🎯" : "Expense added"}
+              {boostGoal
+                ? t("expense.success.goalTitle")
+                : t("expense.success.title")}
             </Text>
 
             <Text style={styles.modalText}>
               {boostGoal
-                ? "This amount has been added to your active goal."
-                : "Your expense has been saved successfully."}
+                ? t("expense.success.goalDesc")
+                : t("expense.success.desc")}
             </Text>
+
             <Pressable
               onPress={() => {
                 setShowSuccess(false);
@@ -269,7 +283,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
               }}
               style={styles.modalBtn}
             >
-              <Text style={styles.modalBtnText}>Got it</Text>
+              <Text style={styles.modalBtnText}>{t("common.ok")}</Text>
             </Pressable>
           </View>
         </View>

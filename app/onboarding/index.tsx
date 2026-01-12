@@ -10,7 +10,7 @@ import WelcomeStep from "./steps/WelcomeStep";
 import { useOnboardingWizard } from "@/hooks/useOnboardingWizard";
 
 export default function Onboarding() {
-  const { step, data, next, back, update } = useOnboardingWizard();
+  const { step, data, next, finishOnboarding, back, update } = useOnboardingWizard();
 
   if (step === 0) return <WelcomeStep onNext={next} />;
 
@@ -44,9 +44,9 @@ export default function Onboarding() {
         onBack={back}
       />
     );
-  if (step === 4) return <GoalWizardStep onBack={back} onNext={next} />;
+  if (step === 4) return <GoalWizardStep onBack={back} onNext={next} data={data} />;
 
-  if (step === 5) return <ManualLimitsStep onFinish={next} onBack={back} />;
+  if (step === 5) return <ManualLimitsStep onFinish={finishOnboarding} onBack={back} />;
 
   if (step === 6)
     return (
@@ -54,7 +54,7 @@ export default function Onboarding() {
         monthlyIncome={data.monthlyIncome!}
         fixedExpenses={data.fixedExpenses!}
         useAutoLimits={data.useAutoLimits}
-        onFinish={next}
+        onFinish={finishOnboarding}
       />
     );
 

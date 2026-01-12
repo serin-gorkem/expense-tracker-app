@@ -1,17 +1,20 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { useWizard } from "@/src/context/WizardContext";
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function StepDuration() {
   const { draft, setDurationInDays, next, canGoNext } = useWizard();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>How long will you save?</Text>
-      <Text style={styles.p}>Set the duration in days.</Text>
+      <Text style={styles.h1}>{t("goalWizard.duration.title")}</Text>
+      <Text style={styles.p}>{t("goalWizard.duration.subtitle")}</Text>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Duration (days)</Text>
+        <Text style={styles.label}>{t("goalWizard.duration.label")}</Text>
+
         <TextInput
           value={draft.durationInDays?.toString() ?? ""}
           onChangeText={(t) => {
@@ -23,7 +26,7 @@ export default function StepDuration() {
             }
           }}
           keyboardType="number-pad"
-          placeholder="e.g. 30"
+          placeholder={t("goalWizard.duration.placeholder")}
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
         />
@@ -34,7 +37,7 @@ export default function StepDuration() {
         onPress={next}
         disabled={!canGoNext}
       >
-        <Text style={styles.primaryText}>Continue</Text>
+        <Text style={styles.primaryText}>{t("common.continue")}</Text>
       </Pressable>
     </View>
   );

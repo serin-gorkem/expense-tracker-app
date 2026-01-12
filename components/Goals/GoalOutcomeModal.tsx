@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -9,7 +10,7 @@ type Props = {
   type: "success" | "failure";
   goal: Goal | null;
   onClose: () => void;
-  onNextGoal?: () => void; // opsiyonel navigation hook
+  onNextGoal?: () => void;
 };
 
 export default function GoalOutcomeModal({
@@ -19,6 +20,8 @@ export default function GoalOutcomeModal({
   onClose,
   onNextGoal,
 }: Props) {
+  const { t } = useTranslation();
+
   if (!visible || !goal) return null;
 
   const isSuccess = type === "success";
@@ -51,24 +54,28 @@ export default function GoalOutcomeModal({
 
           <Text style={styles.message}>
             {isSuccess
-              ? "You’ve reached your goal. This one is now archived."
-              : "This goal didn’t make it in time. You can try again or set a new one."}
+              ? t("goalOutcome.successMessage")
+              : t("goalOutcome.failureMessage")}
           </Text>
 
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={styles.button}>
-              <Text style={styles.buttonText}>OK</Text>
+              <Text style={styles.buttonText}>
+                {t("common.ok")}
+              </Text>
             </Pressable>
 
             {isSuccess && onNextGoal && (
               <Pressable
                 onPress={() => {
-                  onClose();       // 🔒 modal her zaman önce kapanır
-                  onNextGoal();    // ➜ navigation / next flow
+                  onClose();
+                  onNextGoal();
                 }}
                 style={styles.secondaryBtn}
               >
-                <Text style={styles.secondaryText}>Next Goal</Text>
+                <Text style={styles.secondaryText}>
+                  {t("goalOutcome.nextGoal")}
+                </Text>
               </Pressable>
             )}
           </View>

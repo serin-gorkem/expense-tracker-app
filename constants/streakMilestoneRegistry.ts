@@ -5,8 +5,11 @@ export type Milestone = {
   id: string;
   type: "streak";
   value: StreakMilestone;
-  title: string;
-  description: string;
+
+  // 🔑 i18n keys
+  titleKey: string;
+  descriptionKey: string;
+
   emoji: string;
 };
 
@@ -15,48 +18,48 @@ export const STREAK_MILESTONE_REGISTRY: Record<StreakMilestone, Milestone> = {
     id: "streak_1",
     type: "streak",
     value: 1,
-    title: "First Step",
-    description: "You completed your first safe day.",
+    titleKey: "milestones.streak_1.title",
+    descriptionKey: "milestones.streak_1.description",
     emoji: "🔥",
   },
   7: {
     id: "streak_7",
     type: "streak",
     value: 7,
-    title: "One Week Strong",
-    description: "7 days in a row within your limit.",
+    titleKey: "milestones.streak_7.title",
+    descriptionKey: "milestones.streak_7.description",
     emoji: "💪",
   },
   21: {
     id: "streak_21",
     type: "streak",
     value: 21,
-    title: "Habit Formed",
-    description: "21 day streak achieved.",
+    titleKey: "milestones.streak_21.title",
+    descriptionKey: "milestones.streak_21.description",
     emoji: "🧠",
   },
   30: {
     id: "streak_30",
     type: "streak",
     value: 30,
-    title: "Monthly Discipline",
-    description: "30 days of consistency.",
+    titleKey: "milestones.streak_30.title",
+    descriptionKey: "milestones.streak_30.description",
     emoji: "🏆",
   },
   60: {
     id: "streak_60",
     type: "streak",
     value: 60,
-    title: "Unstoppable",
-    description: "60 day streak. Impressive.",
+    titleKey: "milestones.streak_60.title",
+    descriptionKey: "milestones.streak_60.description",
     emoji: "🚀",
   },
   90: {
     id: "streak_90",
     type: "streak",
     value: 90,
-    title: "Legendary",
-    description: "90 days without breaking discipline.",
+    titleKey: "milestones.streak_90.title",
+    descriptionKey: "milestones.streak_90.description",
     emoji: "👑",
   },
 };

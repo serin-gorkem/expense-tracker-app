@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { streakCelebrationResult } from "@/utils/streak/streakCelebrationRules";
 import { Pressable, StyleSheet, Text } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -9,7 +10,6 @@ import Animated, {
   ZoomIn,
   ZoomOut,
 } from "react-native-reanimated";
-
 type Props = {
   result: streakCelebrationResult;
   onDismiss: () => void;
@@ -17,6 +17,7 @@ type Props = {
 
 export function StreakCelebration({ result, onDismiss }: Props) {
   const isNew = result.type === "new_streak";
+  const { t } = useTranslation();
 
   return (
     <Animated.View
@@ -47,21 +48,24 @@ export function StreakCelebration({ result, onDismiss }: Props) {
         </Animated.Text>
 
         <Animated.Text entering={SlideInUp.delay(120)} style={styles.title}>
-          {isNew ? "Streak Started!" : "Milestone Reached"}
+          {isNew ? t("streak.newTitle") : t("streak.milestoneTitle")}
         </Animated.Text>
 
         <Animated.Text entering={SlideInUp.delay(160)} style={styles.subtitle}>
-          {result.count} day streak
+          {t("streak.dayStreak").replace("{{count}}", String(result.count))}
         </Animated.Text>
 
         {!isNew && (
           <Animated.Text entering={FadeIn.delay(220)} style={styles.badge}>
-            {result.milestone} days milestone
+            {t("streak.milestoneBadge").replace(
+              "{{count}}",
+              String(result.milestone)
+            )}
           </Animated.Text>
         )}
 
         <Pressable style={styles.button} onPress={onDismiss}>
-          <Text style={styles.buttonText}>Continue</Text>
+          <Text style={styles.buttonText}>{t("common.continue")}</Text>
         </Pressable>
       </Animated.View>
     </Animated.View>

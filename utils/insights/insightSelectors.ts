@@ -7,7 +7,6 @@ import {
   getWeeklyAverageInsightData,
 } from "@/utils/expense/expenseInsights";
 
-
 import {
   INSIGHT_PRIORITY,
   MAX_VISIBLE_INSIGHTS,
@@ -17,7 +16,7 @@ import {
 import {
   getBaselineComparisonInsight,
   getDailyBaselineInsight,
-} from "./baselineInsights";
+} from "@/utils/insights/baselineInsights";
 
 /* =========================
    Types
@@ -25,7 +24,7 @@ import {
 
 type InsightCandidate = {
   type: InsightType;
-  data: unknown;
+  item: InsightItem | null;
 };
 
 /* =========================
@@ -41,59 +40,101 @@ export function insightSelectors({
   dailyLimit: number;
   dailyBaseline: number | null;
 }): InsightItem[] {
-  /* =========================
-     Financial insight candidates
-  ========================= */
-
   const weeklyAvgData = getWeeklyAverageInsightData(expenses);
 
-  const financialCandidates: InsightCandidate[] = [
+  /* =========================
+     Build candidates
+  ========================= */
+
+  const candidates: InsightCandidate[] = [
     {
       type: "daily_baseline",
-      data: getDailyBaselineInsight(dailyBaseline),
+      item: getDailyBaselineInsight(dailyBaseline),
     },
+
     {
       type: "baseline_vs_spending",
-      data: getBaselineComparisonInsight({
+      item: getBaselineComparisonInsight({
         dailyBaseline,
         weeklyAverage: weeklyAvgData?.weeklyAverage ?? null,
       }),
     },
+
     {
       type: "monthly_change",
-      data: getMonthlyChangeInsightData(expenses),
+      item: (() => {
+        const d = getMonthlyChangeInsightData(expenses);
+        if (!d) return null;
+
+        const abs = Math.abs(d.percentageChange);
+
+        return {
+          type: "monthly_change",
+          titleKey: "insights.monthly_change.title",
+          descriptionKey:
+            d.percentageChange > 0
+              ? "insights.monthly_change.more"
+              : "insights.monthly_change.less",
+          params: { percent: abs },
+          tone:
+            abs < 5
+              ? "neutral"
+              : d.percentageChange > 0
+              ? "negative"
+              : "positive",
+        };
+      })(),
     },
+
     {
       type: "top_category",
-      data: getTopCategoryInsightData(expenses),
+      item: (() => {
+        const d = getTopCategoryInsightData(expenses);
+        if (!d) return null;
+
+        return {
+          type: "top_category",
+          titleKey: "insights.top_category.title",
+          descriptionKey: "insights.top_category.description",
+          params: { category: d.category },
+          tone: "neutral",
+        };
+      })(),
     },
+
     {
       type: "weekly_average",
-      data: weeklyAvgData,
+      item: (() => {
+        if (!weeklyAvgData || weeklyAvgData.weeklyAverage < 1) return null;
+
+        return {
+          type: "weekly_average",
+          titleKey: "insights.weekly_average.title",
+          descriptionKey: "insights.weekly_average.description",
+          params: {
+            amount: Math.round(weeklyAvgData.weeklyAverage),
+          },
+          tone: "neutral",
+        };
+      })(),
     },
-  ];
-
-  /* =========================
-     Merge candidates
-  ========================= */
-
-  const allCandidates: InsightCandidate[] = [
-    ...financialCandidates,
   ];
 
   /* =========================
      Eligibility filter
   ========================= */
 
-  const eligible = allCandidates.filter((item) =>
-    isInsightEligible(item.type, item.data)
-  );
+  const eligible = candidates
+    .filter(
+      (c) => c.item && isInsightEligible(c.type, c.item)
+    )
+    .map((c) => c.item as InsightItem);
 
   /* =========================
      Priority sorting
   ========================= */
 
-  const sorted = [...eligible].sort(
+  const sorted = eligible.sort(
     (a, b) =>
       INSIGHT_PRIORITY.indexOf(a.type) -
       INSIGHT_PRIORITY.indexOf(b.type)
@@ -103,90 +144,5 @@ export function insightSelectors({
      Limit visible insights
   ========================= */
 
-  const visible = sorted.slice(0, MAX_VISIBLE_INSIGHTS);
-
-  /* =========================
-     Normalize to InsightItem
-  ========================= */
-
-  return visible.map(({ type, data }): InsightItem => {
-    // Behavioral & baseline insights already return InsightItem
-    if (
-      typeof data === "object" &&
-      data !== null &&
-      "title" in data &&
-      "description" in data &&
-      "tone" in data
-    ) {
-      return data as InsightItem;
-    }
-
-    // Financial insight mapping
-    switch (type) {
-      case "monthly_change": {
-        const d = data as { percentageChange: number };
-        const abs = Math.abs(d.percentageChange);
-
-        const tone =
-          abs < 5
-            ? "neutral"
-            : d.percentageChange > 0
-            ? "negative"
-            : "positive";
-
-        return {
-          type,
-          title: "Monthly change",
-          description:
-            d.percentageChange > 0
-              ? `You spent ${abs}% more than last month.`
-              : `You spent ${abs}% less than last month.`,
-          tone,
-        };
-      }
-
-      case "top_category": {
-        const d = data as {
-          category: string;
-          total: number;
-        };
-
-        return {
-          type,
-          title: "Top category",
-          description: `Most of your spending went to ${d.category}.`,
-          tone: "neutral",
-        };
-      }
-
-      case "weekly_average": {
-        const d = data as {
-          weeklyAverage: number;
-        };
-
-        if (d.weeklyAverage < 1) {
-          return {
-            type,
-            title: "Weekly average",
-            description: "Not enough data to calculate weekly average.",
-            tone: "neutral",
-          };
-        }
-
-        return {
-          type,
-          title: "Weekly average",
-          description: `Your weekly average is ${Math.round(
-            d.weeklyAverage
-          )}.`,
-          tone: "neutral",
-        };
-      }
-
-      default: {
-        // Bu noktaya düşmemeli
-        throw new Error(`Unhandled insight type: ${type}`);
-      }
-    }
-  });
+  return sorted.slice(0, MAX_VISIBLE_INSIGHTS);
 }

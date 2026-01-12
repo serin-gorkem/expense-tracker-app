@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   Category,
   CATEGORY_OPTIONS,
@@ -32,6 +33,7 @@ export default function EditExpenseForm({
   const [boostAmount, setBoostAmount] = useState<number | null>(
     expense.boostAmount ?? expense.amount
   );
+  const { t } = useTranslation();
   function handleSubmit() {
     if (!title || amount == null || amount <= 0 || !category) return;
 
@@ -56,34 +58,34 @@ export default function EditExpenseForm({
           style={StyleSheet.absoluteFillObject}
         />
 
-        <Text style={styles.cardTitle}>Edit expense</Text>
+        <Text style={styles.cardTitle}>{t("expense.edit.title")}</Text>
 
         {/* Title */}
-        <Text style={styles.label}>Title</Text>
+        <Text style={styles.label}>{t("expense.fields.title")}</Text>
+
         <TextInput
           value={title}
           onChangeText={setTitle}
-          placeholder="Expense title"
+          placeholder={t("expense.placeholders.title")}
           placeholderTextColor="rgba(255,255,255,0.45)"
           style={styles.input}
         />
 
         {/* Amount */}
-        <Text style={styles.label}>Amount</Text>
+        <Text style={styles.label}>{t("expense.fields.amount")}</Text>
+
         <CurrencyInput
           value={amount}
           onChange={(v) => {
             setAmount(v);
-            if (isGoalBoost) {
-              setBoostAmount(v);
-            }
+            if (isGoalBoost) setBoostAmount(v);
           }}
-          placeholder="Amount"
+          placeholder={t("expense.placeholders.amount")}
           style={styles.input}
         />
 
         {/* Kind */}
-        <Text style={styles.label}>Expense type</Text>
+        <Text style={styles.label}>{t("expense.fields.kind")}</Text>
         <View style={styles.kindRow}>
           {(["behavioral", "structural"] as ExpenseKind[]).map((k) => {
             const active = kind === k;
@@ -94,7 +96,7 @@ export default function EditExpenseForm({
                 style={[styles.kindPill, active && styles.kindPillActive]}
               >
                 <Text style={styles.kindText}>
-                  {EXPENSE_KIND_META[k]?.label}
+                  {t(EXPENSE_KIND_META[k].labelKey)}
                 </Text>
               </Pressable>
             );
@@ -102,7 +104,7 @@ export default function EditExpenseForm({
         </View>
 
         {/* Category */}
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>{t("expense.fields.category")}</Text>
         <View style={styles.categoryRow}>
           {CATEGORY_OPTIONS.map((item) => {
             const active = category === item.key;
@@ -112,13 +114,15 @@ export default function EditExpenseForm({
                 onPress={() => setCategory(item.key)}
                 style={[styles.category, active && styles.categoryActive]}
               >
-                <Text style={styles.categoryText}>{item.label}</Text>
+                <Text style={styles.categoryText}>
+                  {t(`categories.${item.key}`)}
+                </Text>
               </Pressable>
             );
           })}
         </View>
         {/* GOAL */}
-        <Text style={styles.label}>Goal contribution</Text>
+        <Text style={styles.label}>{t("expense.fields.goal")}</Text>
 
         <Pressable
           onPress={() => setIsGoalBoost((v) => !v)}
@@ -126,8 +130,8 @@ export default function EditExpenseForm({
         >
           <Text style={styles.goalToggleText}>
             {isGoalBoost
-              ? "This expense contributes to a goal"
-              : "Not a goal contribution"}
+              ? t("expense.goal.active")
+              : t("expense.goal.inactive")}
           </Text>
         </Pressable>
         {isGoalBoost && (
@@ -153,10 +157,11 @@ export default function EditExpenseForm({
         {/* Actions */}
         <View style={styles.row}>
           <Pressable onPress={onCancel} style={[styles.btn, styles.btnGhost]}>
-            <Text style={styles.btnText}>Cancel</Text>
+            <Text style={styles.btnText}>{t("common.cancel")}</Text>
           </Pressable>
+
           <Pressable onPress={handleSubmit} style={styles.btn}>
-            <Text style={styles.btnText}>Save</Text>
+            <Text style={styles.btnText}>{t("common.save")}</Text>
           </Pressable>
         </View>
       </BlurView>

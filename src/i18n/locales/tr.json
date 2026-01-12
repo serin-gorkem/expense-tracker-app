@@ -1,0 +1,596 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Hoş geldin 👋",
+      "subtitle": "Paranı daha iyi yönetebilmemiz için finans profilini oluşturalım.",
+      "language": "Dil seçimi",
+      "cta": "Başlayalım"
+    },
+    "autoLimits": {
+      "title": "Otomatik limitler?",
+      "subtitle": "Gelirinize göre günlük ve haftalık limitleri otomatik hesaplayabiliriz.",
+      "yes": "Evet, benim için hesapla",
+      "no": "Hayır, kendim ayarlayacağım"
+    },
+    "income": {
+      "title": "Gelirin",
+      "placeholder": "Aylık gelir"
+    },
+    "fixedExpenses": {
+      "title": "Sabit giderler",
+      "subtitle": "Kira, faturalar, abonelikler vb.",
+      "placeholder": "Toplam sabit gider",
+      "alert": {
+        "title": "Bir saniye 😄",
+        "message": "Giderlerin gelirinden fazla görünüyor.\nGizli bir sponsorun yoksa, burada bir hata var gibi."
+      }
+    },
+    "goal-wizard": {
+      "title": "Hedef belirle",
+      "subtitle": "Hedefler motive olmanı sağlar ve artan parayı ilerlemeye dönüştürür.",
+      "whyTitle": "Neden hedef oluşturmalısın?",
+      "why": {
+        "1": "Belirli bir şey için birikim yapmak",
+        "2": "Zamanla düzenli bir alışkanlık oluşturmak",
+        "3": "Kullanılmayan parayı otomatik olarak ilerlemeye aktarmak"
+      },
+      "create": "Hedef oluştur"
+    },
+
+    "limits": {
+      "manualTitle": "Limitlerini ayarla",
+      "manualSubtitle": "Her dönem için ne kadar harcayabileceğini belirle.",
+      "tapToEdit": "Düzenlemek için dokun",
+      "period": {
+        "daily": "Günlük limit",
+        "weekly": "Haftalık limit",
+        "monthly": "Aylık limit"
+      }
+    },
+    "preview": {
+      "title": "Her şey hazır 🎉",
+      "autoSubtitle": "Gelirine göre harcama limitlerini senin için hesapladık.",
+      "manualSubtitle": "Limitlerinin özetini aşağıda görebilirsin."
+    },
+    "done": {
+      "title": "Her şey hazır 🎉",
+      "subtitle": "Finans sistemin hazır. Tüm ayarları daha sonra Ayarlar’dan değiştirebilirsin."
+    }
+  },
+  "tabs": {
+    "home": "Ana Sayfa",
+    "goals": "Hedefler",
+    "insights": "Analizler",
+    "achievements": "Başarılar",
+    "settings": "Ayarlar"
+  },
+  "common": {
+    "save": "Kaydet",
+    "ok": "Tamam",
+    "back": "Geri",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "undo": "GERİ AL",
+    "loading": "Yükleniyor...",
+    "continue": "Devam et",
+    "days": "gün",
+    "perDay": "günlük",
+    "delete": "Sil",
+    "skipForNow": "Şimdilik geç",
+    "finish": "Bitir",
+    "goHome": "Ana Sayfaya Git",
+    "gotIt": "Anladım"
+  },
+  "errors": {
+    "invalidInput": {
+      "title": "Geçersiz bilgi.",
+      "message": "Lütfen tüm alanları doğru doldurun."
+    }
+  },
+
+  "settings": {
+    "title": "Ayarlar",
+    "language": "Dil",
+    "currency": "Para birimi",
+    "autoLimits": "Otomatik limitler",
+    "monthlyIncome": "Aylık gelir",
+    "fixedExpenses": "Sabit giderler",
+    "disableAutoHint": "Düzenlemek için otomatik limitleri kapat",
+      "reset": {
+    "button": "Tüm verileri sıfırla",
+    "title": "Uygulama verilerini sıfırla",
+    "message": "Tüm harcamalar, hedefler, seriler ve başarılar silinecek.",
+    "confirm": "Sıfırla"
+  }
+  },
+
+  "limits": {
+    "daily": {
+      "title": "Günlük limit"
+    },
+    "weekly": {
+      "title": "Haftalık limit"
+    },
+    "monthly": {
+      "title": "Aylık limit"
+    },
+    "status": {
+      "safe": "Limit dahilindesin",
+      "warning": "Limite yaklaşıyorsun",
+      "exceeded": "Limiti aştın"
+    }
+  },
+
+  "home": {
+    "title": "Ana Sayfa",
+    "subtitle": "Harcama Yönetim Paneli"
+  },
+
+  "search": {
+    "resultsFor": "“{{query}}” için sonuçlar gösteriliyor",
+    "placeholder": {
+      "default": "Harcama ara…",
+      "focused": "Filtrelemek için yaz…"
+    }
+  },
+
+  "empty": {
+    "noExpensesTitle": "Henüz harcama yok",
+    "noExpensesDesc": "Harcama eklemeye başlayarak burada görebilirsin.",
+    "noResultsTitle": "Harcama bulunamadı",
+    "noResultsDesc": "Arama veya filtreleri değiştirerek tekrar dene."
+  },
+
+  "toast": {
+    "expenseDeleted": "Harcama silindi"
+  },
+
+  "streak": {
+    "newTitle": "Seri Başladı!",
+    "milestoneTitle": "Kilometre Taşı!",
+    "dayStreak": "{{count}} günlük seri",
+    "milestoneBadge": "{{count}} gün serisi",
+    "achievedOn": "Kazanıldı"
+  },
+
+  "insights": {
+    "good_day": {
+      "title": "İyi bir harcama günü",
+      "description": "Bugün günlük limitinin içinde kaldın."
+    },
+
+    "over_limit": {
+      "title": "Günlük limit aşıldı",
+      "description": "Bugünkü harcaman günlük bütçeni geçti."
+    },
+
+    "above_baseline": {
+      "title": "Ortalamanın üzerinde",
+      "description": "Harcaman alışılmış ortalamanın üzerinde."
+    },
+
+    "monthly_change": {
+      "title": "Aylık değişim",
+      "more": "Geçen aya göre {{percent}}% daha fazla harcadın.",
+      "less": "Geçen aya göre {{percent}}% daha az harcadın."
+    },
+
+    "top_category": {
+      "title": "En çok harcanan kategori",
+      "description": "Harcamanın çoğu {{category}} kategorisinde."
+    },
+
+    "weekly_average": {
+      "title": "Haftalık ortalama",
+      "description": "Haftalık ortalaman ₺{{amount}}."
+    },
+
+    "screen": {
+      "title": "Analizler",
+      "subtitle": "Harcama verilerine dayalı grafikler ve analizler"
+    },
+
+    "empty": {
+      "title": "Henüz veri yok",
+      "desc": "Analizleri görmek için birkaç harcama ekle."
+    },
+
+    "more": {
+      "title": "Uygulamayı kullandıkça daha fazla analiz açılacak",
+      "items": {
+        "consistency": "Zaman içindeki harcama tutarlılığı",
+        "recovery": "Aşım sonrası toparlanma",
+        "strongWeak": "En güçlü ve en zayıf günlerin",
+        "patterns": "Limit davranış kalıpları"
+      },
+      "hint": "Bu analizler veriler anlamlı hale geldikçe ortaya çıkar."
+    },
+
+    "financial": {
+      "title": "Finansal analizler",
+      "subtitle": "Harcama metriklerine genel bakış"
+    },
+
+    "baseline": {
+      "title": "Günlük referans",
+      "desc": "Bu, senin için dengeli bir günün karşılığıdır.",
+      "hint": "Bir limit değildir.",
+
+      "daily": {
+        "title": "Günlük referansın",
+        "desc": "Senin için dengeli bir gün yaklaşık ₺{{amount}} civarında. Bu bir referanstır, limit değil."
+      },
+
+      "below": {
+        "title": "Referansın altında",
+        "desc": "Son dönemdeki harcamaların referansının altında. Bu genellikle tasarruflu olduğun anlamına gelir."
+      },
+
+      "slightlyAbove": {
+        "title": "Referansın biraz üzerinde",
+        "desc": "Son dönemdeki harcamaların referansının biraz üzerinde. Farkında olmak yeterli olabilir."
+      },
+
+      "above": {
+        "title": "Referansın üzerinde",
+        "desc": "Son dönemdeki harcamaların referansının belirgin şekilde üzerinde."
+      }
+    },
+
+    "behavioral": {
+      "title": "Davranışsal kalıplar",
+      "subtitle": "Harcama alışkanlıklarının zaman içindeki değişimi",
+      "learning": "Alışkanlıklarını hâlâ öğreniyoruz",
+      "hint": "Davranış analizlerinin açılması için birkaç gün daha kullan",
+
+      "weekendSpike": {
+        "title": "Hafta sonu harcama artışı",
+        "desc": "Hafta sonları harcaman hafta içlerine göre belirgin şekilde daha yüksek.",
+        "descOverLimit": "Hafta sonu harcamaların hem yüksek hem de günlük limitini aşıyor."
+      },
+
+      "overLimit": {
+        "title": "Günlük limit sık sık aşılıyor",
+        "desc": "Bazı günlerde günlük limitini aşıyorsun.",
+        "descSevere": "Birçok gün günlük limitini aşıyorsun. Bu bütçeni zorlayabilir."
+      },
+
+      "expensiveWeekday": {
+        "title": "Bir gün diğerlerine göre daha pahalı",
+        "desc": "Bu gün diğer günlere kıyasla daha fazla harcama yapıyorsun.",
+        "descOverLimit": "Bu günde yapılan harcamalar sık sık günlük limiti aşıyor."
+      },
+
+      "inconsistent": {
+        "title": "Harcama düzenin tutarsız",
+        "desc": "Harcamaların günler arasında ciddi şekilde değişiyor.",
+        "descOverLimit": "Bazı günlerde harcama çok yükseliyor ve günlük limit ciddi şekilde aşılıyor."
+      }
+    }
+  },
+
+  "consistency": {
+    "title": "Seri Takvimi",
+    "legend": {
+      "streak": "Aktif seri",
+      "completed": "Tamamlandı",
+      "goal": "Hedef",
+      "missed": "Kaçırıldı"
+    }
+  },
+
+  "weekdays": {
+    "mon": "Pzt",
+    "tue": "Sal",
+    "wed": "Çar",
+    "thu": "Per",
+    "fri": "Cum",
+    "sat": "Cmt",
+    "sun": "Paz"
+  },
+
+  "dayDetail": {
+    "status": {
+      "streak": "🔥 Seri günü",
+      "within": "✅ Limit içinde",
+      "over": "❌ Limit aşıldı",
+      "empty": "💤 Veri yok"
+    },
+    "goal": {
+      "title": "🎯 Hedef katkısı"
+    },
+    "expenses": {
+      "title": "Harcamalar",
+      "empty": "Bu gün için harcama yok."
+    }
+  },
+
+  "milestones": {
+    "streak_1": {
+      "title": "İlk Adım",
+      "description": "İlk güvenli gününü tamamladın."
+    },
+    "streak_7": {
+      "title": "Bir Haftalık Seri",
+      "description": "7 gün üst üste limit içinde kaldın."
+    },
+    "streak_21": {
+      "title": "Alışkanlık Oluştu",
+      "description": "21 günlük seri. Alışkanlığın şekilleniyor."
+    },
+    "streak_30": {
+      "title": "Aylık Disiplin",
+      "description": "30 gün boyunca tutarlı harcama kontrolü."
+    },
+    "streak_60": {
+      "title": "Dur Durak Yok",
+      "description": "60 gün aralıksız disiplin."
+    },
+    "streak_90": {
+      "title": "Efsanevi",
+      "description": "90 gün boyunca disiplini bozmadın."
+    }
+  },
+
+  "achievements": {
+    "title": "Başarılar",
+    "subtitle": "İlerlemen, kilometre taşların ve disiplinin",
+    "footerHint": "Tutarlılık kazandıkça ve hedeflere ulaştıkça yeni başarılar açılacak.",
+    "achievedOn": "Kazanıldı",
+    "progress": "{{current}} / {{target}} gün",
+    "days": "gün"
+  },
+
+  "viewMode": {
+    "daily": "Günlük",
+    "weekly": "Haftalık",
+    "monthly": "Aylık"
+  },
+
+  "goalOutcome": {
+    "successMessage": "Hedefine ulaştın. Bu hedef arşivlendi.",
+    "failureMessage": "Bu hedef zamanında tamamlanamadı. Tekrar deneyebilir ya da yeni bir hedef belirleyebilirsin.",
+    "nextGoal": "Sonraki Hedef"
+  },
+  "expense": {
+    "empty": "Henüz harcama yok.",
+    "edit": {
+      "title": "Harcamayı düzenle"
+    },
+    "fields": {
+      "title": "Başlık",
+      "amount": "Tutar",
+      "kind": "Harcama türü",
+      "category": "Kategori",
+      "goal": "Hedef katkısı"
+    },
+    "placeholders": {
+      "title": "Harcama başlığı",
+      "amount": "Tutar"
+    },
+    "add": {
+      "title": "Harcama ekle",
+      "action": "Ekle"
+    },
+    "errors": {
+      "title": "Başlık zorunludur",
+      "amount": "Geçerli bir tutar girin",
+      "category": "Bir kategori seçin"
+    },
+    "goal": {
+      "linked": "Aktif hedefe bağlı",
+      "boostTitle": "Aktif hedefi destekle",
+      "boostHint": "Bu tutar hedefinize eklenecek",
+      "active": "Bu harcama bir hedefe katkı sağlıyor",
+      "inactive": "Hedef katkısı değil",
+      "badge": "Hedef"
+    },
+    "success": {
+      "title": "Harcama eklendi",
+      "desc": "Harcamanız başarıyla kaydedildi.",
+      "goalTitle": "Hedefe eklendi 🎯",
+      "goalDesc": "Bu tutar aktif hedefinize eklendi."
+    },
+    "hint": {
+      "title": "Kısa ipucu",
+      "edit": "Düzenlemek için harcamaya dokun",
+      "delete": "Silmek için sola kaydır"
+    }
+  },
+  "categoryFilter": {
+    "title": "Kategoriye göre filtrele",
+    "all": "Tümü"
+  },
+
+  "categories": {
+    "food": "Yemek",
+    "transport": "Ulaşım",
+    "entertainment": "Eğlence",
+    "shopping": "Alışveriş",
+    "health": "Sağlık",
+    "bills": "Faturalar",
+    "education": "Eğitim",
+    "other": "Diğer"
+  },
+  "expenseKind": {
+    "behavioral": {
+      "label": "Günlük",
+      "desc": "Kontrol edilebilir harcamalar"
+    },
+    "structural": {
+      "label": "Sabit",
+      "desc": "Zorunlu, düzenli giderler"
+    },
+    "goal": {
+      "label": "Hedef",
+      "desc": "Hedefine katkı sağlar"
+    }
+  },
+  "charts": {
+    "weekly": {
+      "hint": "Tip : Gün içi harcamayı görmek için günlerin üstüne dokun",
+      "baseline": "Günlük Limit ₺{{amount}}"
+    }
+  },
+
+  "goals": {
+    "create": "Hedef oluştur",
+    "active": {
+      "label": "AKTİF HEDEF",
+      "badge": "AKTİF",
+      "summary": {
+        "title": "ÖZET",
+        "remaining": "Kalan",
+        "dailyTarget": "Günlük hedef",
+        "lastBoost": "Son destek: +{{amount}}"
+      },
+
+      "projection": {
+        "title": "TAHMİN",
+        "good": "Planın önündesin. Bu tempoyu koruyabilirsin.",
+        "tight": "Biraz geridesin ama bu hedef hâlâ gerçekçi.",
+        "heavy": "Bu tempoyla hedefe ulaşmak zor görünüyor."
+      },
+
+      "health": {
+        "title": "HEDEF SAĞLIĞI",
+        "subtitle": "Mevcut birikim hızı",
+        "week": "Bu hafta",
+        "month": "Bu ay"
+      },
+
+      "whatIf": {
+        "title": "Her gün daha fazla biriktirsem?",
+        "preset": "+{{amount}}",
+        "resultPrefix": "Yeni tempo:",
+        "perDay": "/gün",
+        "note": "Bu bir simülasyondur. Verileriniz değişmez.",
+        "result": {
+          "good": "Günlük +{{amount}} ekleme ile bu hedefe rahatlıkla ulaşabilirsin.",
+          "tight": "Günlük +{{amount}} ekleme ile bu hedef hâlâ mümkün, ancak istikrar önemli.",
+          "heavy": "Günlük +{{amount}} eklemeye rağmen bu hedef hâlâ zor görünüyor."
+        }
+      }
+    },
+    "goal": {
+      "defaultTitle": {
+        "savings": "Birikim Hedefi",
+        "purchase": "Planlanan Alışveriş",
+        "budget": "Bütçe Hedefi"
+      }
+    },
+    "edit": {
+      "title": "Hedefi Düzenle",
+      "subtitle": "Hedefini güncelle veya sil",
+      "fields": {
+        "title": "Başlık",
+        "target": "Hedef tutar",
+        "duration": "Süre (gün)"
+      },
+      "placeholders": {
+        "title": "Hedef başlığı",
+        "target": "örn. 5000",
+        "duration": "örn. 30"
+      }
+    },
+    "delete": {
+      "title": "Hedefi Sil",
+      "message": "Bu işlem geri alınamaz. Emin misin?"
+    }
+  },
+  "goalWizard": {
+    "type": {
+      "title": "Bu hedef ne için?",
+      "subtitle": "Sana en uygun hedef türünü seç.",
+      "savings": {
+        "title": "Birikim",
+        "desc": "Belirli bir ürün olmadan zamanla para biriktir."
+      },
+      "purchase": {
+        "title": "Satın Alma",
+        "desc": "Belirli bir ürün veya harcama için birikim yap."
+      },
+      "budget": {
+        "title": "Bütçe",
+        "desc": "Belirlenmiş bir sınır içinde harcamayı kontrol et."
+      }
+    },
+    "duration": {
+      "title": "Ne kadar süre biriktireceksin?",
+      "subtitle": "Hedef süresini gün cinsinden belirle.",
+      "label": "Süre (gün)",
+      "placeholder": "örn. 30"
+    },
+    "target": {
+      "title": "Hedef tutar nedir?",
+      "subtitle": "Ulaşmak istediğin miktarı belirle.",
+      "amountLabel": "Hedef tutar",
+      "amountPlaceholder": "örn. 5.000",
+      "titleLabel": "Hedef başlığı (opsiyonel)",
+      "titlePlaceholder": "örn. Yeni Laptop",
+      "categoryLabel": "Bu hedef hangi kategoriyle ilgili?",
+      "categoryHelper": "Opsiyonel. Harcamalarınla ilişkilendirmemize yardımcı olur."
+    },
+    "review": {
+      "title": "Özet",
+      "subtitle": "Hedefe başlamadan önce son bir kez gözden geçir.",
+      "type": "Tür",
+      "duration": "Süre",
+      "target": "Hedef",
+      "dailyEffort": "Günlük efor",
+      "titleLabel": "Başlık",
+      "category": "Kategori",
+      "start": "Hedefi başlat",
+      "adjustDuration": "Süreyi düzenle",
+      "feasibility": {
+        "good": "✅ Bu hedef düzenli ilerlemeyle rahatça ulaşılabilir.",
+        "tight": "⚠️ Bu hedef günlük disiplin gerektiriyor.",
+        "heavy": "🧠 Bu iddialı bir hedef. Süreyi uzatmayı düşünebilirsin."
+      }
+    }
+  },
+  "goalTypes": {
+    "savings": "Birikim",
+    "purchase": "Satın alma",
+    "budget": "Bütçe"
+  },
+
+  "goalApply": {
+    "title": "Bugün harcanmamış paran var",
+    "subtle": "Bu tutar günlük harcama limitinin altında.",
+    "context": "Bu tutarı hedefinize ekleyebilirsiniz",
+    "actions": {
+      "apply": "Hedefe ekle",
+      "skip": "Bugün atla"
+    }
+  },
+  "goalInsights": {
+    "title": "ANALİZLER",
+    "ahead": {
+      "title": "Planın önündesin",
+      "description": "Gerekenden daha hızlı birikim yapıyorsun."
+    },
+    "on_track": {
+      "title": "Yolunda",
+      "description": "Birikim hızın hedefinle uyumlu."
+    },
+    "behind": {
+      "title": "Geride kaldın",
+      "description": "Birikim hızını artırman gerekebilir."
+    },
+    "risk": {
+      "title": "Risk altında",
+      "description": "Bu hızla hedefe ulaşmak zor olabilir."
+    },
+    "inactive": {
+      "title": "Hareketsiz",
+      "description": "Son dönemde birikim hareketi yok."
+    }
+  },
+  "expenseBreakdown": {
+    "title": "Harcama Dağılımı",
+    "structural": "Zorunlu",
+    "behavioral": "Davranışsal",
+    "insight": "Harcamalarının %{{percent}}’i davranışsal."
+  }
+}

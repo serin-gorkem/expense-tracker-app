@@ -31,7 +31,7 @@ type ExpensesStore = {
 
   limits: LimitsState;
   applyLimitChange(period: LimitPeriod, patch: LimitPatch): void;
-
+  applyAutoLimit(period: LimitPeriod, amount: number): void;
   financeProfile: FinanceProfile;
   updateFinanceProfile(patch: Partial<FinanceProfile>): void;
 
@@ -92,12 +92,8 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
   ========================= */
 
   const disposableIncome =
-    financeProfile.monthlyIncome != null &&
-    financeProfile.fixedExpenses != null
-      ? Math.max(
-          financeProfile.monthlyIncome - financeProfile.fixedExpenses,
-          0
-        )
+    financeProfile.monthlyIncome != null && financeProfile.fixedExpenses != null
+      ? Math.max(financeProfile.monthlyIncome - financeProfile.fixedExpenses, 0)
       : null;
 
   const dailyBaseline =
@@ -119,7 +115,12 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
   const DEFAULT_LIMITS: LimitsState = {
     daily: { period: "daily", amount: 100, active: true, source: "manual" },
     weekly: { period: "weekly", amount: 500, active: true, source: "manual" },
-    monthly: { period: "monthly", amount: 2000, active: true, source: "manual" },
+    monthly: {
+      period: "monthly",
+      amount: 2000,
+      active: true,
+      source: "manual",
+    },
   };
 
   const [limits, setLimits] = useState<LimitsState>(DEFAULT_LIMITS);
@@ -148,8 +149,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
     if (changed === "daily") {
       if (d > w) next.weekly.amount = d;
-      if (next.weekly.amount > m)
-        next.monthly.amount = next.weekly.amount;
+      if (next.weekly.amount > m) next.monthly.amount = next.weekly.amount;
     }
 
     if (changed === "weekly") {
@@ -159,8 +159,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
     if (changed === "monthly") {
       if (m < w) next.weekly.amount = m;
-      if (next.weekly.amount < d)
-        next.daily.amount = next.weekly.amount;
+      if (next.weekly.amount < d) next.daily.amount = next.weekly.amount;
     }
 
     return next;
@@ -169,6 +168,26 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
   /* =========================
      User Limit Change
   ========================= */
+
+  function applyAutoLimit(
+  period: LimitPeriod,
+  amount: number
+) {
+  setLimits((prev) => {
+    const next: LimitsState = {
+      daily: { ...prev.daily },
+      weekly: { ...prev.weekly },
+      monthly: { ...prev.monthly },
+    };
+
+    next[period].amount = amount;
+    next[period].active = true;
+    next[period].source = "auto";
+
+    enforceConstraints(next, period);
+    return next;
+  });
+}
 
   function applyLimitChange(period: LimitPeriod, patch: LimitPatch) {
     setLimits((prev) => {
@@ -208,12 +227,32 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
     const auto = calculateAutoLimits({ monthlyIncome, fixedExpenses });
 
-    setLimits((prev) => ({
-      ...prev,
-      daily: { ...prev.daily, amount: auto.daily, source: "auto" },
-      weekly: { ...prev.weekly, amount: auto.weekly, source: "auto" },
-      monthly: { ...prev.monthly, amount: auto.monthly, source: "auto" },
-    }));
+    setLimits((prev) => {
+      const next: LimitsState = {
+        ...prev,
+        daily: {
+          ...prev.daily,
+          amount: auto.daily,
+          source: "auto" as const,
+        },
+        weekly: {
+          ...prev.weekly,
+          amount: auto.weekly,
+          source: "auto" as const,
+        },
+        monthly: {
+          ...prev.monthly,
+          amount: auto.monthly,
+          source: "auto" as const,
+        },
+      };
+
+      enforceConstraints(next, "daily");
+      enforceConstraints(next, "weekly");
+      enforceConstraints(next, "monthly");
+
+      return next;
+    });
   }, [
     financeProfile.monthlyIncome,
     financeProfile.fixedExpenses,
@@ -225,18 +264,6 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
   ========================= */
 
   function applySuggestedLimits() {
-    const { monthlyIncome, fixedExpenses } = financeProfile;
-    if (monthlyIncome == null || fixedExpenses == null) return;
-
-    const auto = calculateAutoLimits({ monthlyIncome, fixedExpenses });
-
-    setLimits((prev) => ({
-      ...prev,
-      daily: { ...prev.daily, amount: auto.daily, source: "auto" },
-      weekly: { ...prev.weekly, amount: auto.weekly, source: "auto" },
-      monthly: { ...prev.monthly, amount: auto.monthly, source: "auto" },
-    }));
-
     enableAutoLimits();
   }
 
@@ -249,6 +276,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
       ...store,
       limits,
       applyLimitChange,
+      applyAutoLimit,
       financeProfile,
       updateFinanceProfile,
       enableAutoLimits,
@@ -257,7 +285,14 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
       disposableIncome,
       dailyBaseline,
     }),
-    [store.expenses, store.loading, limits, financeProfile, disposableIncome, dailyBaseline]
+    [
+      store.expenses,
+      store.loading,
+      limits,
+      financeProfile,
+      disposableIncome,
+      dailyBaseline,
+    ]
   );
 
   return (

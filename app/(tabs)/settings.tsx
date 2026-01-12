@@ -1,10 +1,17 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
 import GlassCard from "@/components/ui/GlassCard";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { useTranslation } from "@/hooks/useTranslation";
 import { LimitPeriod } from "@/models/limit.model";
+import { useGoalsStore } from "@/src/context/GoalContext";
+import { useLanguage } from "@/src/context/LanguageContext";
+import { LANGUAGES } from "@/src/i18n/languages";
+import { resetAppData } from "@/utils/storage/resetAppData";
 import Slider from "@react-native-community/slider";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,11 +21,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
-
 /* =========================
    Helpers
 ========================= */
-
 function getMaxLimit(period: LimitPeriod, monthlyIncome?: number | null) {
   if (!monthlyIncome) return 10000;
   if (period === "daily") return Math.floor(monthlyIncome / 10);
@@ -40,9 +45,27 @@ export default function Settings() {
     disableAutoLimits,
   } = useExpensesStore();
 
+  const router = useRouter();
   const [editingLimit, setEditingLimit] = useState<LimitPeriod | null>(null);
   const [tempLimitValue, setTempLimitValue] = useState("");
+  const { language, changeLanguage } = useLanguage();
+  const { t } = useTranslation();
+  const { resetGoals } = useGoalsStore();
 
+  function confirmReset() {
+    Alert.alert(t("settings.reset.title"), t("settings.reset.message"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("settings.reset.confirm"),
+        style: "destructive",
+        onPress: async () => {
+          await resetAppData();
+          resetGoals();
+          router.replace("/onboarding");
+        },
+      },
+    ]);
+  }
   return (
     <View style={styles.root}>
       <LiquidBackground />
@@ -50,16 +73,16 @@ export default function Settings() {
       <SafeAreaView style={styles.safe}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40, flex: 1, gap: 16 }}
+          contentContainerStyle={{ paddingBottom: 40, gap: 16 }}
         >
-          <Text style={styles.title}>Settings</Text>
+          <Text style={styles.title}>{t("settings.title")}</Text>
 
           {/* =========================
               AUTO MODE
           ========================= */}
           <GlassCard>
             <View style={styles.row}>
-              <Text style={styles.label}>Automatic limits</Text>
+              <Text style={styles.label}>{t("settings.autoLimits")}</Text>
               <Switch
                 value={financeProfile.autoLimitEnabled}
                 onValueChange={(v) =>
@@ -68,6 +91,29 @@ export default function Settings() {
               />
             </View>
           </GlassCard>
+          <GlassCard>
+            <Text style={styles.label}>{t("settings.language")}</Text>
+            {/* =========================
+              LANGUAGE
+          ========================= */}
+            {LANGUAGES.map((l) => (
+              <Pressable
+                key={l.code}
+                onPress={() => changeLanguage(l.code)}
+                style={{ paddingVertical: 10 }}
+              >
+                <Text
+                  style={{
+                    color:
+                      language === l.code ? "#6366F1" : "rgba(255,255,255,0.7)",
+                    fontWeight: language === l.code ? "800" : "500",
+                  }}
+                >
+                  {l.label}
+                </Text>
+              </Pressable>
+            ))}
+          </GlassCard>
 
           {/* =========================
               INCOME + FIXED (AUTO)
@@ -75,7 +121,7 @@ export default function Settings() {
           {financeProfile.autoLimitEnabled && (
             <>
               <GlassCard>
-                <Text style={styles.label}>Monthly income</Text>
+                <Text style={styles.label}>{t("settings.monthlyIncome")}</Text>
 
                 <CurrencyInput
                   value={financeProfile.monthlyIncome}
@@ -85,17 +131,13 @@ export default function Settings() {
               </GlassCard>
 
               <GlassCard>
-                <Text style={styles.label}>Fixed expenses</Text>
+                <Text style={styles.label}>{t("settings.fixedExpenses")}</Text>
 
                 <CurrencyInput
                   value={financeProfile.fixedExpenses}
                   onChange={(v) => updateFinanceProfile({ fixedExpenses: v })}
                   style={styles.input}
                 />
-
-                <Text style={styles.hint}>
-                  Used to calculate available spending
-                </Text>
               </GlassCard>
             </>
           )}
@@ -107,7 +149,7 @@ export default function Settings() {
             <GlassCard key={limit.period}>
               <View style={styles.row}>
                 <Text style={styles.label}>
-                  {limit.period.toUpperCase()}
+                  {t(`limits.${limit.period}.title`)}
                   {limit.source === "auto" && " · AUTO"}
                 </Text>
 
@@ -154,9 +196,7 @@ export default function Settings() {
               )}
 
               {financeProfile.autoLimitEnabled && (
-                <Text style={styles.hint}>
-                  Disable automatic limits to edit
-                </Text>
+                <Text style={styles.hint}>{t("settings.disableAutoHint")}</Text>
               )}
 
               <Slider
@@ -179,6 +219,19 @@ export default function Settings() {
               />
             </GlassCard>
           ))}
+          <GlassCard>
+            <Pressable onPress={confirmReset} style={{ paddingVertical: 12 }}>
+              <Text
+                style={{
+                  color: "#EF4444",
+                  fontWeight: "800",
+                  textAlign: "center",
+                }}
+              >
+                {t("settings.reset.button")}
+              </Text>
+            </Pressable>
+          </GlassCard>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -190,8 +243,8 @@ export default function Settings() {
 ========================= */
 
 const styles = StyleSheet.create({
-  root: { flex: 1, },
-  safe: { flex: 1, paddingHorizontal: 16, },
+  root: { flex: 1 },
+  safe: { flex: 1, paddingHorizontal: 16 },
 
   title: {
     fontSize: 26,

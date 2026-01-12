@@ -1,6 +1,7 @@
+import { useTranslation } from "@/hooks/useTranslation";
+import { useExpensesStore } from "@/src/context/ExpensesContext";
+import { calculateAutoLimits } from "@/utils/limit/calculateAutoLimits";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useExpensesStore } from "../../../src/context/ExpensesContext";
-import { calculateAutoLimits } from "../../../utils/limit/calculateAutoLimits";
 
 type Props = {
   monthlyIncome: number;
@@ -15,7 +16,8 @@ export default function PreviewStep({
   useAutoLimits,
   onFinish,
 }: Props) {
-  const { updateFinanceProfile, enableAutoLimits, applyLimitChange } =
+  const { t } = useTranslation();
+  const { updateFinanceProfile, enableAutoLimits, applyAutoLimit } =
     useExpensesStore();
 
   const limits = calculateAutoLimits({
@@ -32,19 +34,9 @@ export default function PreviewStep({
 
     if (useAutoLimits) {
       enableAutoLimits();
-
-      applyLimitChange("daily", {
-        amount: limits.daily,
-        source: "auto",
-      });
-      applyLimitChange("weekly", {
-        amount: limits.weekly,
-        source: "auto",
-      });
-      applyLimitChange("monthly", {
-        amount: limits.monthly,
-        source: "auto",
-      });
+applyAutoLimit("daily", limits.daily);
+applyAutoLimit("weekly", limits.weekly);
+applyAutoLimit("monthly", limits.monthly);
     }
 
     onFinish();
@@ -52,27 +44,108 @@ export default function PreviewStep({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Preview</Text>
+      <Text style={styles.title}>
+        {t("onboarding.preview.title")}
+      </Text>
 
-      <Text>Daily limit: ₺{limits.daily}</Text>
-      <Text>Weekly limit: ₺{limits.weekly}</Text>
-      <Text>Monthly limit: ₺{limits.monthly}</Text>
+      <Text style={styles.subtitle}>
+        {useAutoLimits
+          ? t("onboarding.preview.autoSubtitle")
+          : t("onboarding.preview.manualSubtitle")}
+      </Text>
+
+      <View style={styles.card}>
+        <PreviewRow
+          label={t("onboarding.limits.period.daily")}
+          value={limits.daily}
+        />
+        <PreviewRow
+          label={t("onboarding.limits.period.weekly")}
+          value={limits.weekly}
+        />
+        <PreviewRow
+          label={t("onboarding.limits.period.monthly")}
+          value={limits.monthly}
+        />
+      </View>
 
       <Pressable style={styles.button} onPress={finish}>
-        <Text style={styles.buttonText}>Finish</Text>
+        <Text style={styles.buttonText}>
+          {t("common.finish")}
+        </Text>
       </Pressable>
     </View>
   );
 }
 
+/* =========================
+   Helpers
+========================= */
+
+function PreviewRow({ label, value }: { label: string; value: number }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.rowValue}>₺{value}</Text>
+    </View>
+  );
+}
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 , justifyContent: "center" , alignItems: "stretch"},
-  title: { fontSize: 22, fontWeight: "700", marginBottom: 16 },
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 8,
+  },
+
+  subtitle: {
+    fontSize: 14,
+    opacity: 0.65,
+    marginBottom: 24,
+  },
+
+  card: {
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    gap: 12,
+  },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  rowLabel: {
+    fontSize: 13,
+    opacity: 0.7,
+    fontWeight: "600",
+  },
+
+  rowValue: {
+    fontSize: 15,
+    fontWeight: "800",
+  },
+
   button: {
     marginTop: 32,
     backgroundColor: "#22C55E",
-    padding: 14,
-    borderRadius: 12,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
   },
-  buttonText: { color: "white", fontWeight: "700", textAlign: "center" },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "800",
+    fontSize: 15,
+  },
 });

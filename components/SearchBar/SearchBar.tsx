@@ -1,8 +1,8 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { haptic } from "@/utils/haptics";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
-
 type SearchBarProps = {
   value: string;
   onChange: (text: string) => void;
@@ -16,6 +16,7 @@ export default function SearchBar({
   onFocus,
   onBlur,
 }: SearchBarProps) {
+  const { t } = useTranslation();
   const hasValue = value.length > 0;
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -32,7 +33,9 @@ export default function SearchBar({
         value={value}
         onChangeText={onChange}
         placeholder={
-          isFocused ? "Type to filter expenses…" : "Search expenses…"
+          isFocused
+            ? t("search.placeholder.focused")
+            : t("search.placeholder.default")
         }
         placeholderTextColor="rgba(255,255,255,0.45)"
         style={styles.input}

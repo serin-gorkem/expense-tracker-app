@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
@@ -13,11 +14,16 @@ export default function AutoLimitStep({
   onNext,
   onBack,
 }: Props) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Automatic limits?</Text>
+      <Text style={styles.title}>
+        {t("onboarding.autoLimits.title")}
+      </Text>
+
       <Text style={styles.subtitle}>
-        We can calculate daily & weekly limits based on your income.
+        {t("onboarding.autoLimits.subtitle")}
       </Text>
 
       <View style={styles.options}>
@@ -25,30 +31,37 @@ export default function AutoLimitStep({
           style={[styles.option, enabled && styles.active]}
           onPress={() => onChange(true)}
         >
-          <Text style={styles.optionText}>Yes, calculate for me</Text>
+          <Text style={styles.optionText}>
+            {t("onboarding.autoLimits.yes")}
+          </Text>
         </Pressable>
 
         <Pressable
           style={[styles.option, !enabled && styles.active]}
           onPress={() => onChange(false)}
         >
-          <Text style={styles.optionText}>No, I’ll set them manually</Text>
+          <Text style={styles.optionText}>
+            {t("onboarding.autoLimits.no")}
+          </Text>
         </Pressable>
       </View>
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
-          <Text style={styles.back}>Back</Text>
+          <Text style={styles.back}>
+            {t("common.back")}
+          </Text>
         </Pressable>
 
         <Pressable style={styles.button} onPress={onNext}>
-          <Text style={styles.buttonText}>Continue</Text>
+          <Text style={styles.buttonText}>
+            {t("common.continue")}
+          </Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, justifyContent: "center" , alignItems: "stretch"},
   title: { fontSize: 22, fontWeight: "700" },

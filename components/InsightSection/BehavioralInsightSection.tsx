@@ -1,4 +1,5 @@
 import InsightCard from "@/components/InsightSection/InsightCard";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Expense } from "@/models/expense.model";
 import { behavioralInsights } from "@/utils/insights/behavioralInsights";
 import { StyleSheet, Text, View } from "react-native";
@@ -12,34 +13,49 @@ export default function BehavioralInsightSection({
   expenses,
   dailyLimit,
 }: Props) {
-const insights = behavioralInsights({
-  expenses,
-  dailyLimit,
-}).slice(0, 2);
+  const { t } = useTranslation();
 
-if (insights.length === 0) {
+  const insights = behavioralInsights({
+    expenses,
+    dailyLimit,
+  }).slice(0, 2);
+
+  if (insights.length === 0) {
+    return (
+      <View style={styles.wrapper}>
+        <Text style={styles.title}>
+          {t("insights.behavioral.title")}
+        </Text>
+
+        <Text style={styles.subtitle}>
+          {t("insights.behavioral.learning")}
+        </Text>
+
+        <Text style={styles.hint}>
+          {t("insights.behavioral.hint")}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.title}>Behavioral patterns</Text>
-      <Text style={styles.subtitle}>We&apos;re still learning your habits</Text>
-      <Text style={styles.hint}>
-        Use the app for a few more days to unlock behavior insights.
+      <Text style={styles.title}>
+        {t("insights.behavioral.title")}
       </Text>
-    </View>
-  );
-}
 
-  return (
-    <View style={styles.wrapper}>
-      <Text style={styles.title}>Behavioral patterns</Text>
       <Text style={styles.subtitle}>
-        How your spending behavior changes over time
+        {t("insights.behavioral.subtitle")}
       </Text>
 
       {insights.map((insight) => (
-        <InsightCard key={insight.type} insight={insight} />
+        <InsightCard
+          key={insight.type}
+          title={t(insight.titleKey)}
+          description={t(insight.descriptionKey)}
+          tone={insight.tone}
+        />
       ))}
-      
     </View>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Category } from "@/models/expense.model";
 import { DonutChartItem } from "@/utils/expense/expenseChart";
 import { haptic } from "@/utils/haptics";
@@ -21,9 +22,9 @@ export default function MonthlyCategoryDonutChart({
   selectedCategory,
   onSelectCategory,
 }: Props) {
+  const {t} = useTranslation();
   if (!data.length) return null;
 
-  // 🔒 Safe defaults (Insights uyumlu)
   const resolvedSelectedCategory: Category | "all" =
     selectedCategory ?? "all";
 
@@ -62,17 +63,14 @@ export default function MonthlyCategoryDonutChart({
           radius={80}
           innerRadius={52}
           data={data.map((item, index) => {
-            const isActive =
-              resolvedSelectedCategory === item.label;
+            const isActive = resolvedSelectedCategory === item.label;
 
             const shift = isActive
               ? getSliceShift(index, data.length)
               : { shiftX: 0, shiftY: 0 };
 
             const dimColor = (color: string) =>
-              isFiltering && !isActive
-                ? "rgba(255,255,255,0.15)"
-                : color;
+              isFiltering && !isActive ? "rgba(255,255,255,0.15)" : color;
 
             return {
               ...item,
@@ -85,34 +83,26 @@ export default function MonthlyCategoryDonutChart({
                 : "rgba(0,0,0,0.35)",
               color: dimColor(item.color),
               opacity: isFiltering ? (isActive ? 1 : 0.18) : 1,
-              onPress: () =>
-                handleSelect(item.label as Category),
+              onPress: () => handleSelect(item.label as Category),
             };
           })}
           centerLabelComponent={() => (
             <Pressable
-              onPress={() =>
-                resolvedOnSelectCategory("all")
-              }
+              onPress={() => resolvedOnSelectCategory("all")}
               hitSlop={12}
             >
               <View style={styles.center}>
                 {monthLabel !== "" && (
-                  <Text style={styles.month}>
-                    {monthLabel}
-                  </Text>
+                  <Text style={styles.month}>{monthLabel}</Text>
                 )}
 
                 <Text style={styles.total}>
-                  ₺
-                  {(activeItem?.value ?? total).toLocaleString(
-                    "en-US"
-                  )}
+                  ₺{(activeItem?.value ?? total).toLocaleString("en-US")}
                 </Text>
 
                 {isFiltering && (
                   <Text style={styles.activeLabel}>
-                    {activeItem?.label}
+                    {t(`categories.${activeItem?.label}`)}
                   </Text>
                 )}
               </View>
@@ -123,32 +113,23 @@ export default function MonthlyCategoryDonutChart({
 
       <View style={styles.legend}>
         {data.map((item) => {
-          const isActive =
-            resolvedSelectedCategory === item.label;
+          const isActive = resolvedSelectedCategory === item.label;
 
           return (
             <Pressable
               key={item.label}
-              onPress={() =>
-                handleSelect(item.label as Category)
-              }
+              onPress={() => handleSelect(item.label as Category)}
             >
               <View
                 style={[
                   styles.legendItem,
                   isActive && styles.legendItemActive,
-                  isFiltering &&
-                    !isActive && { opacity: 0.35 },
+                  isFiltering && !isActive && { opacity: 0.35 },
                 ]}
               >
-                <View
-                  style={[
-                    styles.dot,
-                    { backgroundColor: item.color },
-                  ]}
-                />
+                <View style={[styles.dot, { backgroundColor: item.color }]} />
                 <Text style={styles.legendText}>
-                  {item.label} · ₺{item.value}
+                  {t(`categories.${item.label}`)} · ₺{item.value}
                 </Text>
               </View>
             </Pressable>

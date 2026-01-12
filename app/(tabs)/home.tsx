@@ -12,14 +12,13 @@ import SearchBar from "@/components/SearchBar/SearchBar";
 import { StreakBadge } from "@/components/StreakBadge/StreakBadge";
 import { StreakCelebration } from "@/components/StreakCelebration/StreakCelebration";
 import WeeklyExpenseList from "@/components/WeeklyExpenseList/WeeklyExpenseList";
+import { useStreakCelebration } from "@/hooks/useStreakCelebrations";
+import { useStreakMetrics } from "@/hooks/useStreakMetrics";
+import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-
-import { useStreakCelebration } from "@/hooks/useStreakCelebrations";
-import { useStreakMetrics } from "@/hooks/useStreakMetrics";
-import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 import { Category, Expense } from "@/models/expense.model";
@@ -38,6 +37,7 @@ import GoalApplyModal from "@/components/Goals/GoalApplyModal";
 import GoalOutcomeModal from "@/components/Goals/GoalOutcomeModal";
 import { useDayEndFlow } from "@/hooks/useDayEndFlow";
 import { useGoalOutcomeWatcher } from "@/hooks/useGoalOutcomeWatcher";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { buildGoalBoostExpense } from "@/utils/goals/applyLeftoverToGoal";
@@ -60,10 +60,9 @@ export default function Home() {
   const [showExpenseHint, setShowExpenseHint] = useState(false);
 
   type GoalModalType = "success" | "failure" | null;
-const [goalModal, setGoalModal] = useState<GoalModalType>(null);
-const [modalGoal, setModalGoal] = useState<Goal | null>(null);
-  
-
+  const [goalModal, setGoalModal] = useState<GoalModalType>(null);
+  const [modalGoal, setModalGoal] = useState<Goal | null>(null);
+  const { t } = useTranslation();
 
   const options = useMemo(
     () => ({ mode, category, query }),
@@ -79,7 +78,7 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
     loading,
   } = useExpensesStore();
 
-  const { activeGoal,archiveGoal } = useGoalsStore();
+  const { activeGoal, archiveGoal } = useGoalsStore();
   const { showModal, closeModal, remainingAmount } = useDayEndFlow({
     dailyLimit: limits.daily.amount,
     expenses,
@@ -183,6 +182,8 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
     };
   });
 
+
+
   return (
     <View style={styles.root}>
       <LinearGradient
@@ -207,9 +208,9 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
           keyboardDismissMode="on-drag"
         >
           <View style={styles.header}>
-            <View>
-              <Text style={styles.title}>Home</Text>
-              <Text style={styles.subtitle}>Expense Manage Dashboard</Text>
+            <View style={styles.heading}>
+              <Text style={styles.title}>{t("home.title")}</Text>
+              <Text style={styles.subtitle}>{t("home.subtitle")}</Text>
             </View>
             {streakMetrics.hasActiveStreak && (
               <StreakBadge count={streakMetrics.currentStreak} />
@@ -218,7 +219,6 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
           <View style={styles.topContent}>
             <InsightSection
               expenses={expenses}
-              mode={mode}
               streakMetrics={streakMetrics}
               dailyLimit={limits.daily.amount}
             />
@@ -275,25 +275,27 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
 
               {query.length > 0 && (
                 <Text style={styles.searchMeta}>
-                  Showing results for “{query}”
+                  {t("search.resultsFor").replace("{{query}}", query)}
                 </Text>
               )}
 
               {!loading && isGlobalEmpty && (
                 <EmptyState
-                  title="No expenses yet"
-                  description="Start adding your expenses to see them here."
+                  title={t("empty.noExpensesTitle")}
+                  description={t("empty.noExpensesDesc")}
                 />
               )}
 
               {!loading && isFilteredEmpty && (
                 <EmptyState
-                  title="No expenses found"
-                  description="Try adjusting your search or filter to find what you're looking for."
+                  title={t("empty.noResultsTitle")}
+                  description={t("empty.noResultsDesc")}
                 />
               )}
 
-              {loading && <Text style={styles.loading}>Loading...</Text>}
+              {loading && (
+                <Text style={styles.loading}>{t("common.loading")}</Text>
+              )}
 
               {!loading &&
                 !isGlobalEmpty &&
@@ -325,7 +327,7 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
 
           {lastDeletedExpense && (
             <View style={styles.toast}>
-              <Text style={styles.toastText}>Expense deleted</Text>
+              <Text style={styles.toastText}>{t("toast.expenseDeleted")}</Text>
               <Pressable
                 onPress={() => {
                   addExpense(lastDeletedExpense);
@@ -333,13 +335,13 @@ const [modalGoal, setModalGoal] = useState<Goal | null>(null);
                 }}
                 hitSlop={10}
               >
-                <Text style={styles.toastAction}>UNDO</Text>
+                <Text style={styles.toastAction}>{t("common.undo")}</Text>
               </Pressable>
             </View>
           )}
         </ScrollView>
         <GoalApplyModal
-          visible={showModal}
+          visible={showModal && !!activeGoal}
           remainingAmount={remainingAmount ?? 0}
           goal={activeGoal!}
           onDecision={(decision) => {
@@ -367,10 +369,14 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   safe: { flex: 1, paddingHorizontal: 16, paddingTop: 6 },
   header: {
-    marginBottom: 10,
+    flex:1,
+    marginBottom: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  heading: {
+    width:"55%",
   },
   topContent: {
     marginBottom: 20,
@@ -386,7 +392,7 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 2,
     color: "rgba(255,255,255,0.6)",
-    fontSize: 13,
+    fontSize: 12,
   },
   loading: { color: "rgba(255,255,255,0.75)", marginTop: 12 },
 

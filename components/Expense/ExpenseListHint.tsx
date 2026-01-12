@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,6 +10,8 @@ type ExpenseListHintProps = {
 };
 
 export default function ExpenseListHint({ onDismiss }: ExpenseListHintProps) {
+  const { t } = useTranslation();
+
   const handleDismiss = () => {
     haptic.light();
     onDismiss();
@@ -24,10 +27,12 @@ export default function ExpenseListHint({ onDismiss }: ExpenseListHintProps) {
 
         <View style={styles.content}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Quick tip</Text>
+            <Text style={styles.title}>{t("expense.hint.title")}</Text>
+
             <Text style={styles.description}>
-              Tap an expense to edit{"\n"}
-              Swipe left to delete
+              {t("expense.hint.edit")}
+              {"\n"}
+              {t("expense.hint.delete")}
             </Text>
           </View>
 
@@ -36,14 +41,13 @@ export default function ExpenseListHint({ onDismiss }: ExpenseListHintProps) {
             hitSlop={10}
             android_ripple={{ color: "rgba(255,255,255,0.08)" }}
           >
-            <Text style={styles.action}>Got it</Text>
+            <Text style={styles.action}>{t("common.gotIt")}</Text>
           </Pressable>
         </View>
       </BlurView>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   wrapper: {
     marginTop: 12,

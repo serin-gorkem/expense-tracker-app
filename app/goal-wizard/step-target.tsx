@@ -1,43 +1,40 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
+import { useTranslation } from "@/hooks/useTranslation";
 import { CATEGORY_OPTIONS } from "@/models/expense.model";
 import { useWizard } from "@/src/context/WizardContext";
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function StepTarget() {
-  const {
-    draft,
-    setTargetAmount,
-    setTitle,
-    next,
-    canGoNext,
-    setCategory,
-  } = useWizard();
+  const { t } = useTranslation();
+
+  const { draft, setTargetAmount, setTitle, next, canGoNext, setCategory } =
+    useWizard();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>What is the target?</Text>
-      <Text style={styles.p}>Set the amount you want to reach.</Text>
+      <Text style={styles.h1}>{t("goalWizard.target.title")}</Text>
+      <Text style={styles.p}>{t("goalWizard.target.subtitle")}</Text>
 
       {/* TARGET AMOUNT */}
       <View style={styles.card}>
-        <Text style={styles.label}>Target amount</Text>
+        <Text style={styles.label}>{t("goalWizard.target.amountLabel")}</Text>
         <CurrencyInput
           value={draft.targetAmount ?? 0}
           onChange={setTargetAmount}
-          placeholder="e.g. 5.000"
+          placeholder={t("goalWizard.target.amountPlaceholder")}
           style={styles.currencyInput}
         />
       </View>
 
       {/* GOAL TITLE */}
       <View style={styles.card}>
-        <Text style={styles.label}>Goal title (optional)</Text>
+        <Text style={styles.label}>{t("goalWizard.target.titleLabel")}</Text>
         <TextInput
           value={draft.customTitle ?? ""}
           onChangeText={setTitle}
           maxLength={32}
-          placeholder="e.g. New Laptop"
+          placeholder={t("goalWizard.target.titlePlaceholder")}
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
         />
@@ -45,9 +42,9 @@ export default function StepTarget() {
 
       {/* CATEGORY */}
       <View style={styles.card}>
-        <Text style={styles.label}>What is this goal related to?</Text>
+        <Text style={styles.label}>{t("goalWizard.target.categoryLabel")}</Text>
         <Text style={styles.helper}>
-          Optional. Helps us connect this goal with your spending.
+          {t("goalWizard.target.categoryHelper")}
         </Text>
 
         <View style={styles.categoryGrid}>
@@ -57,13 +54,8 @@ export default function StepTarget() {
             return (
               <Pressable
                 key={c.key}
-                onPress={() =>
-                  setCategory(isActive ? undefined : c.key)
-                }
-                style={[
-                  styles.categoryItem,
-                  isActive && styles.categoryActive,
-                ]}
+                onPress={() => setCategory(isActive ? undefined : c.key)}
+                style={[styles.categoryItem, isActive && styles.categoryActive]}
               >
                 <Text
                   style={[
@@ -71,7 +63,7 @@ export default function StepTarget() {
                     isActive && styles.categoryTextActive,
                   ]}
                 >
-                  {c.label}
+                  {t(`categories.${c.key}`)}
                 </Text>
               </Pressable>
             );
@@ -84,7 +76,7 @@ export default function StepTarget() {
         onPress={next}
         disabled={!canGoNext}
       >
-        <Text style={styles.primaryText}>Continue</Text>
+        <Text style={styles.primaryText}>{t("common.continue")}</Text>
       </Pressable>
     </View>
   );

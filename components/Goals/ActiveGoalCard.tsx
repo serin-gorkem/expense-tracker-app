@@ -1,4 +1,4 @@
-import { CATEGORY_OPTIONS } from "@/models/expense.model";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
@@ -7,6 +7,7 @@ import { calculateGoalHealth } from "@/utils/goals/calculateGoalHealth";
 import { calculateGoalProjection } from "@/utils/goals/calculateGoalProjection";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+
 import GlassCard from "../ui/GlassCard";
 import GoalHealthRow from "./GoalHealthRow";
 import GoalInsightsPanel from "./GoalsInsightPanel";
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export function ActiveGoalCard({ goal }: Props) {
+  const { t } = useTranslation();
   const { expenses, dailyBaseline } = useExpensesStore();
   const { calculateGoalProgress } = useGoalsStore();
 
@@ -26,18 +28,19 @@ export function ActiveGoalCard({ goal }: Props) {
   const weekly = calculateGoalHealth(goal, expenses, "weekly");
   const monthly = calculateGoalHealth(goal, expenses, "monthly");
 
-  const projection = calculateGoalProjection(
-    goal,
-    expenses,
-    dailyBaseline ?? undefined
-  );
+const projection = calculateGoalProjection(
+  goal,
+  expenses,
+  dailyBaseline ?? undefined
+);
+const projectionMessage = t(
+  `goals.active.projection.${projection.feasibility}`
+);
 
   const insights = buildGoalInsights(projection);
 
   const progress =
-    goal.targetAmount > 0
-      ? Math.min(savedAmount / goal.targetAmount, 1)
-      : 0;
+    goal.targetAmount > 0 ? Math.min(savedAmount / goal.targetAmount, 1) : 0;
 
   const percentage = Math.round(progress * 100);
 
@@ -45,19 +48,17 @@ export function ActiveGoalCard({ goal }: Props) {
     .filter((e) => e.isGoalBoost && e.goalId === goal.id)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-  const categoryLabel = goal.category
-    ? CATEGORY_OPTIONS.find((c) => c.key === goal.category)?.label
-    : null;
+  const categoryLabel = goal.category ? t(`categories.${goal.category}`) : null;
 
   const [whatIfOpen, setWhatIfOpen] = useState(false);
 
   return (
     <GlassCard>
-      {/* ================= HEADER ================= */}
-      <Text style={styles.label}>ACTIVE GOAL</Text>
+      {/* HEADER */}
+      <Text style={styles.label}>{t("goals.active.label")}</Text>
       <Text style={styles.title}>{goal.title}</Text>
 
-      {/* ================= META ================= */}
+      {/* META */}
       <View style={styles.metaRow}>
         <Text style={styles.amount}>
           {savedAmount} / {goal.targetAmount}
@@ -71,34 +72,40 @@ export function ActiveGoalCard({ goal }: Props) {
 
       {categoryLabel && <Text style={styles.category}>{categoryLabel}</Text>}
 
-      {/* ================= SUMMARY ================= */}
+      {/* SUMMARY */}
       <View style={styles.panel}>
-        <Text style={styles.panelLabel}>SUMMARY</Text>
+        <Text style={styles.panelLabel}>{t("goals.active.summary.title")}</Text>
 
         <View style={styles.summaryRow}>
           <View>
-            <Text style={styles.summaryLabel}>Remaining</Text>
+            <Text style={styles.summaryLabel}>
+              {t("goals.active.summary.remaining")}
+            </Text>
             <Text style={styles.summaryValue}>{remaining}</Text>
           </View>
 
           <View>
-            <Text style={styles.summaryLabel}>Daily target</Text>
-            <Text style={styles.summaryValue}>
-              {projection.requiredDaily}
+            <Text style={styles.summaryLabel}>
+              {t("goals.active.summary.dailyTarget")}
             </Text>
+            <Text style={styles.summaryValue}>{projection.requiredDaily}</Text>
           </View>
         </View>
 
         {lastBoost && (
           <Text style={styles.lastBoost}>
-            Last boost: +{lastBoost.boostAmount ?? lastBoost.amount}
+            {t("goals.active.summary.lastBoost", {
+              amount: lastBoost.boostAmount ?? lastBoost.amount,
+            })}
           </Text>
         )}
       </View>
 
-      {/* ================= PROJECTION ================= */}
+      {/* PROJECTION */}
       <View style={styles.panel}>
-        <Text style={styles.panelLabel}>PROJECTION</Text>
+        <Text style={styles.panelLabel}>
+          {t("goals.active.projection.title")}
+        </Text>
 
         <View style={styles.statusRow}>
           <Text
@@ -113,29 +120,33 @@ export function ActiveGoalCard({ goal }: Props) {
               styles[`status_${projection.feasibility}`],
             ]}
           >
-            {projection.message}
+            {projectionMessage}
           </Text>
         </View>
       </View>
 
-      {/* ================= INSIGHTS ================= */}
+      {/* INSIGHTS */}
       <GoalInsightsPanel insights={insights} />
 
-      {/* ================= GOAL HEALTH ================= */}
+      {/* GOAL HEALTH */}
       <View style={styles.panel}>
-        <Text style={styles.panelLabel}>GOAL HEALTH</Text>
-        <Text style={styles.panelTitle}>Current saving pace</Text>
+        <Text style={styles.panelLabel}>{t("goals.active.health.title")}</Text>
+        <Text style={styles.panelTitle}>
+          {t("goals.active.health.subtitle")}
+        </Text>
 
         <View style={styles.healthRows}>
-          <GoalHealthRow label="This week" {...weekly} />
-          <GoalHealthRow label="This month" {...monthly} />
+          <GoalHealthRow label={t("goals.active.health.week")} {...weekly} />
+          <GoalHealthRow label={t("goals.active.health.month")} {...monthly} />
         </View>
       </View>
 
-      {/* ================= WHAT IF ================= */}
+      {/* WHAT IF */}
       <View style={styles.whatIfButton}>
         <Pressable onPress={() => setWhatIfOpen(true)}>
-          <Text style={styles.whatIfText}>What if I save more?</Text>
+          <Text style={styles.whatIfText}>
+            {t("goals.active.whatIf.title")}
+          </Text>
         </Pressable>
 
         <GoalWhatIfModal

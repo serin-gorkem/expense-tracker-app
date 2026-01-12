@@ -13,37 +13,37 @@ export type Category =
 
   export type ExpenseKind = "behavioral" | "structural" | "goal";
 
-  export const EXPENSE_KIND_META: Record<
+export const EXPENSE_KIND_META: Record<
   ExpenseKind,
   {
-    label: string;
-    description: string;
+    labelKey: string;
+    descriptionKey: string;
   }
 > = {
   behavioral: {
-    label: "Daily choice",
-    description: "Spending you can control",
+    labelKey: "expenseKind.behavioral.label",
+    descriptionKey: "expenseKind.behavioral.desc",
   },
   structural: {
-    label: "Fixed",
-    description: "Required, recurring expenses",
+    labelKey: "expenseKind.structural.label",
+    descriptionKey: "expenseKind.structural.desc",
   },
   goal: {
-    label: "Goal",
-    description: "Goal, add to your goal.",
+    labelKey: "expenseKind.goal.label",
+    descriptionKey: "expenseKind.goal.desc",
   },
 };
 
 export const CATEGORY_OPTIONS = [
-    { key: "food", label: "Food" },
-    { key: "transport", label: "Transport" },
-    { key: "entertainment", label: "Entertainment" },
-    { key: "shopping", label: "Shopping" },
-    { key: "health", label: "Health" },
-    { key: "bills", label: "Bills" },
-    { key: "education", label: "Education" },
-    { key: "other", label: "Other" },
-  ] as const;
+  { key: "food" },
+  { key: "transport" },
+  { key: "entertainment" },
+  { key: "shopping" },
+  { key: "health" },
+  { key: "bills" },
+  { key: "education" },
+  { key: "other" },
+] as const;
 
 export type Expense = {
   id: string;

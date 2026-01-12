@@ -2,8 +2,8 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
-    Milestone,
-    STREAK_MILESTONE_REGISTRY,
+  Milestone,
+  STREAK_MILESTONE_REGISTRY,
 } from "@/constants/streakMilestoneRegistry";
 import { AchievedMilestone } from "@/models/milestones.model";
 import { getUnlockedMilestones } from "@/utils/streak/streakMilestoneStore";
@@ -11,34 +11,32 @@ import { getUnlockedMilestones } from "@/utils/streak/streakMilestoneStore";
 import AchievementCard from "@/components/Achievements/AchievementCard";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { useStreakMetrics } from "@/hooks/useStreakMetrics";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { useEffect, useMemo, useState } from "react";
 
 export default function AchievementsScreen() {
   const [unlocked, setUnlocked] = useState<AchievedMilestone[]>([]);
   const { expenses, limits } = useExpensesStore();
+  const { t } = useTranslation();
+
   useEffect(() => {
     getUnlockedMilestones()
       .then(setUnlocked)
       .catch(() => {});
   }, []);
 
-  /**
-   * Map unlocked achievements by id for O(1) lookup
-   */
   const unlockedMap = useMemo(() => {
     const map = new Map<string, AchievedMilestone>();
     unlocked.forEach((m) => map.set(m.id, m));
     return map;
   }, [unlocked]);
-  // inside component
+
   const { currentStreak } = useStreakMetrics({
     expenses,
     dailyLimit: limits.daily.amount,
   });
-  /**
-   * Registry → ordered list
-   */
+
   const allMilestones: Milestone[] = useMemo(() => {
     return Object.values(STREAK_MILESTONE_REGISTRY).sort(
       (a, b) => a.value - b.value
@@ -56,9 +54,12 @@ export default function AchievementsScreen() {
         >
           {/* ---------- Header ---------- */}
           <View style={styles.header}>
-            <Text style={styles.title}>Achievements</Text>
+            <Text style={styles.title}>
+              {t("achievements.title")}
+            </Text>
+
             <Text style={styles.subtitle}>
-              Your progress, milestones, and discipline
+              {t("achievements.subtitle")}
             </Text>
           </View>
 
@@ -81,8 +82,7 @@ export default function AchievementsScreen() {
           {/* ---------- Footer hint ---------- */}
           <View style={styles.hintCard}>
             <Text style={styles.hintText}>
-              More achievements will unlock as you build consistency and reach
-              new goals.
+              {t("achievements.footerHint")}
             </Text>
           </View>
         </ScrollView>

@@ -1,4 +1,5 @@
 import { Milestone } from "@/constants/streakMilestoneRegistry";
+import { useTranslation } from "@/hooks/useTranslation";
 import { AchievedMilestone } from "@/models/milestones.model";
 import { getStreakProgress } from "@/utils/achievements/progressCalculators";
 import { BlurView } from "expo-blur";
@@ -7,7 +8,7 @@ import { StyleSheet, Text, View } from "react-native";
 type Props = {
   base: Milestone;
   unlocked?: AchievedMilestone;
-  currentStreak?: number; // 🔥 yeni
+  currentStreak?: number;
 };
 
 export default function AchievementCard({
@@ -15,6 +16,8 @@ export default function AchievementCard({
   unlocked,
   currentStreak = 0,
 }: Props) {
+  const { t } = useTranslation();
+
   const isUnlocked = Boolean(unlocked);
 
   const progress = !isUnlocked
@@ -28,15 +31,15 @@ export default function AchievementCard({
         <Text style={styles.emoji}>{base.emoji}</Text>
 
         {/* ---------- Title ---------- */}
-        <Text style={styles.title}>{base.title}</Text>
+        <Text style={styles.title}>{t(base.titleKey)}</Text>
 
         {/* ---------- Description ---------- */}
-        <Text style={styles.desc}>{base.description}</Text>
+        <Text style={styles.desc}>{t(base.descriptionKey)}</Text>
 
         {/* ---------- Unlocked ---------- */}
         {isUnlocked && unlocked && (
           <Text style={styles.date}>
-            Achieved on{" "}
+            {t("achievements.achievedOn")}{" "}
             {new Date(unlocked.achievedAt).toLocaleDateString()}
           </Text>
         )}
@@ -52,9 +55,8 @@ export default function AchievementCard({
                 ]}
               />
             </View>
-
             <Text style={styles.progressText}>
-              {progress.current} / {progress.target} days
+              {progress.current} / {progress.target} {t("achievements.days")}
             </Text>
           </View>
         )}

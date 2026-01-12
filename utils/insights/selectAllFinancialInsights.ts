@@ -4,14 +4,14 @@ import { Expense } from "@/models/expense.model";
 import { InsightItem } from "@/models/insight.model";
 
 import {
-    getMonthlyChangeInsightData,
-    getTopCategoryInsightData,
-    getWeeklyAverageInsightData,
+  getMonthlyChangeInsightData,
+  getTopCategoryInsightData,
+  getWeeklyAverageInsightData,
 } from "@/utils/expense/expenseInsights";
 
 import {
-    getBaselineComparisonInsight,
-    getDailyBaselineInsight,
+  getBaselineComparisonInsight,
+  getDailyBaselineInsight,
 } from "@/utils/insights/baselineInsights";
 
 export function selectAllFinancialInsights({
@@ -23,59 +23,58 @@ export function selectAllFinancialInsights({
 }): InsightItem[] {
   const weeklyAvg = getWeeklyAverageInsightData(expenses);
 
-  const candidates: (InsightItem | null)[] = [
+  const items: (InsightItem | null)[] = [
     getDailyBaselineInsight(dailyBaseline),
     getBaselineComparisonInsight({
       dailyBaseline,
       weeklyAverage: weeklyAvg?.weeklyAverage ?? null,
     }),
+
     (() => {
       const d = getMonthlyChangeInsightData(expenses);
       if (!d) return null;
 
       const abs = Math.abs(d.percentageChange);
       const tone =
-        abs < 5
-          ? "neutral"
-          : d.percentageChange > 0
-          ? "negative"
-          : "positive";
+        abs < 5 ? "neutral" : d.percentageChange > 0 ? "negative" : "positive";
 
       return {
         type: "monthly_change",
-        title: "Monthly change",
-        description:
+        titleKey: "insights.monthly_change.title",
+        descriptionKey:
           d.percentageChange > 0
-            ? `You spent ${abs}% more than last month.`
-            : `You spent ${abs}% less than last month.`,
+            ? "insights.monthly_change.more"
+            : "insights.monthly_change.less",
+        params: { percent: abs },
         tone,
       };
     })(),
+
     (() => {
       const d = getTopCategoryInsightData(expenses);
       if (!d) return null;
 
       return {
         type: "top_category",
-        title: "Top category",
-        description: `Most of your spending went to ${d.category}.`,
+        titleKey: "insights.top_category.title",
+        descriptionKey: "insights.top_category.description",
+        params: { category: d.category },
         tone: "neutral",
       };
     })(),
+
     (() => {
-      const d = weeklyAvg;
-      if (!d || d.weeklyAverage < 1) return null;
+      if (!weeklyAvg || weeklyAvg.weeklyAverage < 1) return null;
 
       return {
         type: "weekly_average",
-        title: "Weekly average",
-        description: `Your weekly average is ₺${Math.round(
-          d.weeklyAverage
-        )}.`,
+        titleKey: "insights.weekly_average.title",
+        descriptionKey: "insights.weekly_average.description",
+        params: { amount: Math.round(weeklyAvg.weeklyAverage) },
         tone: "neutral",
       };
     })(),
   ];
 
-  return candidates.filter(Boolean) as InsightItem[];
+  return items.filter(Boolean) as InsightItem[];
 }

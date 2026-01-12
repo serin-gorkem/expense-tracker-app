@@ -1,4 +1,6 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { LimitPeriod, LimitsState } from "@/models/limit.model";
+import { useExpensesStore } from "@/src/context/ExpensesContext";
 import Slider from "@react-native-community/slider";
 import { useState } from "react";
 import {
@@ -8,7 +10,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useExpensesStore } from "../../../src/context/ExpensesContext";
 
 /* =========================
    EditableAmount
@@ -21,6 +22,7 @@ function EditableAmount({
   value: number;
   onChange(v: number): void;
 }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [temp, setTemp] = useState(String(value));
 
@@ -49,7 +51,9 @@ function EditableAmount({
   return (
     <Pressable onPress={() => setEditing(true)}>
       <Text style={styles.amountText}>₺{value}</Text>
-      <Text style={styles.editHint}>Tap to edit</Text>
+      <Text style={styles.editHint}>
+        {t("onboarding.limits.tapToEdit")}
+      </Text>
     </Pressable>
   );
 }
@@ -84,20 +88,22 @@ type Props = {
 };
 
 export default function ManualLimitsStep({ onFinish, onBack }: Props) {
-  const { limits, applyLimitChange, financeProfile } =
-    useExpensesStore();
+  const { limits, applyLimitChange, financeProfile } = useExpensesStore();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Set your limits</Text>
+      <Text style={styles.title}>
+        {t("onboarding.limits.manualTitle")}
+      </Text>
       <Text style={styles.subtitle}>
-        Adjust how much you can spend per period.
+        {t("onboarding.limits.manualSubtitle")}
       </Text>
 
       {Object.values(limits).map((limit) => (
         <View key={limit.period} style={styles.card}>
           <Text style={styles.label}>
-            {limit.period.toUpperCase()}
+            {t(`onboarding.limits.period.${limit.period}`)}
           </Text>
 
           <EditableAmount
@@ -130,17 +136,20 @@ export default function ManualLimitsStep({ onFinish, onBack }: Props) {
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
-          <Text style={styles.back}>Back</Text>
+          <Text style={styles.back}>
+            {t("common.back")}
+          </Text>
         </Pressable>
 
         <Pressable style={styles.primaryBtn} onPress={onFinish}>
-          <Text style={styles.primaryText}>Finish</Text>
+          <Text style={styles.primaryText}>
+            {t("common.finish")}
+          </Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
 /* =========================
    Styles
 ========================= */

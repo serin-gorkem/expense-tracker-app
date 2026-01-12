@@ -15,6 +15,7 @@ type GoalsStore = {
   setActiveGoal(id: string | null): void;
   updateGoal(id: string, patch: Partial<Goal>): void;
   archiveGoal(id:string): void;
+  resetGoals(): void;
 
   toggleGoal(id: string): void;
 
@@ -30,7 +31,7 @@ type GoalsPersisted = {
 ========================= */
 
 
-const STORAGE_KEY = "goals_store_v1";
+const STORAGE_KEY = "@goals_store_v1";
 
 function serialize(goals: Goal[], activeGoalId: string | null): GoalsPersisted {
   return {
@@ -75,6 +76,7 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
     setActiveGoal,
     toggleGoal,
     calculateGoalProgress,
+    resetGoals,
   };
     // LOAD
   useEffect(() => {
@@ -142,6 +144,10 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
       )
     );
   }
+  function resetGoals() {
+  setGoals([]);
+  setActiveGoalId(null);
+}
   function archiveGoal(id: string) {
   setGoals((prev) =>
     prev.map((g) =>

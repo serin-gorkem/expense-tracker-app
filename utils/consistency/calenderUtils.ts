@@ -3,6 +3,12 @@
  * JS getDay(): Sun = 0, Mon = 1, ...
  * Bizim index: Mon = 0, Sun = 6
  */
+/**
+ * Ay başlığı formatı
+ * "December 2025"
+ */
+import { LanguageCode } from "@/src/i18n";
+
 function normalizeWeekday(jsDay: number): number {
   return jsDay === 0 ? 6 : jsDay - 1;
 }
@@ -50,12 +56,18 @@ export function buildMonthGrid(month: Date): (number | null)[][] {
   return weeks;
 }
 
-/**
- * Ay başlığı formatı
- * "December 2025"
- */
-export function formatMonthLabel(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+export function formatMonthLabel(
+  date: Date,
+  lang: LanguageCode
+): string {
+  const localeMap: Record<LanguageCode, string> = {
+    en: "en-US",
+    tr: "tr-TR",
+    de: "de-DE",
+    fr: "fr-FR",
+  };
+
+  return date.toLocaleDateString(localeMap[lang], {
     month: "long",
     year: "numeric",
   });

@@ -4,8 +4,8 @@ import { GroupedExpenses } from "./expenseGrouping";
 import { filterExpensesForLimit } from "./expenseLimitFilter";
 
 export type LineChartPoint = {
-  label: string;
   value: number;
+  dayKey: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 };
 
 export type DonutChartItem = {
@@ -46,7 +46,15 @@ export function buildMonthlyCategoryDonutData(
     .sort((a, b) => b.value - a.value);
 }
 
-const WEEK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEK_KEYS: LineChartPoint["dayKey"][] = [
+  "mon",
+  "tue",
+  "wed",
+  "thu",
+  "fri",
+  "sat",
+  "sun",
+];
 
 export function buildWeeklyLineChartData(
   groups: GroupedExpenses[]
@@ -62,14 +70,15 @@ export function buildWeeklyLineChartData(
       const date = new Date(expense.date);
       if (isNaN(date.getTime())) return;
 
-      const dayIndex = (date.getDay() + 6) % 7; // Mon = 0
+      // Mon = 0 ... Sun = 6
+      const dayIndex = (date.getDay() + 6) % 7;
       const prev = totals.get(dayIndex) ?? 0;
       totals.set(dayIndex, prev + expense.amount);
     });
   });
 
-  return WEEK_LABELS.map((label, i) => ({
-    label,
-    value: Math.round(totals.get(i) ?? 0),
+  return WEEK_KEYS.map((dayKey, index) => ({
+    dayKey,
+    value: Math.round(totals.get(index) ?? 0),
   }));
 }

@@ -1,7 +1,10 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -17,7 +20,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
+          title: t("tabs.home"),
+          tabBarLabel: t("tabs.home"),
           tabBarIcon: ({ color, size }) => (
             <Feather name="home" size={size} color={color} />
           ),
@@ -27,8 +31,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="goals/index"
         options={{
-          title: "Goals",
-          tabBarLabel: "Goals",
+          title: t("tabs.goals"),
+          tabBarLabel: t("tabs.goals"),
           tabBarIcon: ({ color, size }) => (
             <Feather name="target" size={size} color={color} />
           ),
@@ -38,7 +42,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="insights"
         options={{
-          title: "Insights",
+          title: t("tabs.insights"),
+          tabBarLabel: t("tabs.insights"),
           tabBarIcon: ({ color, size }) => (
             <Feather name="bar-chart-2" size={size} color={color} />
           ),
@@ -48,16 +53,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="achievements"
         options={{
-          title: "Achievements",
+          title: t("tabs.achievements"),
+          tabBarLabel: t("tabs.achievements"),
           tabBarIcon: ({ color, size }) => (
             <Feather name="award" size={size} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("tabs.settings"),
+          tabBarLabel: t("tabs.settings"),
           tabBarIcon: ({ color, size }) => (
             <Feather name="settings" size={size} color={color} />
           ),

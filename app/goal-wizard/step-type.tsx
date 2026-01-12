@@ -1,39 +1,50 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { useWizard } from "@/src/context/WizardContext";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-
 export default function StepType() {
   const { draft, setType, next, canGoNext } = useWizard();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>What is this goal for?</Text>
-      <Text style={styles.p}>Choose the type that fits best.</Text>
+      <Text style={styles.h1}>{t("goalWizard.type.title")}</Text>
+      <Text style={styles.p}>{t("goalWizard.type.subtitle")}</Text>
 
       <View style={styles.list}>
         <Pressable
           style={[styles.card, draft.type === "savings" && styles.cardActive]}
           onPress={() => setType("savings")}
         >
-          <Text style={styles.cardTitle}>Savings</Text>
-          <Text style={styles.cardSub}>Build money over time without a specific item.</Text>
+          <Text style={styles.cardTitle}>
+            {t("goalWizard.type.savings.title")}
+          </Text>
+          <Text style={styles.cardSub}>
+            {t("goalWizard.type.savings.desc")}
+          </Text>
         </Pressable>
 
         <Pressable
           style={[styles.card, draft.type === "purchase" && styles.cardActive]}
           onPress={() => setType("purchase")}
         >
-          <Text style={styles.cardTitle}>Purchase</Text>
-          <Text style={styles.cardSub}>Save for a specific item or expense.</Text>
+          <Text style={styles.cardTitle}>
+            {t("goalWizard.type.purchase.title")}
+          </Text>
+          <Text style={styles.cardSub}>
+            {t("goalWizard.type.purchase.desc")}
+          </Text>
         </Pressable>
 
         <Pressable
           style={[styles.card, draft.type === "budget" && styles.cardActive]}
           onPress={() => setType("budget")}
         >
-          <Text style={styles.cardTitle}>Budget</Text>
-          <Text style={styles.cardSub}>Control spending within a defined limit.</Text>
+          <Text style={styles.cardTitle}>
+            {t("goalWizard.type.budget.title")}
+          </Text>
+          <Text style={styles.cardSub}>{t("goalWizard.type.budget.desc")}</Text>
         </Pressable>
       </View>
 
@@ -42,7 +53,7 @@ export default function StepType() {
         onPress={next}
         disabled={!canGoNext}
       >
-        <Text style={styles.primaryText}>Continue</Text>
+        <Text style={styles.primaryText}>{t("common.continue")}</Text>
       </Pressable>
     </View>
   );

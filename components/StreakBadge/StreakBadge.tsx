@@ -1,6 +1,7 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { StyleSheet, Text } from "react-native";
 import Animated, {
-    FadeInUp,
+  FadeInUp,
 } from "react-native-reanimated";
 
 type StreakBadgeProps = {
@@ -8,6 +9,7 @@ type StreakBadgeProps = {
 };
 
 export function StreakBadge({ count }: StreakBadgeProps) {
+  const { t } = useTranslation();
   if (count <= 0) return null;
 
   return (
@@ -16,7 +18,7 @@ export function StreakBadge({ count }: StreakBadgeProps) {
       style={styles.container}
     >
       <Text style={styles.text}>
-        🔥 {count} {count === 1 ? "day" : "days"} streak
+        🔥 {t("streak.dayStreak", { count })}
       </Text>
     </Animated.View>
   );
@@ -29,7 +31,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 999,
-
     backgroundColor: "rgba(16,185,129,0.15)",
     borderWidth: 1,
     borderColor: "rgba(16,185,129,0.35)",

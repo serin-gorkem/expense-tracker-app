@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Expense, EXPENSE_KIND_META } from "@/models/expense.model";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
@@ -33,6 +34,7 @@ const formatAmount = (n: number) => {
 
 const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
   const isGoalBoost = expense.isGoalBoost === true;
+  const { t } = useTranslation();
   const confirmDelete = () => {
     Alert.alert(
       "Delete Expense",
@@ -53,7 +55,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
       onPress={confirmDelete}
       style={[styles.action, styles.actionDelete]}
     >
-      <Text style={styles.actionText}>Delete</Text>
+      <Text style={styles.pillText}>{t("common.delete")}</Text>
     </Pressable>
   );
 
@@ -91,7 +93,9 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
 
                 {isGoalBoost && (
                   <View style={styles.goalBadge}>
-                    <Text style={styles.goalBadgeText}>🎯 Goal</Text>
+                    <Text style={styles.goalBadgeText}>
+                      🎯 {t("expense.goal.badge")}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -104,7 +108,9 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
                   <View style={styles.dot} />
                   {/* Category */}
                   <View style={styles.pill}>
-                    <Text style={styles.pillText}>{expense.category}</Text>
+                    <Text style={styles.pillText}>
+                      {t(`categories.${expense.category}`)}
+                    </Text>
                   </View>
 
                   {/* Expense kind */}
@@ -120,7 +126,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
                         expense.kind === "structural" && styles.pillFixedText,
                       ]}
                     >
-                      {EXPENSE_KIND_META[expense.kind]?.label}
+                      {t(EXPENSE_KIND_META[expense.kind].labelKey)}
                     </Text>
                   </View>
                 </View>
@@ -176,7 +182,13 @@ const styles = StyleSheet.create({
   },
   amount: { color: "rgba(255,255,255,0.92)", fontWeight: "900", fontSize: 14 },
 
-  metaRow: { flexDirection: "row",alignItems: "center", flexWrap: "wrap", gap: 8, marginTop: 8 },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 8,
+  },
   metaCol: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
   meta: { color: "rgba(255,255,255,0.55)", fontSize: 12, fontWeight: "700" },
   dot: {

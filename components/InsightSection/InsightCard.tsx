@@ -1,24 +1,29 @@
-import { InsightItem } from "@/models/insight.model";
 import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
-  insight: InsightItem;
+  title: string;
+  description: string;
+  tone: "positive" | "neutral" | "negative";
 };
 
-export default function InsightCard({ insight }: Props) {
+export default function InsightCard({
+  title,
+  description,
+  tone,
+}: Props) {
   const toneStyle =
-    insight.tone === "positive"
+    tone === "positive"
       ? styles.positive
-      : insight.tone === "negative"
+      : tone === "negative"
       ? styles.negative
       : styles.neutral;
 
   return (
     <View style={[styles.card, toneStyle]}>
-      <Text style={styles.title}>{insight.title}</Text>
-      <Text style={styles.description}>{insight.description}</Text>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
     </View>
-  );
+  );  
 }
 
 const styles = StyleSheet.create({

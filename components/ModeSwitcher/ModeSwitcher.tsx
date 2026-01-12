@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { ViewMode } from "@/utils/expense/expenseSelectors";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -10,11 +11,9 @@ type ModeSwitcherProps = {
 };
 
 const ModeSwitcher = ({ value, onChange }: ModeSwitcherProps) => {
-  const items: { key: ViewMode; label: string }[] = [
-    { key: "daily", label: "Daily" },
-    { key: "weekly", label: "Weekly" },
-    { key: "monthly", label: "Monthly" },
-  ];
+  const { t } = useTranslation();
+
+  const items: ViewMode[] = ["daily", "weekly", "monthly"];
 
   return (
     <View style={styles.wrap}>
@@ -23,17 +22,19 @@ const ModeSwitcher = ({ value, onChange }: ModeSwitcherProps) => {
           colors={["rgba(255,255,255,0.10)", "rgba(255,255,255,0.04)"]}
           style={StyleSheet.absoluteFillObject}
         />
+
         <View style={styles.row}>
-          {items.map((it) => {
-            const active = it.key === value;
+          {items.map((mode) => {
+            const active = mode === value;
+
             return (
               <Pressable
-                key={it.key}
-                onPress={() => onChange(it.key)}
+                key={mode}
+                onPress={() => onChange(mode)}
                 style={[styles.tab, active && styles.tabActive]}
               >
                 <Text style={[styles.tabText, active && styles.tabTextActive]}>
-                  {it.label}
+                  {t(`viewMode.${mode}`)}
                 </Text>
               </Pressable>
             );

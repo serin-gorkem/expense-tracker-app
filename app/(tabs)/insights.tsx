@@ -20,6 +20,7 @@ import DayDetailModal from "@/components/Consistency/DayDetailsModal";
 import BehavioralInsightSection from "@/components/InsightSection/BehavioralInsightSection";
 import FinancialInsightSection from "@/components/InsightSection/FinancialInsightSection";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
 import { getExpensesByDay } from "@/utils/insights/insightRules";
@@ -28,10 +29,10 @@ export default function Insights() {
   const { expenses, limits } = useExpensesStore();
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
 
-const expensesByDay = useMemo(() => getExpensesByDay(expenses), [expenses]);
+  const expensesByDay = useMemo(() => getExpensesByDay(expenses), [expenses]);
   const { activeGoal } = useGoalsStore();
   const dailyLimit = limits.daily.amount;
-
+  const { t } = useTranslation();
   const monthGroups = groupExpensesByMonth(expenses);
   const weekGroups = groupExpensesByWeek(expenses);
 
@@ -69,17 +70,13 @@ const expensesByDay = useMemo(() => getExpensesByDay(expenses), [expenses]);
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 28 }}
         >
-          <Text style={styles.title}>Insights</Text>
-          <Text style={styles.subtitle}>
-            Charts and analytics based on your expenses.
-          </Text>
+          <Text style={styles.title}>{t("insights.screen.title")}</Text>
+          <Text style={styles.subtitle}>{t("insights.screen.subtitle")}</Text>
 
           {expenses.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>No data yet</Text>
-              <Text style={styles.emptyDesc}>
-                Add a few expenses to unlock insights.
-              </Text>
+              <Text style={styles.emptyTitle}>{t("insights.empty.title")}</Text>
+              <Text style={styles.emptyDesc}>{t("insights.empty.desc")}</Text>
             </View>
           ) : (
             <View style={styles.container}>
@@ -111,25 +108,22 @@ const expensesByDay = useMemo(() => getExpensesByDay(expenses), [expenses]);
                 dailyLimit={dailyLimit}
               />
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>
-                  More insights will unlock as you use the app
-                </Text>
+                <Text style={styles.cardTitle}>{t("insights.more.title")}</Text>
 
                 <Text style={styles.item}>
-                  • Spending consistency over time
+                  • {t("insights.more.items.consistency")}
                 </Text>
                 <Text style={styles.item}>
-                  • Recovery after overspending days
+                  • {t("insights.more.items.recovery")}
                 </Text>
                 <Text style={styles.item}>
-                  • Your strongest and weakest days
+                  • {t("insights.more.items.strongWeak")}
                 </Text>
-                <Text style={styles.item}>• Limit behavior patterns</Text>
+                <Text style={styles.item}>
+                  • {t("insights.more.items.patterns")}
+                </Text>
 
-                <Text style={styles.itemMuted}>
-                  These insights appear gradually as your data becomes
-                  meaningful.
-                </Text>
+                <Text style={styles.itemMuted}>{t("insights.more.hint")}</Text>
               </View>
             </View>
           )}

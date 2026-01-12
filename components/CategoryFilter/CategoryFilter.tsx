@@ -1,8 +1,8 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Category, CATEGORY_OPTIONS } from '@/models/expense.model';
 import { haptic } from '@/utils/haptics';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-
 type CategoryFilterProps = {
   category: Category | "all";
   setCategory: (value: Category | "all") => void;
@@ -13,9 +13,10 @@ const CategoryFilter = ({ category, setCategory }: CategoryFilterProps) => {
     haptic.light();
     setCategory(value);
   };
+  const { t } = useTranslation();
   return (
     <View>
-      <Text style={styles.filterLabel}>Filter by category</Text>
+      <Text style={styles.filterLabel}>{t("categoryFilter.title")}</Text>
 
       <View style={styles.categoryRow}>
         {/* ALL */}
@@ -23,7 +24,7 @@ const CategoryFilter = ({ category, setCategory }: CategoryFilterProps) => {
           onPress={() => handlePress("all")}
           style={[styles.category, category === "all" && styles.categoryActive]}
         >
-          <Text style={styles.categoryText}>All</Text>
+          <Text style={styles.categoryText}>{t("categoryFilter.all")}</Text>
         </Pressable>
 
         {/* CATEGORY_OPTIONS */}
@@ -33,10 +34,12 @@ const CategoryFilter = ({ category, setCategory }: CategoryFilterProps) => {
           return (
             <Pressable
               key={item.key}
-              onPress={ () => handlePress(item.key) }
+              onPress={() => handlePress(item.key)}
               style={[styles.category, active && styles.categoryActive]}
             >
-              <Text style={styles.categoryText}>{item.label}</Text>
+              <Text style={styles.categoryText}>
+                {t(`categories.${item.key}`)}
+              </Text>
             </Pressable>
           );
         })}

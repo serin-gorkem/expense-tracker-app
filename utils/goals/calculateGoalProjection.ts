@@ -8,20 +8,18 @@ export type GoalProjection = {
   daysRemaining: number;
   totalDays: number;
 
-  requiredDaily: number;   // bundan sonra gereken
-  actualDaily: number;     // şimdiye kadarki ortalama
+  requiredDaily: number;
+  actualDaily: number;
 
-  baselineDaily?: number;  // kullanıcının günlük kapasitesi
+  baselineDaily?: number;
 
-  paceRatio: number;       // actual / required
-  baselineRatio?: number;  // baseline / required
+  paceRatio: number;
+  baselineRatio?: number;
 
   feasibility: "good" | "tight" | "heavy";
   riskLevel: "low" | "medium" | "high";
 
   willMissGoal: boolean;
-
-  message: string;
 };
 
 export function calculateGoalProjection(
@@ -60,27 +58,18 @@ export function calculateGoalProjection(
       ? baselineDaily / requiredDaily
       : undefined;
 
-  /* =========================
-     Risk & Feasibility
-  ========================= */
-
   let feasibility: GoalProjection["feasibility"];
   let riskLevel: GoalProjection["riskLevel"];
-  let message: string;
 
   if (paceRatio >= 1.1) {
     feasibility = "good";
     riskLevel = "low";
-    message = "You are ahead of schedule. Keep this pace.";
   } else if (paceRatio >= 0.8) {
     feasibility = "tight";
     riskLevel = "medium";
-    message = "You’re slightly behind, but this goal is still realistic.";
   } else {
     feasibility = "heavy";
     riskLevel = "high";
-    message =
-      "At this pace, reaching this goal may be difficult without adjustments.";
   }
 
   const willMissGoal =
@@ -109,7 +98,5 @@ export function calculateGoalProjection(
     feasibility,
     riskLevel,
     willMissGoal,
-
-    message,
   };
 }

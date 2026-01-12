@@ -5,6 +5,7 @@ import { Achievement } from "@/models/achievement.model.ts";
 /**
  * Achievement registry
  * Stable ids — NEVER change once released
+ * Texts are resolved via i18n
  */
 export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
   /* =====================
@@ -15,8 +16,8 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "streak_1",
     category: "streak",
     value: 1,
-    title: "First Step",
-    description: "Complete your first safe day.",
+    titleKey: "achievements.streak.first.title",
+    descriptionKey: "achievements.streak.first.desc",
     emoji: "🔥",
     rarity: "common",
   },
@@ -25,8 +26,8 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "streak_7",
     category: "streak",
     value: 7,
-    title: "One Week Strong",
-    description: "7 days in a row within your daily limit.",
+    titleKey: "achievements.streak.week.title",
+    descriptionKey: "achievements.streak.week.desc",
     emoji: "💪",
     rarity: "rare",
   },
@@ -35,8 +36,8 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "streak_30",
     category: "streak",
     value: 30,
-    title: "Monthly Discipline",
-    description: "30-day spending streak achieved.",
+    titleKey: "achievements.streak.month.title",
+    descriptionKey: "achievements.streak.month.desc",
     emoji: "🏆",
     rarity: "epic",
   },
@@ -45,8 +46,8 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "streak_90",
     category: "streak",
     value: 90,
-    title: "Legendary Consistency",
-    description: "90 days without breaking discipline.",
+    titleKey: "achievements.streak.legend.title",
+    descriptionKey: "achievements.streak.legend.desc",
     emoji: "👑",
     rarity: "legendary",
   },
@@ -59,8 +60,8 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "goal_first",
     category: "goal",
     value: 1,
-    title: "Goal Setter",
-    description: "Create and complete your first goal.",
+    titleKey: "achievements.goal.first.title",
+    descriptionKey: "achievements.goal.first.desc",
     emoji: "🎯",
     rarity: "common",
   },
@@ -69,12 +70,11 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "goal_5",
     category: "goal",
     value: 5,
-    title: "Focused Planner",
-    description: "Complete 5 financial goals.",
+    titleKey: "achievements.goal.five.title",
+    descriptionKey: "achievements.goal.five.desc",
     emoji: "📈",
     rarity: "rare",
   },
-  
 
   /* =====================
      CONSISTENCY
@@ -84,8 +84,8 @@ export const ACHIEVEMENT_REGISTRY: Record<string, Achievement> = {
     id: "consistency_14",
     category: "consistency",
     value: 14,
-    title: "Two-Week Control",
-    description: "Stay consistent for 14 days.",
+    titleKey: "achievements.consistency.twoWeeks.title",
+    descriptionKey: "achievements.consistency.twoWeeks.desc",
     emoji: "🧠",
     rarity: "rare",
   },

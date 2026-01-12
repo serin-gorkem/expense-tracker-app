@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const KEY = "goal_apply_last_shown_day";
+const KEY = "@goal_apply_last_shown_day";
 
 export async function getLastShownDay(): Promise<string | null> {
   return AsyncStorage.getItem(KEY);

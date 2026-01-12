@@ -1,62 +1,93 @@
+import { OnboardingData } from "@/hooks/useOnboardingWizard";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useWizard } from "@/src/context/WizardContext";
+import { setOnboardingReturn } from "@/utils/onboarding/onboardingReturn";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
+  data: OnboardingData;
   onNext(): void;
   onBack(): void;
 };
 
-export default function GoalWizardStep({ onNext, onBack }: Props) {
+export default function GoalWizardStep({ data, onNext, onBack }: Props) {
   const router = useRouter();
   const { reset } = useWizard();
-
+  const { t } = useTranslation();
+if (!data) return null;
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <View>
-        <Text style={styles.title}>Set a goal</Text>
+        <Text style={styles.title}>{t("onboarding.goal-wizard.title")}</Text>
         <Text style={styles.subtitle}>
-          Goals help you stay motivated and turn leftover money into progress.
+          {t("onboarding.goal-wizard.subtitle")}
         </Text>
       </View>
 
       {/* INFO CARD */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Why create a goal?</Text>
+        <Text style={styles.cardTitle}>
+          {t("onboarding.goal-wizard.whyTitle")}
+        </Text>
 
-        <Text style={styles.cardItem}>• Save for something specific</Text>
-        <Text style={styles.cardItem}>• Build a habit over time</Text>
         <Text style={styles.cardItem}>
-          • Automatically move unused money forward
+          • {t("onboarding.goal-wizard.why.1")}
+        </Text>
+        <Text style={styles.cardItem}>
+          • {t("onboarding.goal-wizard.why.2")}
+        </Text>
+        <Text style={styles.cardItem}>
+          • {t("onboarding.goal-wizard.why.3")}
         </Text>
       </View>
 
       {/* ACTIONS */}
-      <View style={styles.actions}>
-        <View style={styles.actions}>
+      <View style={styles.footer}>
+        <View style={styles.inlineActions}>
           <Pressable onPress={onBack}>
-            <Text style={styles.back}>Go Back</Text>
+            <Text style={styles.back}>{t("common.back")}</Text>
           </Pressable>
-          <Text>or</Text>
+
+          <Text style={styles.or}>·</Text>
+
           <Pressable
-            onPress={() => {
+            onPress={async () => {
               reset();
               onNext();
             }}
           >
-            <Text style={styles.skip}>Skip for now</Text>
+            <Text style={styles.skip}>{t("common.skipForNow")}</Text>
           </Pressable>
         </View>
 
         <Pressable
           style={styles.primaryBtn}
-          onPress={() => {
-            reset(); // CREATE MODE
+          onPress={async () => {
+            if (data.useAutoLimits) {
+              await setOnboardingReturn({
+                flow: "auto",
+                step: 6,
+                useAutoLimits: true,
+                monthlyIncome: data?.monthlyIncome!,
+                fixedExpenses: data?.fixedExpenses!,
+              });
+            } else {
+              await setOnboardingReturn({
+                flow: "manual",
+                step: 5,
+                useAutoLimits: false,
+              });
+            }
+
+            reset();
             router.push("/goal-wizard");
           }}
         >
-          <Text style={styles.primaryText}>Create a goal</Text>
+          <Text style={styles.primaryText}>
+            {t("onboarding.goal-wizard.create")}
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -105,11 +136,20 @@ const styles = StyleSheet.create({
     color: "rgba(0,0,0,0.6)",
   },
 
-  actions: {
+  footer: {
+    gap: 16,
+  },
+
+  inlineActions: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    gap:8,
+    justifyContent: "center",
+    gap: 12,
+  },
+
+  or: {
+    color: "rgba(0,0,0,0.3)",
+    fontWeight: "700",
   },
 
   skip: {
@@ -117,6 +157,7 @@ const styles = StyleSheet.create({
     color: "#6366F1",
     fontWeight: "600",
   },
+
   back: {
     fontSize: 14,
     color: "rgba(0,0,0,0.6)",
@@ -125,9 +166,9 @@ const styles = StyleSheet.create({
 
   primaryBtn: {
     backgroundColor: "#6366F1",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
+    alignItems: "center",
   },
 
   primaryText: {

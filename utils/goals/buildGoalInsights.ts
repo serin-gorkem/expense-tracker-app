@@ -11,27 +11,24 @@ export function buildGoalInsights(
   if (projection.feasibility === "good") {
     insights.push({
       type: "ahead",
-      title: "Ahead of schedule",
-      description:
-        "You are saving faster than required for this goal.",
+      titleKey: "goalInsights.ahead.title",
+      descriptionKey: "goalInsights.ahead.description",
     });
   }
 
   if (projection.feasibility === "tight") {
     insights.push({
       type: "on_track",
-      title: "On track",
-      description:
-        "This goal is achievable, but consistency matters.",
+      titleKey: "goalInsights.on_track.title",
+      descriptionKey: "goalInsights.on_track.description",
     });
   }
 
   if (projection.feasibility === "heavy") {
     insights.push({
       type: "risk",
-      title: "At risk",
-      description:
-        "At this pace, you may not reach the goal in time.",
+      titleKey: "goalInsights.risk.title",
+      descriptionKey: "goalInsights.risk.description",
     });
   }
 
@@ -39,9 +36,8 @@ export function buildGoalInsights(
   if (projection.daysRemaining <= 5 && projection.feasibility !== "good") {
     insights.push({
       type: "behind",
-      title: "Time is running out",
-      description:
-        "Only a few days left. Small daily changes could help.",
+      titleKey: "goalInsights.behind.title",
+      descriptionKey: "goalInsights.behind.description",
     });
   }
 
@@ -49,9 +45,8 @@ export function buildGoalInsights(
   if (projection.actualDaily === 0) {
     insights.push({
       type: "inactive",
-      title: "No contributions yet",
-      description:
-        "This goal hasn’t received any contributions so far.",
+      titleKey: "goalInsights.inactive.title",
+      descriptionKey: "goalInsights.inactive.description",
     });
   }
 

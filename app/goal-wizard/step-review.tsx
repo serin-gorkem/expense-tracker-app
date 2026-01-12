@@ -1,6 +1,10 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useWizard } from "@/src/context/WizardContext";
 import { createGoalFromDraft } from "@/utils/goals/createGoalFromDraft";
+import {
+  getOnboardingReturn
+} from "@/utils/onboarding/onboardingReturn";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -8,6 +12,7 @@ type FeasibilityLevel = "good" | "tight" | "heavy";
 
 export default function StepReview() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { draft, goTo, reset } = useWizard();
   const { createGoal } = useGoalsStore();
 
@@ -24,30 +29,59 @@ export default function StepReview() {
       : "heavy"
     : null;
 
-  const handleSubmit = () => {
-    const goal = createGoalFromDraft(draft);
+  const defaultTitle = t(`goals.goal.defaultTitle.${draft.type}`);
+
+  const handleSubmit = async () => {
+    const goal = createGoalFromDraft(draft, defaultTitle);
     createGoal(goal);
     reset();
-    router.replace("/(tabs)/goals");
+    
+    const onboardingReturn = await getOnboardingReturn();
+    if (onboardingReturn) {
+      router.replace("/onboarding");
+    } else {
+      router.replace("/(tabs)/goals");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>Review</Text>
-      <Text style={styles.p}>Take a final look before starting this goal.</Text>
+      <Text style={styles.h1}>{t("goalWizard.review.title")}</Text>
+      <Text style={styles.p}>{t("goalWizard.review.subtitle")}</Text>
 
       <View style={styles.card}>
-        <ReviewRow label="Type" value={draft.type} />
-        <ReviewRow label="Duration" value={`${draft.durationInDays} days`} />
-        <ReviewRow label="Target" value={`${draft.targetAmount}`} />
+        <ReviewRow
+          label={t("goalWizard.review.type")}
+          value={draft.type && t(`goalTypes.${draft.type}`)}
+        />
+        <ReviewRow
+          label={t("goalWizard.review.duration")}
+          value={`${draft.durationInDays} ${t("common.days")}`}
+        />
+        <ReviewRow
+          label={t("goalWizard.review.target")}
+          value={`${draft.targetAmount}`}
+        />
+
         {dailyAvg && (
-          <ReviewRow label="Daily effort" value={`~ ${dailyAvg} per day`} />
+          <ReviewRow
+            label={t("goalWizard.review.dailyEffort")}
+            value={`~ ${dailyAvg} ${t("common.perDay")}`}
+          />
         )}
+
         {draft.customTitle && (
-          <ReviewRow label="Title" value={draft.customTitle} />
+          <ReviewRow
+            label={t("goalWizard.review.titleLabel")}
+            value={draft.customTitle}
+          />
         )}
+
         {draft.category && (
-          <ReviewRow label="Category" value={draft.category} />
+          <ReviewRow
+            label={t("goalWizard.review.category")}
+            value={t(`categories.${draft.category}`)}
+          />
         )}
       </View>
 
@@ -68,26 +102,24 @@ export default function StepReview() {
               feasibility === "heavy" && styles.heavyText,
             ]}
           >
-            {feasibility === "good" &&
-              "✅ This goal looks very achievable with steady progress."}
-            {feasibility === "tight" &&
-              "⚠️ This goal may require consistent daily discipline."}
-            {feasibility === "heavy" &&
-              "🧠 This is an ambitious goal. Consider adjusting duration if needed."}
+            {t(`goalWizard.review.feasibility.${feasibility}`)}
           </Text>
+
           {feasibility === "heavy" && (
             <Pressable
               onPress={() => goTo("duration")}
               style={styles.secondaryBtn}
             >
-              <Text style={styles.secondaryText}>Adjust duration</Text>
+              <Text style={styles.secondaryText}>
+                {t("goalWizard.review.adjustDuration")}
+              </Text>
             </Pressable>
           )}
         </View>
       )}
 
       <Pressable style={styles.primaryBtn} onPress={handleSubmit}>
-        <Text style={styles.primaryText}>Start this goal</Text>
+        <Text style={styles.primaryText}>{t("goalWizard.review.start")}</Text>
       </Pressable>
     </View>
   );
@@ -98,6 +130,8 @@ export default function StepReview() {
 ========================= */
 
 function ReviewRow({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>

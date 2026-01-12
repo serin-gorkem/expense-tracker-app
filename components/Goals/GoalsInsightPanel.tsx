@@ -1,5 +1,6 @@
 // components/goals/GoalInsightsPanel.tsx
 
+import { useTranslation } from "@/hooks/useTranslation";
 import { GoalInsight } from "@/models/goalInsight.model";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -16,11 +17,12 @@ const TYPE_META = {
 } as const;
 
 export default function GoalInsightsPanel({ insights }: Props) {
+  const { t } = useTranslation();
   if (insights.length === 0) return null;
 
   return (
     <View style={styles.panel}>
-      <Text style={styles.panelLabel}>INSIGHTS</Text>
+      <Text style={styles.panelLabel}>{t("goalInsights.title")}</Text>
 
       {insights.map((i, idx) => {
         const meta = TYPE_META[i.type];
@@ -32,11 +34,11 @@ export default function GoalInsightsPanel({ insights }: Props) {
                 {meta.icon}
               </Text>
               <Text style={[styles.title, { color: meta.color }]}>
-                {i.title}
+                {t(i.titleKey)}
               </Text>
             </View>
 
-            <Text style={styles.desc}>{i.description}</Text>
+            <Text style={styles.desc}>{t(i.descriptionKey)}</Text>
           </View>
         );
       })}

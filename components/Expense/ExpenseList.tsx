@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Expense } from "@/models/expense.model";
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
@@ -10,10 +11,14 @@ type ExpenseListProps = {
 };
 
 const ExpenseList = ({ expenses, onDelete, onEdit }: ExpenseListProps) => {
-  if (expenses.length <= 0) {
+  const { t } = useTranslation();
+
+  if (expenses.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>No expenses yet.</Text>
+        <Text style={styles.emptyText}>
+          {t("expense.empty")}
+        </Text>
       </View>
     );
   }
@@ -23,11 +28,18 @@ const ExpenseList = ({ expenses, onDelete, onEdit }: ExpenseListProps) => {
       data={expenses}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <ExpenseItem expense={item} onDelete={onDelete} onEdit={onEdit} />
+        <ExpenseItem
+          expense={item}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
       )}
       style={{ flex: 1 }}
       scrollEnabled={false}
-      contentContainerStyle={{ paddingTop: 2, paddingBottom: 20 }}
+      contentContainerStyle={{
+        paddingTop: 2,
+        paddingBottom: 20,
+      }}
       showsVerticalScrollIndicator={false}
     />
   );

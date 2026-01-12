@@ -1,4 +1,5 @@
 // components/goals/GoalWhatIfModal.tsx
+import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { calculateGoalProjection } from "@/utils/goals/calculateGoalProjection";
@@ -18,7 +19,7 @@ export default function GoalWhatIfModal({ visible, onClose, goal }: Props) {
   const { expenses } = useExpensesStore();
   const base = calculateGoalProjection(goal, expenses);
   const [extra, setExtra] = useState<number | null>(null);
-
+  const {t} = useTranslation();
   const simulated =
     extra != null ? simulateGoalProjection(base, extra) : null;
 
@@ -27,19 +28,18 @@ export default function GoalWhatIfModal({ visible, onClose, goal }: Props) {
       <Pressable style={styles.backdrop} onPress={onClose} />
 
       <View style={styles.modal}>
-        <Text style={styles.title}>What if I save more daily?</Text>
+        <Text style={styles.title}>{t("goals.active.whatIf.title")}</Text>
 
         <View style={styles.row}>
           {PRESETS.map((v) => (
             <Pressable
               key={v}
               onPress={() => setExtra(v)}
-              style={[
-                styles.pill,
-                extra === v && styles.pillActive,
-              ]}
+              style={[styles.pill, extra === v && styles.pillActive]}
             >
-              <Text style={styles.pillText}>+{v}</Text>
+              <Text style={styles.pillText}>
+                {t("goals.active.whatIf.preset", { amount: v })}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -47,23 +47,21 @@ export default function GoalWhatIfModal({ visible, onClose, goal }: Props) {
         {simulated && (
           <>
             <Text
-              style={[
-                styles.result,
-                styles[`status_${simulated.feasibility}`],
-              ]}
+              style={[styles.result, styles[`status_${simulated.feasibility}`]]}
             >
-              {simulated.message}
+              {t(`goals.active.whatIf.result.${simulated.feasibility}`, {
+                amount: simulated.extraDaily,
+              })}
             </Text>
 
             <Text style={styles.meta}>
-              New pace: {simulated.actualDaily}/day
+              {t("goals.active.whatIf.resultPrefix")} {simulated.actualDaily}
+              {t("goals.active.whatIf.perDay")}
             </Text>
           </>
         )}
 
-        <Text style={styles.note}>
-          This is a simulation. Your data will not change.
-        </Text>
+        <Text style={styles.note}>{t("goals.active.whatIf.note")}</Text>
       </View>
     </Modal>
   );

@@ -1,3 +1,5 @@
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLanguage } from "@/src/context/LanguageContext";
 import {
   DayInfo,
   DayKey,
@@ -13,7 +15,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import CalendarDay from "./CalendarDay";
-
 /* ---------- Types ---------- */
 
 type Props = {
@@ -23,16 +24,6 @@ type Props = {
   onPrevMonth: () => void;
   onNextMonth: () => void;
 };
-
-const WEEKDAYS: readonly string[] = [
-  "Mon",
-  "Tue",
-  "Wed",
-  "Thu",
-  "Fri",
-  "Sat",
-  "Sun",
-];
 
 /* ---------- Component ---------- */
 
@@ -47,8 +38,13 @@ export default function ConsistencyCalendar({
     () => buildMonthGrid(month),
     [month]
   );
+  const { language } = useLanguage();
+  const { t } = useTranslation();
 
-  const monthTitle = useMemo<string>(() => formatMonthLabel(month), [month]);
+  const monthTitle = useMemo(
+    () => formatMonthLabel(month, language),
+    [month, language]
+  );
 
   const today = new Date();
 
@@ -56,6 +52,15 @@ export default function ConsistencyCalendar({
     today.getFullYear() === month.getFullYear() &&
     today.getMonth() === month.getMonth();
 
+  const WEEKDAYS = [
+    t("weekdays.mon"),
+    t("weekdays.tue"),
+    t("weekdays.wed"),
+    t("weekdays.thu"),
+    t("weekdays.fri"),
+    t("weekdays.sat"),
+    t("weekdays.sun"),
+  ];
   return (
     <View style={{ marginBottom: 12 }}>
       <BlurView intensity={22} tint="dark" style={styles.card}>
@@ -71,7 +76,7 @@ export default function ConsistencyCalendar({
           </Pressable>
 
           <View style={styles.headerCenter}>
-            <Text style={styles.title}>Consistency</Text>
+            <Text style={styles.title}>{t("consistency.title")}</Text>
             <Text style={styles.subtitle}>{monthTitle}</Text>
           </View>
 
@@ -184,10 +189,13 @@ export default function ConsistencyCalendar({
 
         {/* ---------- Legend ---------- */}
         <View style={styles.legendRow}>
-          <LegendDot color="#F59E0B" label="Active streak" />
-          <LegendDot color="#22C55E" label="Completed" />
-          <LegendDot color="#22D3EE" label="Goal" />
-          <LegendX label="Missed" />
+          <LegendDot color="#F59E0B" label={t("consistency.legend.streak")} />
+          <LegendDot
+            color="#22C55E"
+            label={t("consistency.legend.completed")}
+          />
+          <LegendDot color="#22D3EE" label={t("consistency.legend.goal")} />
+          <LegendX label={t("consistency.legend.missed")} />
         </View>
       </BlurView>
     </View>

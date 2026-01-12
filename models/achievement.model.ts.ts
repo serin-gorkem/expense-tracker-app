@@ -24,8 +24,8 @@ export type Achievement = {
   readonly value: number;
 
   /** user-facing content */
-  readonly title: string;
-  readonly description: string;
+  titleKey: string;
+  descriptionKey: string;
   readonly emoji: string;
 
   /** progression metadata */

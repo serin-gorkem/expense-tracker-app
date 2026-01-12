@@ -1,0 +1,585 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenue 👋",
+      "subtitle": "Configurons votre profil financier afin de mieux gérer votre argent.",
+      "language": "Choisir la langue",
+      "cta": "Commencer"
+    },
+    "autoLimits": {
+      "title": "Limites automatiques ?",
+      "subtitle": "Nous pouvons calculer des limites quotidiennes et hebdomadaires selon vos revenus.",
+      "yes": "Oui, calculez pour moi",
+      "no": "Non, je les définirai moi-même"
+    },
+    "income": {
+      "title": "Vos revenus",
+      "placeholder": "Revenu mensuel"
+    },
+    "fixedExpenses": {
+      "title": "Dépenses fixes",
+      "subtitle": "Loyer, factures, abonnements, etc.",
+      "placeholder": "Total des dépenses fixes",
+      "alert": {
+        "title": "Un instant 😄",
+        "message": "Vos dépenses sont supérieures à vos revenus.\nÀ moins d’avoir un sponsor secret, quelque chose ne va pas."
+      }
+    },
+    "goal-wizard": {
+      "title": "Définir un objectif",
+      "subtitle": "Les objectifs vous motivent et transforment l’argent restant en progrès.",
+      "whyTitle": "Pourquoi créer un objectif ?",
+      "why": {
+        "1": "Économiser pour quelque chose de précis",
+        "2": "Construire une habitude dans le temps",
+        "3": "Faire avancer automatiquement l’argent non utilisé"
+      },
+      "create": "Créer un objectif"
+    },
+    "limits": {
+      "manualTitle": "Définissez vos limites",
+      "manualSubtitle": "Ajustez combien vous pouvez dépenser par période.",
+      "tapToEdit": "Appuyez pour modifier",
+      "period": {
+        "daily": "Limite quotidienne",
+        "weekly": "Limite hebdomadaire",
+        "monthly": "Limite mensuelle"
+      }
+    },
+    "preview": {
+      "title": "Tout est prêt 🎉",
+      "autoSubtitle": "Nous avons calculé vos limites de dépenses selon vos revenus.",
+      "manualSubtitle": "Voici un résumé de vos limites."
+    },
+    "done": {
+      "title": "Tout est prêt 🎉",
+      "subtitle": "Votre système financier est prêt. Vous pourrez tout modifier plus tard dans les paramètres."
+    }
+  },
+  "tabs": {
+    "home": "Accueil",
+    "goals": "Objectifs",
+    "insights": "Analyses",
+    "achievements": "Succès",
+    "settings": "Paramètres"
+  },
+
+  "common": {
+    "save": "Enregistrer",
+    "ok": "OK",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "undo": "ANNULER",
+    "loading": "Chargement...",
+    "continue": "Continuer",
+    "days": "jours",
+    "perDay": "par jour",
+    "delete": "Supprimer",
+    "skipForNow": "Passer pour l’instant",
+    "finish": "Terminer",
+    "goHome": "Aller à l’accueil",
+    "gotIt": "Compris"
+  },
+
+  "errors": {
+    "invalidInput": {
+      "title": "Entrée invalide",
+      "message": "Veuillez remplir correctement tous les champs."
+    }
+  },
+
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "currency": "Devise",
+    "autoLimits": "Limites automatiques",
+    "monthlyIncome": "Revenu mensuel",
+    "fixedExpenses": "Dépenses fixes",
+    "disableAutoHint": "Désactivez les limites automatiques pour modifier",
+    "reset": {
+      "button": "Réinitialiser toutes les données",
+      "title": "Réinitialiser les données de l’application",
+      "message": "Toutes les dépenses, objectifs, séries et réussites seront supprimés définitivement.",
+      "confirm": "Réinitialiser"
+    }
+  },
+
+  "limits": {
+    "daily": {
+      "title": "Limite quotidienne"
+    },
+    "weekly": {
+      "title": "Limite hebdomadaire"
+    },
+    "monthly": {
+      "title": "Limite mensuelle"
+    },
+    "status": {
+      "safe": "Vous êtes dans la limite",
+      "warning": "Vous êtes proche de la limite",
+      "exceeded": "Vous avez dépassé la limite"
+    }
+  },
+
+  "home": {
+    "title": "Accueil",
+    "subtitle": "Tableau de bord de gestion des dépenses"
+  },
+
+  "search": {
+    "resultsFor": "Résultats pour « {{query}} »",
+    "placeholder": {
+      "default": "Rechercher des dépenses…",
+      "focused": "Saisissez pour filtrer les dépenses…"
+    }
+  },
+
+  "empty": {
+    "noExpensesTitle": "Aucune dépense pour le moment",
+    "noExpensesDesc": "Commencez à ajouter des dépenses pour les voir ici.",
+    "noResultsTitle": "Aucune dépense trouvée",
+    "noResultsDesc": "Essayez d’ajuster votre recherche ou vos filtres."
+  },
+
+  "toast": {
+    "expenseDeleted": "Dépense supprimée"
+  },
+
+  "streak": {
+    "newTitle": "Série commencée !",
+    "milestoneTitle": "Étape atteinte",
+    "dayStreak": "Série de {{count}} jours",
+    "milestoneBadge": "Étape de {{count}} jours",
+    "achievedOn": "Atteint le"
+  },
+  "insights": {
+    "good_day": {
+      "title": "Bonne journée de dépenses",
+      "description": "Vous êtes resté dans votre limite quotidienne aujourd’hui."
+    },
+    "over_limit": {
+      "title": "Limite quotidienne dépassée",
+      "description": "Vos dépenses aujourd’hui ont dépassé votre budget quotidien."
+    },
+    "above_baseline": {
+      "title": "Au-dessus de votre référence",
+      "description": "Vos dépenses sont supérieures à votre moyenne habituelle."
+    },
+    "monthly_change": {
+      "title": "Variation mensuelle",
+      "more": "Vous avez dépensé {{percent}} % de plus que le mois dernier.",
+      "less": "Vous avez dépensé {{percent}} % de moins que le mois dernier."
+    },
+    "top_category": {
+      "title": "Catégorie principale",
+      "description": "La majorité de vos dépenses concerne la catégorie {{category}}."
+    },
+    "weekly_average": {
+      "title": "Moyenne hebdomadaire",
+      "description": "Votre moyenne hebdomadaire est de ₺{{amount}}."
+    },
+    "screen": {
+      "title": "Analyses",
+      "subtitle": "Graphiques et analyses basés sur vos dépenses"
+    },
+    "empty": {
+      "title": "Pas encore de données",
+      "desc": "Ajoutez quelques dépenses pour débloquer les analyses."
+    },
+    "more": {
+      "title": "D’autres analyses se débloqueront avec l’utilisation",
+      "items": {
+        "consistency": "Cohérence des dépenses dans le temps",
+        "recovery": "Récupération après les jours de dépassement",
+        "strongWeak": "Vos jours les plus forts et les plus faibles",
+        "patterns": "Schémas de comportement liés aux limites"
+      },
+      "hint": "Ces analyses apparaissent progressivement à mesure que vos données deviennent significatives."
+    },
+    "financial": {
+      "title": "Analyses financières",
+      "subtitle": "Vue d’ensemble de vos indicateurs de dépenses"
+    },
+    "baseline": {
+      "title": "Référence quotidienne",
+      "desc": "Voici à quoi ressemble une journée équilibrée pour vous.",
+      "hint": "Ce n’est pas une limite.",
+      "daily": {
+        "title": "Votre référence quotidienne",
+        "desc": "Une journée équilibrée pour vous se situe autour de ₺{{amount}}. Il s’agit d’une référence, pas d’une limite."
+      },
+      "below": {
+        "title": "En dessous de la référence",
+        "desc": "Vos dépenses quotidiennes récentes sont inférieures à votre référence. Cela signifie généralement que vous économisez."
+      },
+      "slightlyAbove": {
+        "title": "Légèrement au-dessus de la référence",
+        "desc": "Vos dépenses récentes sont légèrement supérieures à votre référence. Cela peut être acceptable, mais mérite attention."
+      },
+      "above": {
+        "title": "Au-dessus de la référence",
+        "desc": "Vos dépenses récentes sont nettement supérieures à votre référence."
+      }
+    },
+    "behavioral": {
+      "title": "Schémas comportementaux",
+      "subtitle": "Évolution de vos habitudes de dépenses dans le temps",
+      "learning": "Nous apprenons encore vos habitudes",
+      "hint": "Utilisez l’application quelques jours de plus pour débloquer ces analyses",
+      "weekendSpike": {
+        "title": "Hausse des dépenses le week-end",
+        "desc": "Vos dépenses moyennes le week-end sont sensiblement plus élevées qu’en semaine.",
+        "descOverLimit": "Vos dépenses du week-end sont élevées et dépassent souvent votre limite quotidienne."
+      },
+      "overLimit": {
+        "title": "Limite quotidienne fréquemment dépassée",
+        "desc": "Vous dépassez votre limite quotidienne certains jours.",
+        "descSevere": "Vous dépassez votre limite quotidienne de nombreux jours. Cela peut mettre votre budget en difficulté."
+      },
+      "expensiveWeekday": {
+        "title": "Un jour de semaine plus coûteux",
+        "desc": "Un jour de la semaine est nettement plus coûteux que les autres.",
+        "descOverLimit": "Les dépenses ce jour-là dépassent souvent la limite quotidienne."
+      },
+      "inconsistent": {
+        "title": "Dépenses irrégulières",
+        "desc": "Vos dépenses varient fortement d’un jour à l’autre.",
+        "descOverLimit": "Certaines journées présentent des dépassements importants de la limite quotidienne."
+      }
+    }
+  },
+
+  "consistency": {
+    "title": "Calendrier de série",
+    "legend": {
+      "streak": "Série active",
+      "completed": "Terminé",
+      "goal": "Objectif",
+      "missed": "Manqué"
+    }
+  },
+
+  "weekdays": {
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mer",
+    "thu": "Jeu",
+    "fri": "Ven",
+    "sat": "Sam",
+    "sun": "Dim"
+  },
+
+  "dayDetail": {
+    "status": {
+      "streak": "🔥 Jour de série",
+      "within": "✅ Dans la limite",
+      "over": "❌ Limite dépassée",
+      "empty": "💤 Aucune donnée"
+    },
+    "goal": {
+      "title": "🎯 Contribution à l’objectif"
+    },
+    "expenses": {
+      "title": "Dépenses",
+      "empty": "Aucune dépense pour ce jour."
+    }
+  },
+
+  "milestones": {
+    "streak_1": {
+      "title": "Premier pas",
+      "description": "Vous avez complété votre première journée sécurisée."
+    },
+    "streak_7": {
+      "title": "Une semaine solide",
+      "description": "7 jours consécutifs dans la limite."
+    },
+    "streak_21": {
+      "title": "Habitude installée",
+      "description": "Série de 21 jours. Votre habitude se met en place."
+    },
+    "streak_30": {
+      "title": "Discipline mensuelle",
+      "description": "30 jours de contrôle des dépenses constant."
+    },
+    "streak_60": {
+      "title": "Inarrêtable",
+      "description": "60 jours consécutifs. Discipline impressionnante."
+    },
+    "streak_90": {
+      "title": "Légendaire",
+      "description": "90 jours sans rompre la discipline."
+    }
+  },
+
+  "achievements": {
+    "title": "Succès",
+    "subtitle": "Votre progression, vos étapes et votre discipline",
+    "footerHint": "De nouveaux succès se débloqueront avec la régularité et l’atteinte de nouveaux objectifs.",
+    "achievedOn": "Obtenu le",
+    "progress": "{{current}} / {{target}} jours",
+    "days": "jours"
+  },
+
+  "viewMode": {
+    "daily": "Quotidien",
+    "weekly": "Hebdomadaire",
+    "monthly": "Mensuel"
+  },
+  "goalOutcome": {
+    "successMessage": "Vous avez atteint votre objectif. Celui-ci est maintenant archivé.",
+    "failureMessage": "Cet objectif n’a pas été atteint à temps. Vous pouvez réessayer ou en définir un nouveau.",
+    "nextGoal": "Objectif suivant"
+  },
+
+  "expense": {
+    "empty": "Aucune dépense pour le moment.",
+    "edit": {
+      "title": "Modifier la dépense"
+    },
+    "fields": {
+      "title": "Titre",
+      "amount": "Montant",
+      "kind": "Type de dépense",
+      "category": "Catégorie",
+      "goal": "Contribution à l’objectif"
+    },
+    "add": {
+      "title": "Ajouter une dépense",
+      "action": "Ajouter"
+    },
+    "errors": {
+      "title": "Le titre est obligatoire",
+      "amount": "Entrez un montant valide",
+      "category": "Sélectionnez une catégorie"
+    },
+    "success": {
+      "title": "Dépense ajoutée",
+      "desc": "Votre dépense a été enregistrée avec succès.",
+      "goalTitle": "Ajouté à votre objectif 🎯",
+      "goalDesc": "Ce montant a été ajouté à votre objectif actif."
+    },
+    "placeholders": {
+      "title": "Titre de la dépense",
+      "amount": "Montant"
+    },
+    "goal": {
+      "active": "Cette dépense contribue à un objectif",
+      "inactive": "Ne contribue pas à un objectif",
+      "linked": "Liée à l’objectif actif",
+      "boostTitle": "Renforcer l’objectif actif",
+      "boostHint": "Ce montant sera ajouté à votre objectif",
+      "badge": "Objectif"
+    },
+    "hint": {
+      "title": "Astuce rapide",
+      "edit": "Touchez une dépense pour la modifier",
+      "delete": "Balayez vers la gauche pour supprimer"
+    }
+  },
+
+  "categoryFilter": {
+    "title": "Filtrer par catégorie",
+    "all": "Toutes"
+  },
+
+  "categories": {
+    "food": "Alimentation",
+    "transport": "Transport",
+    "entertainment": "Divertissement",
+    "shopping": "Achats",
+    "health": "Santé",
+    "bills": "Factures",
+    "education": "Éducation",
+    "other": "Autre"
+  },
+
+  "expenseKind": {
+    "behavioral": {
+      "label": "Quotidien",
+      "desc": "Dépenses que vous pouvez contrôler"
+    },
+    "structural": {
+      "label": "Fixe",
+      "desc": "Dépenses obligatoires et récurrentes"
+    },
+    "goal": {
+      "label": "Objectif",
+      "desc": "Ajoute de l’argent directement à votre objectif"
+    }
+  },
+
+  "charts": {
+    "weekly": {
+      "hint": "Astuce : touchez un jour pour voir les dépenses quotidiennes",
+      "baseline": "Référence quotidienne ₺{{amount}}"
+    }
+  },
+
+  "goals": {
+    "create": "Créer un objectif",
+    "active": {
+      "label": "OBJECTIF ACTIF",
+      "badge": "ACTIF",
+      "summary": {
+        "title": "RÉSUMÉ",
+        "remaining": "Restant",
+        "dailyTarget": "Objectif quotidien",
+        "lastBoost": "Dernier ajout : +{{amount}}"
+      },
+      "projection": {
+        "title": "PROJECTION",
+        "good": "Vous êtes en avance sur le planning. Continuez ainsi.",
+        "tight": "Vous êtes légèrement en retard, mais cet objectif reste réaliste.",
+        "heavy": "À ce rythme, atteindre cet objectif peut être difficile sans ajustements."
+      },
+      "health": {
+        "title": "SANTÉ DE L’OBJECTIF",
+        "subtitle": "Rythme d’épargne actuel",
+        "week": "Cette semaine",
+        "month": "Ce mois-ci"
+      },
+      "whatIf": {
+        "title": "Et si j’épargnais plus chaque jour ?",
+        "preset": "+{{amount}}",
+        "resultPrefix": "Nouveau rythme :",
+        "perDay": "/jour",
+        "note": "Il s’agit d’une simulation. Vos données ne seront pas modifiées.",
+        "result": {
+          "good": "Avec +{{amount}}/jour, cet objectif devient facilement atteignable.",
+          "tight": "Avec +{{amount}}/jour, cet objectif reste atteignable avec de la discipline.",
+          "heavy": "Même avec +{{amount}}/jour, cet objectif reste ambitieux."
+        }
+      }
+    },
+    "goal": {
+      "defaultTitle": {
+        "savings": "Objectif d’épargne",
+        "purchase": "Achat planifié",
+        "budget": "Objectif budgétaire"
+      }
+    },
+    "edit": {
+      "title": "Modifier l’objectif",
+      "subtitle": "Mettre à jour ou supprimer votre objectif",
+      "fields": {
+        "title": "Titre",
+        "target": "Montant cible",
+        "duration": "Durée (jours)"
+      },
+      "placeholders": {
+        "title": "Titre de l’objectif",
+        "target": "ex. 5000",
+        "duration": "ex. 30"
+      }
+    },
+    "delete": {
+      "title": "Supprimer l’objectif",
+      "message": "Cette action est irréversible. Êtes-vous sûr ?"
+    },
+    "hint": {
+      "title": "Gérez vos objectifs 🎯",
+      "edit": "Appuyez sur un objectif pour le modifier.",
+      "pause": "Un seul objectif peut être actif à la fois. Les autres sont automatiquement mis en pause."
+    }
+  },
+
+  "goalWizard": {
+    "type": {
+      "title": "À quoi sert cet objectif ?",
+      "subtitle": "Choisissez le type le plus adapté.",
+      "savings": {
+        "title": "Épargne",
+        "desc": "Économiser progressivement sans objet précis."
+      },
+      "purchase": {
+        "title": "Achat",
+        "desc": "Économiser pour un achat ou une dépense spécifique."
+      },
+      "budget": {
+        "title": "Budget",
+        "desc": "Contrôler les dépenses dans une limite définie."
+      }
+    },
+    "duration": {
+      "title": "Combien de temps allez-vous épargner ?",
+      "subtitle": "Définissez la durée en jours.",
+      "label": "Durée (jours)",
+      "placeholder": "ex. 30"
+    },
+    "target": {
+      "title": "Quel est le montant cible ?",
+      "subtitle": "Définissez le montant à atteindre.",
+      "amountLabel": "Montant cible",
+      "amountPlaceholder": "ex. 5 000",
+      "titleLabel": "Titre de l’objectif (optionnel)",
+      "titlePlaceholder": "ex. Nouveau portable",
+      "categoryLabel": "À quoi cet objectif est-il lié ?",
+      "categoryHelper": "Optionnel. Permet de relier l’objectif à vos dépenses."
+    },
+    "review": {
+      "title": "Récapitulatif",
+      "subtitle": "Vérifiez une dernière fois avant de démarrer.",
+      "type": "Type",
+      "duration": "Durée",
+      "target": "Objectif",
+      "dailyEffort": "Effort quotidien",
+      "titleLabel": "Titre",
+      "category": "Catégorie",
+      "start": "Démarrer l’objectif",
+      "adjustDuration": "Ajuster la durée",
+      "feasibility": {
+        "good": "✅ Cet objectif semble très atteignable avec une progression régulière.",
+        "tight": "⚠️ Cet objectif nécessite une discipline quotidienne.",
+        "heavy": "🧠 Cet objectif est ambitieux. Envisagez d’ajuster la durée."
+      }
+    }
+  },
+
+  "goalTypes": {
+    "savings": "Épargne",
+    "purchase": "Achat",
+    "budget": "Budget"
+  },
+
+  "goalApply": {
+    "title": "Il vous reste de l’argent aujourd’hui",
+    "subtle": "Ce montant est inférieur à votre limite quotidienne.",
+    "context": "Vous pouvez ajouter ce montant à votre objectif",
+    "actions": {
+      "apply": "Ajouter à l’objectif",
+      "skip": "Passer pour aujourd’hui"
+    }
+  },
+
+  "goalInsights": {
+    "title": "ANALYSES",
+    "ahead": {
+      "title": "En avance sur le plan",
+      "description": "Vous épargnez plus rapidement que prévu."
+    },
+    "on_track": {
+      "title": "Sur la bonne voie",
+      "description": "Votre rythme d’épargne correspond à votre objectif."
+    },
+    "behind": {
+      "title": "En retard",
+      "description": "Vous devrez peut-être augmenter votre rythme d’épargne."
+    },
+    "risk": {
+      "title": "À risque",
+      "description": "Votre objectif pourrait ne pas être atteint à temps."
+    },
+    "inactive": {
+      "title": "Aucune activité",
+      "description": "Aucune activité d’épargne récente détectée."
+    }
+  },
+
+  "expenseBreakdown": {
+    "title": "Répartition des dépenses",
+    "structural": "Structurelles",
+    "behavioral": "Comportementales",
+    "insight": "{{percent}} % de vos dépenses sont comportementales."
+  }
+}

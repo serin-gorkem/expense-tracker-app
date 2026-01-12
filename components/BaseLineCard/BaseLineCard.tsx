@@ -1,22 +1,20 @@
 import GlassCard from "@/components/ui/GlassCard";
+import { useTranslation } from "@/hooks/useTranslation";
 import { StyleSheet, Text } from "react-native";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
-
 export default function BaselineCard() {
   const { dailyBaseline } = useExpensesStore();
-
+  const { t } = useTranslation();
   if (dailyBaseline == null) return null;
 
   return (
     <GlassCard>
-      <Text style={styles.title}>Daily baseline</Text>
+      <Text style={styles.title}>{t("insights.baseline.title")}</Text>
 
       <Text style={styles.amount}>₺{dailyBaseline}</Text>
 
-      <Text style={styles.desc}>
-        This is what a balanced day looks like for you.
-      </Text>
-      <Text style={styles.hint}>Not a limit.</Text>
+      <Text style={styles.desc}>{t("insights.baseline.desc")}</Text>
+      <Text style={styles.hint}>{t("insights.baseline.hint")}</Text>
     </GlassCard>
   );
 }

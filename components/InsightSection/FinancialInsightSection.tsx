@@ -1,5 +1,6 @@
 // components/InsightSection/FinancialInsightSection.tsx
 
+import { useTranslation } from "@/hooks/useTranslation";
 import { Expense } from "@/models/expense.model";
 import { InsightItem } from "@/models/insight.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
@@ -13,6 +14,7 @@ type Props = {
 
 export default function FinancialInsightSection({ expenses }: Props) {
   const { dailyBaseline } = useExpensesStore();
+  const { t ,formatCurrency } = useTranslation();
 
   const insights: InsightItem[] = selectAllFinancialInsights({
     expenses,
@@ -23,14 +25,27 @@ export default function FinancialInsightSection({ expenses }: Props) {
 
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.title}>Financial insights</Text>
-      <Text style={styles.subtitle}>
-        Overview of your spending metrics
-      </Text>
+      <Text style={styles.title}>{t("insights.financial.title")}</Text>
 
-      {insights.map((insight) => (
-        <InsightCard key={insight.type} insight={insight} />
-      ))}
+      <Text style={styles.subtitle}>{t("insights.financial.subtitle")}</Text>
+
+      {insights.map((insight) => {
+        const params = insight.params?.amount
+          ? {
+              ...insight.params,
+              amount: formatCurrency(insight.params.amount as number),
+            }
+          : insight.params;
+
+        return (
+          <InsightCard
+            key={insight.type}
+            title={t(insight.titleKey)}
+            description={t(insight.descriptionKey, params)}
+            tone={insight.tone}
+          />
+        );
+      })}
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import { CATEGORY_OPTIONS } from "@/models/expense.model";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
@@ -11,13 +11,12 @@ type Props = {
 
 export default function GoalListItem({ goal, isActive, onEdit }: Props) {
   const { expenses } = useExpensesStore();
+  const { t } = useTranslation();
   const { toggleGoal, calculateGoalProgress } = useGoalsStore();
 
   const savedAmount = calculateGoalProgress(goal.id, expenses);
 
-  const categoryLabel = goal.category
-    ? CATEGORY_OPTIONS.find((c) => c.key === goal.category)?.label
-    : null;
+const categoryLabel = goal.category ? t(`categories.${goal.category}`) : null;
   const progress =
     goal.targetAmount > 0 ? Math.min(savedAmount / goal.targetAmount, 1) : 0;
 
@@ -39,7 +38,7 @@ export default function GoalListItem({ goal, isActive, onEdit }: Props) {
     >
       <View style={styles.header}>
         <Text style={styles.title}>{goal.title}</Text>
-        {isActive && <Text style={styles.badge}>ACTIVE</Text>}
+        {isActive && <Text style={styles.badge}>{t("goals.active.badge")}</Text>}
       </View>
 
       <View style={styles.metaRow}>

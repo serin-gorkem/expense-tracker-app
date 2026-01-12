@@ -7,19 +7,20 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { useTranslation } from "@/hooks/useTranslation";
 import { LimitStatus } from "@/models/limit.model";
 
 const LIMIT_COLORS: Record<LimitStatus, string> = {
-  safe: "#10B981",      // emerald-500
-  warning: "#F59E0B",   // amber-500
-  exceeded: "#EF4444",  // red-500
+  safe: "#10B981",
+  warning: "#F59E0B",
+  exceeded: "#EF4444",
 };
 
 type LimitCardProps = {
   period: "daily" | "weekly" | "monthly";
   total: number;
   ratio: number;
-  status: "safe" | "warning" | "exceeded";
+  status: LimitStatus;
   limitAmount: number;
 };
 
@@ -30,13 +31,11 @@ export function LimitCard({
   ratio,
   status,
 }: LimitCardProps) {
-  /** Clamp ratio for UI (not business logic) */
-  const progress = Math.min(ratio, 1);
+  const { t } = useTranslation();
 
-  /** Animated width value (0 → 1) */
+  const progress = Math.min(ratio, 1);
   const animatedProgress = useSharedValue(0);
 
-  /** Animate on mount & ratio change */
   useEffect(() => {
     animatedProgress.value = withTiming(progress, {
       duration: 650,
@@ -44,7 +43,6 @@ export function LimitCard({
     });
   }, [progress]);
 
-  /** Animated style for progress bar */
   const progressStyle = useAnimatedStyle(() => ({
     width: `${animatedProgress.value * 100}%`,
   }));
@@ -53,7 +51,7 @@ export function LimitCard({
     <View style={styles.card}>
       {/* Header */}
       <Text style={styles.title}>
-        {period.charAt(0).toUpperCase() + period.slice(1)} Limit
+        {t(`limits.${period}.title`)}
       </Text>
 
       {/* Amount */}
@@ -72,16 +70,13 @@ export function LimitCard({
         />
       </View>
 
-      {/* Status Text */}
+      {/* Status */}
       <Text style={[styles.status, { color: LIMIT_COLORS[status] }]}>
-        {status === "safe" && "You are within your limit"}
-        {status === "warning" && "You are close to your limit"}
-        {status === "exceeded" && "You have exceeded your limit"}
+        {t(`limits.status.${status}`)}
       </Text>
     </View>
   );
 }
-
 export const styles = StyleSheet.create({
   card: {
     padding: 16,

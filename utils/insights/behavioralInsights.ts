@@ -1,6 +1,6 @@
 import { Expense } from "@/models/expense.model";
 import { InsightItem } from "@/models/insight.model";
-import { getDailyTotals, getExpensesByDay, isWeekend } from './insightRules';
+import { getDailyTotals, getExpensesByDay, isWeekend } from "./insightRules";
 const SPIKE_MULTIPLIER = 2.5;
 const DROP_MULTIPLIER = 0.3;
 const WEEKEND_SPIKE_MULTIPLIER = 1.3;
@@ -12,7 +12,7 @@ type BehavioralInsightsProps = {
 
 function getWeekendSpendingInsight({
   expenses,
-  dailyLimit
+  dailyLimit,
 }: BehavioralInsightsProps): InsightItem | null {
   const weekendExpenses = expenses.filter((expense) => {
     const day = new Date(expense.date);
@@ -41,14 +41,14 @@ function getWeekendSpendingInsight({
   const weekendAverage = weekendTotals / weekendDays.size;
 
   if (weekendAverage >= weekdayAverage * WEEKEND_SPIKE_MULTIPLIER) {
- const isOverDailyLimit = weekendAverage > dailyLimit;
+    const isOverDailyLimit = weekendAverage > dailyLimit;
     return {
       type: "behavioral_weekend_spike",
-      title: "Weekend spending pattern detected",
+      titleKey: "insights.behavioral.weekendSpike.title",
+      descriptionKey: isOverDailyLimit
+        ? "insights.behavioral.weekendSpike.descOverLimit"
+        : "insights.behavioral.weekendSpike.desc",
       tone: isOverDailyLimit ? "negative" : "neutral",
-      description: isOverDailyLimit
-        ? "Your weekend spending is consistently higher than weekdays and exceeds your daily limit. This could affect your budget."
-        : "Your average spending on weekends is noticeably higher than on weekdays. This might be worth keeping an eye on.",
     };
   }
   return null;
@@ -65,10 +65,7 @@ function getOverLimitFrequencyInsight({
   let overLimitDays = 0;
 
   for (const dayExpenses of dailyExpenses.values()) {
-    const dayTotal = dayExpenses.reduce(
-      (sum, e) => sum + Number(e.amount),
-      0
-    );
+    const dayTotal = dayExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
     if (dayTotal > dailyLimit) {
       overLimitDays += 1;
@@ -84,11 +81,11 @@ function getOverLimitFrequencyInsight({
 
   return {
     type: "behavioral_over_limit_frequency",
-    title: "Daily limit frequently exceeded",
+    titleKey: "insights.behavioral.overLimit.title",
+    descriptionKey: isSevere
+      ? "insights.behavioral.overLimit.descSevere"
+      : "insights.behavioral.overLimit.desc",
     tone: isSevere ? "negative" : "neutral",
-    description: isSevere
-      ? "You exceed your daily spending limit on many days. This frequent overspending may make it hard to stay within your budget."
-      : "You exceed your daily spending limit on several days. Being more mindful on those days could help improve consistency.",
   };
 }
 function getMostExpensiveWeekdayInsight({
@@ -99,10 +96,15 @@ function getMostExpensiveWeekdayInsight({
 
   // 0 (Sun) → 6 (Sat)
   const totalsByWeekday: Record<number, { total: number; days: Set<string> }> =
-    { 0:{total:0,days:new Set()},1:{total:0,days:new Set()},
-      2:{total:0,days:new Set()},3:{total:0,days:new Set()},
-      4:{total:0,days:new Set()},5:{total:0,days:new Set()},
-      6:{total:0,days:new Set()} };
+    {
+      0: { total: 0, days: new Set() },
+      1: { total: 0, days: new Set() },
+      2: { total: 0, days: new Set() },
+      3: { total: 0, days: new Set() },
+      4: { total: 0, days: new Set() },
+      5: { total: 0, days: new Set() },
+      6: { total: 0, days: new Set() },
+    };
 
   for (const e of expenses) {
     const d = new Date(e.date);
@@ -117,9 +119,7 @@ function getMostExpensiveWeekdayInsight({
   const averages = Object.entries(totalsByWeekday)
     .map(([day, data]) => {
       const count = data.days.size;
-      return count === 0
-        ? null
-        : { day: Number(day), avg: data.total / count };
+      return count === 0 ? null : { day: Number(day), avg: data.total / count };
     })
     .filter(Boolean) as { day: number; avg: number }[];
 
@@ -137,17 +137,22 @@ function getMostExpensiveWeekdayInsight({
   const isOverLimit = mostExpensive.avg > dailyLimit;
 
   const weekdayNames = [
-    "Sunday","Monday","Tuesday","Wednesday",
-    "Thursday","Friday","Saturday"
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
   ];
 
   return {
     type: "behavioral_inconsistent_days",
-    title: `${weekdayNames[mostExpensive.day]} tends to be more expensive`,
+    titleKey: "insights.behavioral.expensiveWeekday.title",
+    descriptionKey: isOverLimit
+      ? "insights.behavioral.expensiveWeekday.descOverLimit"
+      : "insights.behavioral.expensiveWeekday.desc",
     tone: isOverLimit ? "negative" : "neutral",
-    description: isOverLimit
-      ? `Your spending on ${weekdayNames[mostExpensive.day]} is consistently higher and often exceeds your daily limit. Planning ahead for this day could help control costs.`
-      : `You tend to spend more on ${weekdayNames[mostExpensive.day]} compared to other days. Being aware of this pattern may help with budgeting.`,
   };
 }
 function getInconsistentDaysInsight({
@@ -167,15 +172,15 @@ function getInconsistentDaysInsight({
   const min = Math.min(...values);
 
   if (max >= average * SPIKE_MULTIPLIER && min <= average * DROP_MULTIPLIER) {
-    const isOverDailyLimit = max > dailyLimit *2;
-      return {
-        type: "behavioral_inconsistent_days",
-        title: "Spending pattern looks inconsistent",
-        tone: isOverDailyLimit ? "negative" : "neutral",
-        description: isOverDailyLimit
-          ? "Your spending fluctuates heavily between days, and some days exceed your daily limit by a large margin. This level of variation can make it difficult to stay in control of your budget."
-          : "Your spending varies significantly from day to day. Some days are much higher than others, which may make budgeting harder.",
-      };
+    const isOverDailyLimit = max > dailyLimit * 2;
+    return {
+      type: "behavioral_inconsistent_days",
+      titleKey: "insights.behavioral.inconsistent.title",
+      descriptionKey: isOverDailyLimit
+        ? "insights.behavioral.inconsistent.descOverLimit"
+        : "insights.behavioral.inconsistent.desc",
+      tone: isOverDailyLimit ? "negative" : "neutral",
+    };
   }
   return null;
 }
@@ -188,11 +193,8 @@ export function behavioralInsights({
   expenses,
   dailyLimit,
 }: BehavioralInsightsProps): InsightItem[] {
-
   // ✅ SADECE BEHAVIORAL EXPENSES
-  const behavioralExpenses = expenses.filter(
-    (e) => e.kind === "behavioral"
-  );
+  const behavioralExpenses = expenses.filter((e) => e.kind === "behavioral");
 
   if (behavioralExpenses.length === 0) return [];
 

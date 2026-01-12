@@ -1,14 +1,9 @@
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import {
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { useTranslation } from "@/hooks/useTranslation";
 import { Expense } from "@/models/expense.model";
 import { DayInfo, DayKey } from "@/utils/consistency/buildDailyConsistencyMap";
 
@@ -25,24 +20,20 @@ export default function DayDetailModal({
   expenses,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   if (!dayKey || !dayInfo) return null;
 
   const date = new Date(dayKey);
 
   const statusLabel = {
-    gold: "🔥 Streak day",
-    green: "✅ Within limit",
-    break: "❌ Over limit",
-    empty: "💤 No data",
+    gold: t("dayDetail.status.streak"),
+    green: t("dayDetail.status.within"),
+    break: t("dayDetail.status.over"),
+    empty: t("dayDetail.status.empty"),
   }[dayInfo.status];
 
   return (
-    <Modal
-      visible
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.card} onPress={() => {}}>
           <BlurView intensity={28} tint="dark" style={styles.blur}>
@@ -66,20 +57,22 @@ export default function DayDetailModal({
             {/* ---------- Goal Contribution ---------- */}
             {dayInfo.contributedToGoal && (
               <View style={styles.goalBox}>
-                <Text style={styles.goalTitle}>🎯 Goal contribution</Text>
-                <Text style={styles.goalAmount}>
-                  +₺{dayInfo.goalAmount}
+                <Text style={styles.goalTitle}>
+                  {t("dayDetail.goal.title")}
                 </Text>
+                <Text style={styles.goalAmount}>+₺{dayInfo.goalAmount}</Text>
               </View>
             )}
 
             {/* ---------- Expenses ---------- */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Expenses</Text>
+              <Text style={styles.sectionTitle}>
+                {t("dayDetail.expenses.title")}
+              </Text>
 
               {expenses.length === 0 ? (
                 <Text style={styles.emptyText}>
-                  No expenses for this day.
+                  {t("dayDetail.expenses.empty")}
                 </Text>
               ) : (
                 expenses.map((e) => {
@@ -87,18 +80,13 @@ export default function DayDetailModal({
                   return (
                     <View
                       key={e.id}
-                      style={[
-                        styles.expenseRow,
-                        isGoal && styles.goalExpense,
-                      ]}
+                      style={[styles.expenseRow, isGoal && styles.goalExpense]}
                     >
                       <Text style={styles.expenseTitle}>
                         {isGoal ? "🎯 " : ""}
                         {e.title}
                       </Text>
-                      <Text style={styles.expenseAmount}>
-                        ₺{e.amount}
-                      </Text>
+                      <Text style={styles.expenseAmount}>₺{e.amount}</Text>
                     </View>
                   );
                 })
@@ -107,7 +95,7 @@ export default function DayDetailModal({
 
             {/* ---------- Close ---------- */}
             <Pressable onPress={onClose} style={styles.closeBtn}>
-              <Text style={styles.closeText}>Close</Text>
+              <Text style={styles.closeText}>{t("common.close")}</Text>
             </Pressable>
           </BlurView>
         </Pressable>

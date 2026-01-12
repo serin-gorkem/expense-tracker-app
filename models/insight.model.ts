@@ -17,9 +17,11 @@ export type InsightTone =
   | "negative"
   | "neutral";
 
+
 export type InsightItem = {
-  readonly type: InsightType;
-  readonly title: string;
-  readonly description: string;
-  readonly tone: InsightTone;
+  type: InsightType;
+  titleKey: string;
+  descriptionKey: string;
+  params?: Record<string, string | number>;
+  tone: InsightTone;
 };

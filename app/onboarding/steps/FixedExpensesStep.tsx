@@ -1,4 +1,5 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
@@ -16,6 +17,8 @@ export default function FixedExpensesStep({
   onNext,
   onBack,
 }: Props) {
+  const { t } = useTranslation();
+
   function handleNext() {
     if (
       monthlyIncome != null &&
@@ -23,9 +26,9 @@ export default function FixedExpensesStep({
       fixedExpenses > monthlyIncome
     ) {
       Alert.alert(
-        "Hold on 😄",
-        "Your expenses are higher than your income.\nEither you have a secret sponsor, or something went wrong here.",
-        [{ text: "Alright, I'll fix it" }]
+        t("onboarding.fixedExpenses.alert.title"),
+        t("onboarding.fixedExpenses.alert.message"),
+        [{ text: t("common.ok") }]
       );
       return;
     }
@@ -35,23 +38,32 @@ export default function FixedExpensesStep({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Fixed expenses</Text>
-      <Text style={styles.subtitle}>Rent, bills, subscriptions, etc.</Text>
+      <Text style={styles.title}>
+        {t("onboarding.fixedExpenses.title")}
+      </Text>
+
+      <Text style={styles.subtitle}>
+        {t("onboarding.fixedExpenses.subtitle")}
+      </Text>
 
       <CurrencyInput
         value={fixedExpenses}
         onChange={onChange}
-        placeholder="Total fixed expenses"
+        placeholder={t("onboarding.fixedExpenses.placeholder")}
         style={styles.input}
       />
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
-          <Text style={styles.back}>Back</Text>
+          <Text style={styles.back}>
+            {t("common.back")}
+          </Text>
         </Pressable>
 
         <Pressable style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>Continue</Text>
+          <Text style={styles.buttonText}>
+            {t("common.continue")}
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -63,26 +75,24 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     justifyContent: "center",
+    backgroundColor: "#020617",
   },
 
   title: {
     fontSize: 22,
     fontWeight: "700",
+    color: "#fff",
   },
 
   subtitle: {
     marginTop: 6,
     opacity: 0.6,
+    color: "#fff",
   },
 
   input: {
     marginTop: 24,
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 18,
-    fontWeight: "600",
+    color:"#fff"
   },
 
   actions: {
@@ -94,6 +104,7 @@ const styles = StyleSheet.create({
 
   back: {
     opacity: 0.6,
+    color: "#fff",
   },
 
   button: {

@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
@@ -5,24 +6,35 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function DoneStep() {
   const router = useRouter();
+  const { t } = useTranslation();
 
-    useEffect(() => {
-    AsyncStorage.setItem("@onboarding_completed", "true");
+  useEffect(() => {
+    (async () => {
+      try {
+        await AsyncStorage.setItem("@onboarding_completed", "true");
+      } catch {
+        // fail silently – onboarding should not block app usage
+      }
+    })();
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>All set 🎉</Text>
+      <Text style={styles.title}>
+        {t("onboarding.done.title")}
+      </Text>
+
       <Text style={styles.subtitle}>
-        Your finance system is ready. You can change everything later in
-        Settings.
+        {t("onboarding.done.subtitle")}
       </Text>
 
       <Pressable
         style={styles.button}
         onPress={() => router.replace("/(tabs)/home")}
       >
-        <Text style={styles.buttonText}>Go to Home</Text>
+        <Text style={styles.buttonText}>
+          {t("common.goHome")}
+        </Text>
       </Pressable>
     </View>
   );
