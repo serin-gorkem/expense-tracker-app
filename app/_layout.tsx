@@ -1,4 +1,6 @@
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { FinanceProfileProvider } from "@/src/context/FinanceProfileContext";
+import { FXProvider } from "@/src/context/FXContext";
 import { GoalsProvider } from "@/src/context/GoalContext";
 import { LanguageProvider } from "@/src/context/LanguageContext";
 import { WizardProvider } from "@/src/context/WizardContext";
@@ -10,14 +12,18 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
-        <WizardProvider>
-          <GoalsProvider>
-            <ExpensesProvider>
-              <LiquidBackground />
-              <Stack screenOptions={{ headerShown: false }} />
-            </ExpensesProvider>
-          </GoalsProvider>
-        </WizardProvider>
+        <FinanceProfileProvider>
+          <FXProvider>
+            <WizardProvider>
+              <GoalsProvider>
+                <ExpensesProvider>
+                  <LiquidBackground />
+                  <Stack screenOptions={{ headerShown: false }} />
+                </ExpensesProvider>
+              </GoalsProvider>
+            </WizardProvider>
+          </FXProvider>
+        </FinanceProfileProvider>
       </LanguageProvider>
     </GestureHandlerRootView>
   );

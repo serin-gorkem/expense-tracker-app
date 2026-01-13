@@ -2,6 +2,7 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { Expense } from "@/models/expense.model";
 import { FinanceProfile } from "@/models/financeProfile.model";
 import { LimitPeriod, LimitsState } from "@/models/limit.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { calculateAutoLimits } from "@/utils/limit/calculateAutoLimits";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
@@ -11,7 +12,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-
 /* =========================
    Types
 ========================= */
@@ -35,8 +35,6 @@ type ExpensesStore = {
   financeProfile: FinanceProfile;
   updateFinanceProfile(patch: Partial<FinanceProfile>): void;
 
-  enableAutoLimits(): void;
-  disableAutoLimits(): void;
   applySuggestedLimits(): void;
 
   disposableIncome: number | null;
@@ -56,37 +54,8 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
      Finance Profile
   ========================= */
 
-  const [financeProfile, setFinanceProfile] = useState<FinanceProfile>({
-    monthlyIncome: null,
-    fixedExpenses: null,
-    autoLimitEnabled: false,
-  });
-
-  useEffect(() => {
-    AsyncStorage.getItem("@finance_profile").then((raw) => {
-      if (!raw) return;
-      try {
-        setFinanceProfile(JSON.parse(raw));
-      } catch {}
-    });
-  }, []);
-
-  useEffect(() => {
-    AsyncStorage.setItem("@finance_profile", JSON.stringify(financeProfile));
-  }, [financeProfile]);
-
-  function updateFinanceProfile(patch: Partial<FinanceProfile>) {
-    setFinanceProfile((prev) => ({ ...prev, ...patch }));
-  }
-
-  function enableAutoLimits() {
-    setFinanceProfile((p) => ({ ...p, autoLimitEnabled: true }));
-  }
-
-  function disableAutoLimits() {
-    setFinanceProfile((p) => ({ ...p, autoLimitEnabled: false }));
-  }
-
+const { profile: financeProfile, updateProfile: updateFinanceProfile } =
+  useFinanceProfile();
   /* =========================
      Baseline Math (Phase 1)
   ========================= */
@@ -264,7 +233,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
   ========================= */
 
   function applySuggestedLimits() {
-    enableAutoLimits();
+updateFinanceProfile({ autoLimitEnabled: true });
   }
 
   /* =========================
@@ -279,8 +248,6 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
       applyAutoLimit,
       financeProfile,
       updateFinanceProfile,
-      enableAutoLimits,
-      disableAutoLimits,
       applySuggestedLimits,
       disposableIncome,
       dailyBaseline,

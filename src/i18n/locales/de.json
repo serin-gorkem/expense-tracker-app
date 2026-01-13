@@ -476,11 +476,11 @@
       "title": "Ziel löschen",
       "message": "Diese Aktion kann nicht rückgängig gemacht werden. Bist du sicher?"
     },
-    "hint": {
-      "title": "Hedeflerini yönet 🎯",
-      "edit": "Bir hedefe dokunarak düzenleyebilirsin.",
-      "pause": "Aktif hedef dışında kalanlar otomatik duraklatılır."
-    }
+      "hint": {
+    "title": "Verwalte deine Ziele 🎯",
+    "edit": "Tippe auf ein Ziel, um es zu bearbeiten.",
+    "pause": "Nur ein Ziel kann aktiv sein. Alle anderen werden automatisch pausiert."
+  }
   },
 
   "goalWizard": {

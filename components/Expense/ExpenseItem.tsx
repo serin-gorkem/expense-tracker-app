@@ -1,12 +1,12 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { Expense, EXPENSE_KIND_META } from "@/models/expense.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-
 type ExpenseItemProps = {
   expense: Expense;
   onDelete: (id: string) => void;
@@ -19,22 +19,22 @@ const formatDate = (iso: string) => {
   const month = d.toLocaleString("tr-TR", { month: "short" });
   return `${day} ${month}`;
 };
-
-const formatAmount = (n: number) => {
+const formatAmount = (n: number, currency: string) => {
   try {
     return new Intl.NumberFormat("tr-TR", {
       style: "currency",
-      currency: "TRY",
-      maximumFractionDigits: 0,
+      currency,
+      maximumFractionDigits: 2,
     }).format(n);
   } catch {
-    return `${n} ₺`;
+    return `${n} ${currency}`;
   }
 };
 
 const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
   const isGoalBoost = expense.isGoalBoost === true;
   const { t } = useTranslation();
+  const { profile } = useFinanceProfile();
   const confirmDelete = () => {
     Alert.alert(
       "Delete Expense",
@@ -134,9 +134,14 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
             </View>
 
             <Text style={[styles.amount, isGoalBoost && { color: "#22c55e" }]}>
-              {formatAmount(expense.amount)}
+                {formatAmount(expense.fx.baseAmount, "EUR")}
             </Text>
           </View>
+          {expense.fx.currency !== profile.baseCurrency && (
+            <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+              {expense.amount} {expense.fx.currency} • FX {expense.fx.fxStatus}
+            </Text>
+          )}
         </BlurView>
       </Pressable>
     </ReanimatedSwipeable>

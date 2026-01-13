@@ -12,6 +12,8 @@ const RESET_KEYS = [
   "@finance_profile",
   "expenses",
   "@goals_store_v1",
+  "@fx_rates",
+  "@finance_profile",
 
   // --- Progress / gamification ---
   "@streak_milestones_v1",

@@ -1,4 +1,5 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import {
   Category,
   CATEGORY_OPTIONS,
@@ -6,7 +7,11 @@ import {
   EXPENSE_KIND_META,
   ExpenseKind,
 } from "@/models/expense.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
+import { useFX } from "@/src/context/FXContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
+import { buildFXSnapshot } from "@/utils/currency/buildFXSnapshot";
+import { mapFXStatusToBadge } from "@/utils/currency/mapFXStatusToBadge";
 import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,6 +24,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import FXBadge from "../Currency/FXBadge";
 import CurrencyInput from "../ui/CurrencyInput";
 type AddExpenseFormProps = {
   onSubmit: (expense: Expense) => void;
@@ -35,13 +41,20 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
   const [amount, setAmount] = useState<number | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [kind, setKind] = useState<ExpenseKind>("behavioral");
-const { t } = useTranslation();
+  const { t } = useTranslation();
   const [errors, setErrors] = useState<ValidationError>({});
 
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { activeGoal } = useGoalsStore();
   const [boostGoal, setBoostGoal] = useState(false);
+
+const [currency, setCurrency] = useState<CurrencyCode>("EUR");
+  const { profile } = useFinanceProfile();
+  const { getRate, status: fxStatus } = useFX();
+
+  const [lockFX, setLockFX] = useState(false);
+const [manualRate, setManualRate] = useState<number | null>(null);
 
   const resetForm = () => {
     setTitle("");
@@ -50,7 +63,10 @@ const { t } = useTranslation();
     setCategory(null);
     setKind("behavioral");
     setBoostGoal(false);
+    setCurrency(profile.baseCurrency);
   };
+
+  const badgeStatus = mapFXStatusToBadge(fxStatus);
 
   const handleSubmit = () => {
     const newErrors: ValidationError = {};
@@ -81,6 +97,42 @@ const { t } = useTranslation();
 
     // ---- SUCCESS FLOW ----
 
+    let rate: number;
+    let status: "live" | "cached" | "locked";
+
+    if (currency === profile.baseCurrency) {
+      rate = 1;
+      status = "live";
+    } else if (lockFX) {
+      if (!manualRate || manualRate <= 0) {
+        setErrors({ amount: "Enter a valid FX rate" });
+        haptic.warning();
+        return;
+      }
+
+      rate = manualRate;
+      status = "locked";
+    } else {
+      const fxRate = getRate(currency);
+
+      if (!fxRate) {
+        setErrors({ amount: t("currency.errors.fxUnavailable") });
+        haptic.warning();
+        return;
+      }
+
+      rate = fxRate;
+      status = fxStatus === "live" ? "live" : "cached";
+    }
+
+    const fxSnapshot = buildFXSnapshot({
+      amount: safeAmount,
+      currency,
+      baseCurrency: profile.baseCurrency,
+      rate,
+      status,
+    });
+
     const expense: Expense = {
       id: Date.now().toString(),
       title: title.trim(),
@@ -88,6 +140,8 @@ const { t } = useTranslation();
       category: safeCategory,
       date: new Date().toISOString(),
       kind,
+
+      fx: fxSnapshot,
 
       ...(boostGoal && activeGoal
         ? {
@@ -206,6 +260,57 @@ const { t } = useTranslation();
             <Text style={styles.errorText}>{t("expense.errors.category")}</Text>
           )}
         </View>
+        <Text style={styles.label}>Currency</Text>
+
+        <View style={styles.kindRow}>
+          {(["TRY", "USD", "EUR"] as CurrencyCode[]).map((c) => (
+            <Pressable
+              key={c}
+              onPress={() => setCurrency(c)}
+              style={[styles.kindPill, currency === c && styles.kindPillActive]}
+            >
+              <Text style={styles.kindText}>{c}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {currency !== profile.baseCurrency && badgeStatus && (
+          <View style={{ marginBottom: 11 }}>
+            <FXBadge status={badgeStatus} />
+          </View>
+        )}
+        {currency !== profile.baseCurrency && (
+          <Pressable
+            onPress={() => setLockFX((v) => !v)}
+            style={{
+              marginBottom: 8,
+              padding: 10,
+              borderRadius: 12,
+              backgroundColor: lockFX
+                ? "rgba(96,165,250,0.18)"
+                : "rgba(255,255,255,0.06)",
+              borderWidth: 1,
+              borderColor: lockFX
+                ? "rgba(96,165,250,0.45)"
+                : "rgba(255,255,255,0.12)",
+            }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: "800", color: "#93c5fd" }}>
+              🔒 Lock exchange rate
+            </Text>
+          </Pressable>
+        )}
+        {lockFX && (
+          <>
+            <Text style={styles.label}>Manual FX rate</Text>
+            <TextInput
+              keyboardType="decimal-pad"
+              placeholder="e.g. 32.50"
+              value={manualRate?.toString() ?? ""}
+              onChangeText={(v) => setManualRate(Number(v))}
+              style={styles.input}
+            />
+          </>
+        )}
         {/* GOAL BOOST */}
         {activeGoal && (
           <Pressable

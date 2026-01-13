@@ -1,4 +1,5 @@
 // Domain models for expense tracking
+import { CurrencyCode } from "./currency.model";
 
 export type Category =
   | "food"
@@ -10,8 +11,18 @@ export type Category =
   | "education"
   | "other";
 
+export type ExpenseFXSnapshot = {
+  currency: CurrencyCode; // expense’in girildiği currency
+  fxRate: number; // currency → base rate
+  baseAmount: number; // amount * fxRate
 
-  export type ExpenseKind = "behavioral" | "structural" | "goal";
+  fxStatus: "live" | "cached" | "locked";
+  fxDate: string; // ISO date (rate'in alındığı gün)
+
+  locked?: boolean; // 👈 true ise auto FX yok
+  manualRate?: number;
+};
+export type ExpenseKind = "behavioral" | "structural" | "goal";
 
 export const EXPENSE_KIND_META: Record<
   ExpenseKind,
@@ -51,11 +62,12 @@ export type Expense = {
   amount: number;
   category: Category;
   date: string; // ISO date String.
-  kind: ExpenseKind
-  
-    // 🔥 GOAL BOOST
+  kind: ExpenseKind;
+
+  // 🔥 GOAL BOOST
   isGoalBoost?: boolean;
   goalId?: string;
   boostAmount?: number;
-};
 
+  fx: ExpenseFXSnapshot;
+};

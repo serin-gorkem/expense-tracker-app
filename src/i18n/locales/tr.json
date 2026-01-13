@@ -496,6 +496,11 @@
     "delete": {
       "title": "Hedefi Sil",
       "message": "Bu işlem geri alınamaz. Emin misin?"
+    },
+    "hint": {
+      "title": "Hedeflerini yönet 🎯",
+      "edit": "Bir hedefe dokunarak düzenleyebilirsin.",
+      "pause": "Aktif hedef dışında kalanlar otomatik duraklatılır."
     }
   },
   "goalWizard": {
