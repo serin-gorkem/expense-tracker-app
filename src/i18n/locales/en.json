@@ -14,7 +14,8 @@
     },
     "income": {
       "title": "Your income",
-      "placeholder": "Monthly income"
+      "placeholder": "Monthly income",
+      "error": "Please enter a valid monthly income"
     },
     "fixedExpenses": {
       "title": "Fixed expenses",
@@ -56,7 +57,7 @@
       "subtitle": "Your finance system is ready. You can change everything later in Settings."
     }
   },
-    "tabs": {
+  "tabs": {
     "home": "Home",
     "goals": "Goals",
     "insights": "Insights",
@@ -94,12 +95,12 @@
     "monthlyIncome": "Monthly income",
     "fixedExpenses": "Fixed expenses",
     "disableAutoHint": "Disable automatic limits to edit",
-      "reset": {
-        "button": "Reset all data",
-        "title": "Reset application data",
-        "message": "This will permanently delete all your expenses, goals, streaks and achievements.",
-        "confirm": "Reset"
-      }
+    "reset": {
+      "button": "Reset all data",
+      "title": "Reset application data",
+      "message": "This will permanently delete all your expenses, goals, streaks and achievements.",
+      "confirm": "Reset"
+    }
   },
   "limits": {
     "daily": {
@@ -188,6 +189,15 @@
         "patterns": "Limit behavior patterns"
       },
       "hint": "These insights appear gradually as your data becomes meaningful."
+    },
+    "fx_difference": {
+      "title": "Exchange rate impact",
+      "more": "Due to exchange rates, you spent {{amount}} more this month.",
+      "less": "Exchange rates worked in your favor by {{amount}} this month."
+    },
+    "currency_exposure": {
+      "title": "Currency exposure",
+      "description": "{{percent}}% of your spending is in {{currency}}."
     },
     "financial": {
       "title": "Financial insights",
@@ -358,7 +368,7 @@
       "boostHint": "This amount will be added to your goal",
       "badge": "Goal"
     },
-        "hint": {
+    "hint": {
       "title": "Quick tip",
       "edit": "Tap an expense to edit",
       "delete": "Swipe left to delete"
@@ -397,6 +407,11 @@
     "weekly": {
       "hint": "Hint: Tap on day to see daily spending",
       "baseline": "Daily baseline ₺{{amount}}"
+    },
+    "currency_exposure": {
+      "title": "Currency exposure",
+      "center": "Total",
+      "percent": "{{value}}%"
     }
   },
   "goals": {
@@ -463,11 +478,11 @@
       "title": "Delete Goal",
       "message": "This action cannot be undone. Are you sure?"
     },
-      "hint": {
-    "title": "Manage your goals 🎯",
-    "edit": "Tap on a goal to edit its details.",
-    "pause": "Only one goal can be active at a time. Others are paused automatically."
-  }
+    "hint": {
+      "title": "Manage your goals 🎯",
+      "edit": "Tap on a goal to edit its details.",
+      "pause": "Only one goal can be active at a time. Others are paused automatically."
+    }
   },
   "goalWizard": {
     "type": {
@@ -557,7 +572,7 @@
       "description": "No recent saving activity detected."
     }
   },
-    "expenseBreakdown": {
+  "expenseBreakdown": {
     "title": "Spending Breakdown",
     "structural": "Structural",
     "behavioral": "Behavioral",

@@ -17,7 +17,7 @@ export default function PreviewStep({
   onFinish,
 }: Props) {
   const { t } = useTranslation();
-  const { updateFinanceProfile, enableAutoLimits, applyAutoLimit } =
+  const { updateFinanceProfile, applyAutoLimit } =
     useExpensesStore();
 
   const limits = calculateAutoLimits({
@@ -33,7 +33,6 @@ export default function PreviewStep({
     });
 
     if (useAutoLimits) {
-      enableAutoLimits();
 applyAutoLimit("daily", limits.daily);
 applyAutoLimit("weekly", limits.weekly);
 applyAutoLimit("monthly", limits.monthly);

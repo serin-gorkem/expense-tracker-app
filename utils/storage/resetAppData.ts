@@ -10,7 +10,7 @@ const RESET_KEYS = [
   // --- Finance core ---
   "@limits",
   "@finance_profile",
-  "expenses",
+  "@expenses",
   "@goals_store_v1",
   "@fx_rates",
   "@finance_profile",

@@ -3,6 +3,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LimitPeriod } from "@/models/limit.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { LANGUAGES } from "@/src/i18n/languages";
@@ -41,8 +42,6 @@ export default function Settings() {
     applyLimitChange,
     financeProfile,
     updateFinanceProfile,
-    enableAutoLimits,
-    disableAutoLimits,
   } = useExpensesStore();
 
   const router = useRouter();
@@ -51,6 +50,7 @@ export default function Settings() {
   const { language, changeLanguage } = useLanguage();
   const { t } = useTranslation();
   const { resetGoals } = useGoalsStore();
+  const {resetProfile} = useFinanceProfile();
 
   function confirmReset() {
     Alert.alert(t("settings.reset.title"), t("settings.reset.message"), [
@@ -61,6 +61,7 @@ export default function Settings() {
         onPress: async () => {
           await resetAppData();
           resetGoals();
+          resetProfile();
           router.replace("/onboarding");
         },
       },
@@ -86,7 +87,7 @@ export default function Settings() {
               <Switch
                 value={financeProfile.autoLimitEnabled}
                 onValueChange={(v) =>
-                  v ? enableAutoLimits() : disableAutoLimits()
+                  updateFinanceProfile({ autoLimitEnabled: v })
                 }
               />
             </View>

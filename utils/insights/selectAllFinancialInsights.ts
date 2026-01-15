@@ -2,27 +2,34 @@
 
 import { Expense } from "@/models/expense.model";
 import { InsightItem } from "@/models/insight.model";
-
 import {
   getMonthlyChangeInsightData,
   getTopCategoryInsightData,
   getWeeklyAverageInsightData,
 } from "@/utils/expense/expenseInsights";
+import { buildFXDifferenceInsight } from "@/utils/insights/buildFXDifferenceInsight";
 
+import { CurrencyCode } from "@/models/currency.model";
 import {
   getBaselineComparisonInsight,
   getDailyBaselineInsight,
 } from "@/utils/insights/baselineInsights";
+import { buildCurrencyExposureInsight } from "./currencyExposureInsight";
 
 export function selectAllFinancialInsights({
   expenses,
   dailyBaseline,
+  currentRates,
+  baseCurrency,
 }: {
   expenses: Expense[];
   dailyBaseline: number | null;
+  currentRates: Record<string, number>;
+  baseCurrency: CurrencyCode;
 }): InsightItem[] {
   const weeklyAvg = getWeeklyAverageInsightData(expenses);
-
+  if (!expenses || expenses.length === 0) return [];
+  
   const items: (InsightItem | null)[] = [
     getDailyBaselineInsight(dailyBaseline),
     getBaselineComparisonInsight({
@@ -73,6 +80,21 @@ export function selectAllFinancialInsights({
         params: { amount: Math.round(weeklyAvg.weeklyAverage) },
         tone: "neutral",
       };
+    })(),
+
+    (() => {
+      return buildCurrencyExposureInsight({
+        expenses,
+        baseCurrency,
+      });
+    })(),
+
+    (() => {
+      return buildFXDifferenceInsight({
+        expenses,
+        currentRates,
+        baseCurrency,
+      });
     })(),
   ];
 

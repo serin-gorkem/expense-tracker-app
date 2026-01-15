@@ -4,6 +4,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Expense } from "@/models/expense.model";
 import { InsightItem } from "@/models/insight.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
+import { useFX } from "@/src/context/FXContext";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { selectAllFinancialInsights } from "@/utils/insights/selectAllFinancialInsights";
 import { StyleSheet, Text, View } from "react-native";
 import InsightCard from "./InsightCard";
@@ -14,11 +16,15 @@ type Props = {
 
 export default function FinancialInsightSection({ expenses }: Props) {
   const { dailyBaseline } = useExpensesStore();
-  const { t ,formatCurrency } = useTranslation();
+  const { t, formatCurrency } = useTranslation();
+  const { rates } = useFX();
+  const { profile } = useFinanceProfile();
 
   const insights: InsightItem[] = selectAllFinancialInsights({
     expenses,
     dailyBaseline,
+    currentRates: rates?.rates ?? {},
+    baseCurrency: profile.baseCurrency,
   });
 
   if (insights.length === 0) return null;

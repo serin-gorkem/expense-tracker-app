@@ -110,6 +110,7 @@ export default function CurrencyInput({
       value={text}
       onChangeText={handleChange}
       selection={selection}
+      
       onSelectionChange={(e) => setSelection(e.nativeEvent.selection)}
       style={[styles.input, style]}
       placeholderTextColor="rgba(255,255,255,0.45)"

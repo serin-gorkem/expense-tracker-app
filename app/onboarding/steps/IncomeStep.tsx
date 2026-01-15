@@ -1,5 +1,6 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
@@ -8,7 +9,6 @@ type Props = {
   onNext(): void;
   onBack(): void;
 };
-
 export default function IncomeStep({
   monthlyIncome,
   onChange,
@@ -16,6 +16,19 @@ export default function IncomeStep({
   onBack,
 }: Props) {
   const { t } = useTranslation();
+  const [error, setError] = useState<string | null>(null);
+
+  const isInvalid = !monthlyIncome || monthlyIncome <= 0;
+
+  function handleNext() {
+    if (isInvalid) {
+      setError(t("onboarding.income.error"));
+      return;
+    }
+
+    setError(null);
+    onNext();
+  }
 
   return (
     <View style={styles.container}>
@@ -26,9 +39,14 @@ export default function IncomeStep({
       <CurrencyInput
         placeholder={t("onboarding.income.placeholder")}
         value={monthlyIncome}
-        onChange={onChange}
-        style={{ marginBottom: 24, color:"#fff" }}
+        onChange={(v) => {
+          onChange(v);
+          if (error) setError(null);
+        }}
+        style={{ marginBottom: 8, color: "#fff" }}
       />
+
+      {error && <Text style={styles.error}>{error}</Text>}
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
@@ -37,7 +55,13 @@ export default function IncomeStep({
           </Text>
         </Pressable>
 
-        <Pressable style={styles.button} onPress={onNext}>
+        <Pressable
+          style={[
+            styles.button,
+            isInvalid && styles.buttonDisabled,
+          ]}
+          onPress={handleNext}
+        >
           <Text style={styles.buttonText}>
             {t("common.continue")}
           </Text>
@@ -80,4 +104,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
   },
+
+  error: {
+  color: "#EF4444",
+  fontSize: 12,
+  marginBottom: 16,
+  fontWeight: "600",
+},
+
+buttonDisabled: {
+  opacity: 0.4,
+},
 });

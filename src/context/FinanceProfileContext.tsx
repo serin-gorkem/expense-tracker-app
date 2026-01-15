@@ -7,6 +7,7 @@ type FinanceProfileContextType = {
   profile: FinanceProfile;
   setBaseCurrency: (currency: CurrencyCode) => void;
   updateProfile: (patch: Partial<FinanceProfile>) => void;
+  resetProfile(): void;
 };
 
 const STORAGE_KEY = "@finance_profile";
@@ -18,16 +19,16 @@ const DEFAULT_PROFILE: FinanceProfile = {
   baseCurrency: "EUR",
 };
 
-const FinanceProfileContext =
-  createContext<FinanceProfileContextType | null>(null);
+const FinanceProfileContext = createContext<FinanceProfileContextType | null>(
+  null
+);
 
 export function FinanceProfileProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [profile, setProfile] =
-    useState<FinanceProfile>(DEFAULT_PROFILE);
+  const [profile, setProfile] = useState<FinanceProfile>(DEFAULT_PROFILE);
   const [hydrated, setHydrated] = useState(false);
 
   /* LOAD */
@@ -60,10 +61,13 @@ export function FinanceProfileProvider({
       ...patch,
     }));
   }
+  function resetProfile() {
+    setProfile(DEFAULT_PROFILE);
+  }
 
   return (
     <FinanceProfileContext.Provider
-      value={{ profile, setBaseCurrency, updateProfile }}
+      value={{ profile, setBaseCurrency, updateProfile, resetProfile }}
     >
       {children}
     </FinanceProfileContext.Provider>

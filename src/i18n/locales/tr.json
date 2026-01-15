@@ -14,7 +14,8 @@
     },
     "income": {
       "title": "Gelirin",
-      "placeholder": "Aylık gelir"
+      "placeholder": "Aylık gelir",
+      "error": "Geçerli bir aylık gelir girin"
     },
     "fixedExpenses": {
       "title": "Sabit giderler",
@@ -23,7 +24,8 @@
       "alert": {
         "title": "Bir saniye 😄",
         "message": "Giderlerin gelirinden fazla görünüyor.\nGizli bir sponsorun yoksa, burada bir hata var gibi."
-      }
+      },
+      "error": "Geçerli bir sabit gider tutarı girin"
     },
     "goal-wizard": {
       "title": "Hedef belirle",
@@ -205,7 +207,15 @@
       },
       "hint": "Bu analizler veriler anlamlı hale geldikçe ortaya çıkar."
     },
-
+    "fx_difference": {
+      "title": "Kur etkisi",
+      "more": "Döviz kurlarındaki değişim nedeniyle bu ay {{amount}} daha fazla harcama yaptın.",
+      "less": "Döviz kurlarındaki değişim bu ay {{amount}} tasarruf etmeni sağladı."
+    },
+    "currency_exposure": {
+      "title": "Döviz dağılımı",
+      "description": "Harcamalarının %{{percent}}’i {{currency}} cinsinden."
+    },
     "financial": {
       "title": "Finansal analizler",
       "subtitle": "Harcama metriklerine genel bakış"
@@ -430,7 +440,8 @@
     "weekly": {
       "hint": "Tip : Gün içi harcamayı görmek için günlerin üstüne dokun",
       "baseline": "Günlük Limit ₺{{amount}}"
-    }
+    },
+    "currencyExposure" : "Döviz Riski"
   },
 
   "goals": {

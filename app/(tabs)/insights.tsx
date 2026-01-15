@@ -1,6 +1,12 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import BaselineCard from "@/components/BaseLineCard/BaseLineCard";
+import CurrencyExposureChart from "@/components/Charts/CurrencyExposureChart";
+import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutChart";
+import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
+import ConsistencyCalendar from "@/components/Consistency/ConsistencyCalendar";
+import { calculateCurrencyExposure } from "@/utils/currency/calculateCurrencyExposure";
 import {
   buildMonthlyCategoryDonutData,
   buildWeeklyLineChartData,
@@ -11,16 +17,12 @@ import {
 } from "@/utils/expense/expenseGrouping";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
-import BaselineCard from "@/components/BaseLineCard/BaseLineCard";
-import MonthlyCategoryDonutChart from "@/components/Charts/MonthlyCategoryDonutChart";
-import WeeklyLineChart from "@/components/Charts/WeeklyLineChart";
-import ConsistencyCalendar from "@/components/Consistency/ConsistencyCalendar";
-
 import DayDetailModal from "@/components/Consistency/DayDetailsModal";
 import BehavioralInsightSection from "@/components/InsightSection/BehavioralInsightSection";
 import FinancialInsightSection from "@/components/InsightSection/FinancialInsightSection";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { buildConsistencyDayMap } from "@/utils/consistency/buildDailyConsistencyMap";
 import { getExpensesByDay } from "@/utils/insights/insightRules";
@@ -44,6 +46,11 @@ export default function Insights() {
     return d;
   });
 
+  const { profile: financeProfile } = useFinanceProfile();
+  const currencyExposure = useMemo(
+  () => calculateCurrencyExposure(expenses, financeProfile.baseCurrency),
+  [expenses, financeProfile.baseCurrency]
+);
   const dayMap = useMemo(
     () =>
       buildConsistencyDayMap({
@@ -102,6 +109,9 @@ export default function Insights() {
                 <MonthlyCategoryDonutChart data={donutData} />
               )}
               {lineData.length > 0 && <WeeklyLineChart data={lineData} />}
+              {currencyExposure.length > 1 && (
+                <CurrencyExposureChart exposure={currencyExposure} />
+              )}
               <FinancialInsightSection expenses={expenses} />
               <BehavioralInsightSection
                 expenses={expenses}

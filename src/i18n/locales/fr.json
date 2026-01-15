@@ -14,7 +14,8 @@
     },
     "income": {
       "title": "Vos revenus",
-      "placeholder": "Revenu mensuel"
+      "placeholder": "Revenu mensuel",
+      "error": "Veuillez saisir un revenu mensuel valide"
     },
     "fixedExpenses": {
       "title": "Dépenses fixes",
@@ -23,7 +24,8 @@
       "alert": {
         "title": "Un instant 😄",
         "message": "Vos dépenses sont supérieures à vos revenus.\nÀ moins d’avoir un sponsor secret, quelque chose ne va pas."
-      }
+      },
+      "error": "Veuillez saisir un montant de dépenses fixes valide"
     },
     "goal-wizard": {
       "title": "Définir un objectif",
@@ -195,6 +197,15 @@
         "patterns": "Schémas de comportement liés aux limites"
       },
       "hint": "Ces analyses apparaissent progressivement à mesure que vos données deviennent significatives."
+    },
+    "fx_difference": {
+      "title": "Impact du taux de change",
+      "more": "En raison des taux de change, vous avez dépensé {{amount}} de plus ce mois-ci.",
+      "less": "Les taux de change vous ont permis d’économiser {{amount}} ce mois-ci."
+    },
+    "currency_exposure": {
+      "title": "Exposition aux devises",
+      "description": "{{percent}} % de vos dépenses sont en {{currency}}."
     },
     "financial": {
       "title": "Analyses financières",
@@ -413,6 +424,11 @@
     "weekly": {
       "hint": "Astuce : touchez un jour pour voir les dépenses quotidiennes",
       "baseline": "Référence quotidienne ₺{{amount}}"
+    },
+    "currency_exposure": {
+      "title": "Répartition des devises",
+      "center": "Total",
+      "percent": "{{value}} %"
     }
   },
 

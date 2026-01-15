@@ -14,7 +14,8 @@
     },
     "income": {
       "title": "Dein Einkommen",
-      "placeholder": "Monatliches Einkommen"
+      "placeholder": "Monatliches Einkommen",
+      "error": "Bitte geben Sie ein gültiges monatliches Einkommen ein"
     },
     "fixedExpenses": {
       "title": "Feste Ausgaben",
@@ -23,7 +24,8 @@
       "alert": {
         "title": "Moment mal 😄",
         "message": "Deine Ausgaben sind höher als dein Einkommen.\nEntweder hast du einen geheimen Sponsor – oder hier stimmt etwas nicht."
-      }
+      },
+      "error": "Bitte geben Sie einen gültigen Fixkostenbetrag ein"
     },
     "goal-wizard": {
       "title": "Ziel festlegen",
@@ -194,6 +196,15 @@
         "patterns": "Verhaltensmuster bei Limits"
       },
       "hint": "Diese Analysen erscheinen schrittweise, sobald deine Daten aussagekräftig werden."
+    },
+    "fx_difference": {
+      "title": "Impact du taux de change",
+      "more": "En raison des taux de change, vous avez dépensé {{amount}} de plus ce mois-ci.",
+      "less": "Les taux de change vous ont permis d’économiser {{amount}} ce mois-ci."
+    },
+    "currency_exposure": {
+      "title": "Währungsrisiko",
+      "description": "{{percent}} % deiner Ausgaben sind in {{currency}}."
     },
     "financial": {
       "title": "Finanzanalysen",
@@ -412,6 +423,11 @@
     "weekly": {
       "hint": "Tipp: Tippe auf einen Tag, um die täglichen Ausgaben zu sehen",
       "baseline": "Täglicher Referenzwert ₺{{amount}}"
+    },
+    "currency_exposure": {
+      "title": "Währungsaufteilung",
+      "center": "Gesamt",
+      "percent": "{{value}} %"
     }
   },
 
@@ -476,11 +492,11 @@
       "title": "Ziel löschen",
       "message": "Diese Aktion kann nicht rückgängig gemacht werden. Bist du sicher?"
     },
-      "hint": {
-    "title": "Verwalte deine Ziele 🎯",
-    "edit": "Tippe auf ein Ziel, um es zu bearbeiten.",
-    "pause": "Nur ein Ziel kann aktiv sein. Alle anderen werden automatisch pausiert."
-  }
+    "hint": {
+      "title": "Verwalte deine Ziele 🎯",
+      "edit": "Tippe auf ein Ziel, um es zu bearbeiten.",
+      "pause": "Nur ein Ziel kann aktiv sein. Alle anderen werden automatisch pausiert."
+    }
   },
 
   "goalWizard": {

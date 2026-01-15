@@ -1,7 +1,7 @@
 // components/currency/FXBadge.tsx
 import { StyleSheet, Text, View } from "react-native";
 
-type FXBadgeStatus = "live" | "cached" | "stale";
+export type FXBadgeStatus = "live" | "cached" | "stale" | "locked";
 
 const META: Record<
   FXBadgeStatus,
@@ -10,6 +10,7 @@ const META: Record<
   live: { label: "Live rate", color: "#22c55e" },
   cached: { label: "Cached rate", color: "#eab308" },
   stale: { label: "Outdated", color: "#ef4444" },
+  locked: { label: "Locked rate", color: "#60a5fa" },
 };
 
 export default function FXBadge({ status }: { status: FXBadgeStatus }) {
@@ -17,12 +18,7 @@ export default function FXBadge({ status }: { status: FXBadgeStatus }) {
 
   return (
     <View style={styles.row}>
-      <View
-        style={[
-          styles.dot,
-          { backgroundColor: meta.color },
-        ]}
-      />
+      <View style={[styles.dot, { backgroundColor: meta.color }]} />
       <Text style={styles.text}>{meta.label}</Text>
     </View>
   );

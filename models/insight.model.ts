@@ -10,7 +10,10 @@ export type InsightType =
   | "streak_longest"
   | "behavioral_weekend_spike"
   | "behavioral_inconsistent_days"
-  | "behavioral_over_limit_frequency";
+  | "behavioral_over_limit_frequency"
+  | "fx_difference"
+  | "currency_exposure"
+  
   
 export type InsightTone =
   | "positive"

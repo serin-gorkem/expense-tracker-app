@@ -1,5 +1,6 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
@@ -18,11 +19,16 @@ export default function FixedExpensesStep({
   onBack,
 }: Props) {
   const { t } = useTranslation();
+  const [error, setError] = useState<string | null>(null);
 
   function handleNext() {
+    if (!fixedExpenses || fixedExpenses <= 0) {
+      setError(t("onboarding.fixedExpenses.error"));
+      return;
+    }
+
     if (
       monthlyIncome != null &&
-      fixedExpenses != null &&
       fixedExpenses > monthlyIncome
     ) {
       Alert.alert(
@@ -33,6 +39,7 @@ export default function FixedExpensesStep({
       return;
     }
 
+    setError(null);
     onNext();
   }
 
@@ -48,10 +55,19 @@ export default function FixedExpensesStep({
 
       <CurrencyInput
         value={fixedExpenses}
-        onChange={onChange}
+        onChange={(v) => {
+          onChange(v);
+          if (error) setError(null);
+        }}
         placeholder={t("onboarding.fixedExpenses.placeholder")}
         style={styles.input}
       />
+
+      {error && (
+        <Text style={styles.error}>
+          {error}
+        </Text>
+      )}
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
@@ -60,7 +76,13 @@ export default function FixedExpensesStep({
           </Text>
         </Pressable>
 
-        <Pressable style={styles.button} onPress={handleNext}>
+        <Pressable
+          style={[
+            styles.button,
+            (!fixedExpenses || fixedExpenses <= 0) && styles.buttonDisabled,
+          ]}
+          onPress={handleNext}
+        >
           <Text style={styles.buttonText}>
             {t("common.continue")}
           </Text>
@@ -118,4 +140,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
   },
+  error: {
+  color: "#EF4444",
+  fontSize: 12,
+  marginTop: 8,
+  fontWeight: "600",
+},
+
+buttonDisabled: {
+  opacity: 0.4,
+},
 });
