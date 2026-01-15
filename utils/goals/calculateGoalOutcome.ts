@@ -19,7 +19,7 @@ export function calculateGoalOutcome({
   if (!goal) return "ongoing";
 
   // 1️⃣ Progress kontrolü (SUCCESS her şeyin üstünde)
-  if (savedAmount >= goal.targetAmount) {
+  if (savedAmount >= goal.baseTargetAmount) {
     return "succeeded";
   }
 

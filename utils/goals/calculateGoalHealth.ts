@@ -8,22 +8,19 @@ export function calculateGoalHealth(
   expenses: Expense[],
   period: "weekly" | "monthly",
   today: Date = new Date()
-): {
-  health: GoalHealth;
-  expected: number;
-  actual: number;
-} {
+) {
   const msPerDay = 1000 * 60 * 60 * 24;
-
   const start = new Date(goal.startDate);
+
   const daysPassed = Math.max(
     1,
     Math.floor((today.getTime() - start.getTime()) / msPerDay)
   );
 
+  // 🔒 TOTAL SAVED (BASE)
   const totalSaved = expenses
     .filter((e) => e.isGoalBoost && e.goalId === goal.id)
-    .reduce((s, e) => s + (e.boostAmount ?? 0), 0);
+    .reduce((s, e) => s + e.fx.baseAmount, 0);
 
   const actualDaily = totalSaved / daysPassed;
 
@@ -37,7 +34,7 @@ export function calculateGoalHealth(
       const diff = (today.getTime() - d.getTime()) / msPerDay;
       return diff <= daysInPeriod;
     })
-    .reduce((s, e) => s + (e.boostAmount ?? 0), 0);
+    .reduce((s, e) => s + e.fx.baseAmount, 0);
 
   const ratio = actual / Math.max(expected, 1);
 

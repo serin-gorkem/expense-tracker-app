@@ -423,7 +423,7 @@
         "title": "SUMMARY",
         "remaining": "Remaining",
         "dailyTarget": "Daily target",
-        "lastBoost": "Last boost: +{{amount}}"
+        "lastBoost": "Last contribution: {{currency}} {{amount}} ({{nativeAmount}} {{nativeCurrency}})"
       },
 
       "projection": {
@@ -514,6 +514,7 @@
       "amountPlaceholder": "e.g. 5,000",
       "titleLabel": "Goal title (optional)",
       "titlePlaceholder": "e.g. New Laptop",
+      "currencyLabel": "Target currency",
       "categoryLabel": "What is this goal related to?",
       "categoryHelper": "Optional. Helps us connect this goal with your spending."
     },
@@ -547,6 +548,10 @@
     "actions": {
       "apply": "Add to goal",
       "skip": "Skip for today"
+    },
+    "preview": {
+      "notEnough": "This amount is not enough to complete the goal.",
+      "success": "This will complete your goal 🎉"
     }
   },
   "goalInsights": {

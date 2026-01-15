@@ -43,12 +43,19 @@ function serialize(goals: Goal[], activeGoalId: string | null): GoalsPersisted {
   };
 }
 
-function deserialize(data: GoalsPersisted): { goals: Goal[]; activeGoalId: string | null } {
+function deserialize(data: GoalsPersisted) {
   return {
-    goals: data.goals.map((g) => ({
-      ...g,
-      startDate: new Date(g.startDate),
-    })),
+    goals: data.goals.map((g) => {
+      const currency = g.currency ?? g.baseCurrency ?? "EUR";
+
+      return {
+        ...g,
+        currency,
+        baseCurrency: g.baseCurrency ?? currency,
+        baseTargetAmount: g.baseTargetAmount ?? g.targetAmount,
+        startDate: new Date(g.startDate),
+      };
+    }),
     activeGoalId: data.activeGoalId,
   };
 }
@@ -156,11 +163,25 @@ export function GoalsProvider({ children }: { children: React.ReactNode }) {
   );
   setActiveGoalId((prev) => (prev === id ? null : prev));
 }
-  function calculateGoalProgress(goalId: string, expenses: Expense[]) {
-    return expenses
-      .filter((e) => e.isGoalBoost && e.goalId === goalId)
-      .reduce((sum, e) => sum + (e.boostAmount ?? e.amount), 0);
-  }
+function calculateGoalProgress(
+  goalId: string,
+  expenses: Expense[]
+): number {
+  return expenses
+    .filter(
+      (e) =>
+        e.kind === "goal" &&
+        e.isGoalBoost === true &&
+        e.goalId === goalId
+    )
+    .reduce((sum, e) => {
+      if (!e.fx || typeof e.fx.baseAmount !== "number") {
+        return sum;
+      }
+
+      return sum + e.fx.baseAmount;
+    }, 0);
+}
 
   function deleteGoal(id: string) {
     setGoals((prev) => prev.filter((g) => g.id !== id));

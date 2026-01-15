@@ -15,13 +15,22 @@ export default function GoalListItem({ goal, isActive, onEdit }: Props) {
   const { toggleGoal, calculateGoalProgress } = useGoalsStore();
 
   const savedAmount = calculateGoalProgress(goal.id, expenses);
+  const goalRate =
+    goal.currency === goal.baseCurrency
+      ? 1
+      : goal.baseTargetAmount / goal.targetAmount;
 
-const categoryLabel = goal.category ? t(`categories.${goal.category}`) : null;
+  const categoryLabel = goal.category ? t(`categories.${goal.category}`) : null;
+
   const progress =
-    goal.targetAmount > 0 ? Math.min(savedAmount / goal.targetAmount, 1) : 0;
+    goal.baseTargetAmount > 0
+      ? Math.min(savedAmount / goal.baseTargetAmount, 1)
+      : 0;
 
   const percentage = Math.round(progress * 100);
   const isCompleted = goal.status === "archived";
+
+  const savedInGoalCurrency = Math.max(0, Math.round(savedAmount / goalRate));
 
   return (
     <Pressable
@@ -38,13 +47,20 @@ const categoryLabel = goal.category ? t(`categories.${goal.category}`) : null;
     >
       <View style={styles.header}>
         <Text style={styles.title}>{goal.title}</Text>
-        {isActive && <Text style={styles.badge}>{t("goals.active.badge")}</Text>}
+        {isActive && (
+          <Text style={styles.badge}>{t("goals.active.badge")}</Text>
+        )}
       </View>
 
       <View style={styles.metaRow}>
         <Text style={styles.amount}>
-          {savedAmount} / {goal.targetAmount}
+          {savedInGoalCurrency} / {goal.targetAmount} {goal.currency}
         </Text>
+
+        <Text style={styles.subtle}>
+          ≈ {savedAmount.toFixed(0)} {goal.baseCurrency}
+        </Text>
+
         <Text style={styles.percent}>{percentage}%</Text>
       </View>
       {categoryLabel && <Text style={styles.category}>{categoryLabel}</Text>}
@@ -120,7 +136,11 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.55)",
     marginBottom: 6,
   },
-
+  subtle: {
+    fontSize: 11,
+    color: "rgba(255,255,255,0.55)",
+    marginBottom: 12,
+  },
   metaRow: {
     flexDirection: "row",
     justifyContent: "space-between",

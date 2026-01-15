@@ -1,11 +1,10 @@
 import { CurrencyCode } from "@/models/currency.model";
 import { FXRate } from "@/models/fxRate.model";
+import { fetchFXRates } from "@/utils/currency/fxApi";
 import { loadFXRates, saveFXRates } from "@/utils/currency/fxStorage";
-import { isFXStale } from "@/utils/currency/isFXStale";
+import { getFXStatus, shouldRefreshFX } from "@/utils/currency/isFXStale";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useFinanceProfile } from "./FinanceProfileContext";
-
-import { fetchFXRates } from "@/utils/currency/fxApi";
 
 export type FXStatus = "live" | "cached" | "stale" | "empty";
 
@@ -23,21 +22,28 @@ export function FXProvider({ children }: { children: React.ReactNode }) {
   const [rates, setRates] = useState<FXRate | null>(null);
   const [status, setStatus] = useState<FXStatus>("empty");
 
-  /* LOAD FROM CACHE */
+  /* INITIAL LOAD */
   useEffect(() => {
     (async () => {
       const cached = await loadFXRates();
+
       if (!cached) {
         setStatus("empty");
+        refresh();
         return;
       }
 
+      const fxStatus = getFXStatus(cached);
       setRates(cached);
-      setStatus(isFXStale(cached) ? "stale" : "cached");
-    })();
-  }, []);
+      setStatus(fxStatus);
 
-  /* BASE CURRENCY CHANGE → invalidate (V1) */
+      if (shouldRefreshFX(cached)) {
+        refresh(); // 🔥 background refresh
+      }
+    })();
+  }, [profile.baseCurrency]);
+
+  /* BASE CURRENCY CHANGE → invalidate */
   useEffect(() => {
     if (!rates) return;
     if (rates.base !== profile.baseCurrency) {
@@ -46,18 +52,15 @@ export function FXProvider({ children }: { children: React.ReactNode }) {
     }
   }, [profile.baseCurrency]);
 
-function getRate(currency: CurrencyCode): number | null {
-  if (!rates) return null;
+  function getRate(currency: CurrencyCode): number | null {
+    if (!rates) return null;
+    if (currency === rates.base) return 1;
 
-  // base currency
-  if (currency === rates.base) return 1;
+    const baseToCurrency = rates.rates[currency];
+    if (!baseToCurrency) return null;
 
-  const baseToCurrency = rates.rates[currency];
-  if (!baseToCurrency) return null;
-
-  // currency → base
-  return 1 / baseToCurrency;
-}
+    return 1 / baseToCurrency;
+  }
 
   async function refresh() {
     try {
@@ -68,38 +71,13 @@ function getRate(currency: CurrencyCode): number | null {
     } catch (e) {
       console.warn("FX refresh failed", e);
       if (rates) {
-        setStatus("cached");
+        setStatus(getFXStatus(rates));
       }
     }
   }
 
-  useEffect(() => {
-    (async () => {
-      const cached = await loadFXRates();
-
-      if (!cached) {
-        await refresh();
-        return;
-      }
-
-      setRates(cached);
-      setStatus(isFXStale(cached) ? "stale" : "cached");
-
-      if (isFXStale(cached)) {
-        await refresh();
-      }
-    })();
-  }, [profile.baseCurrency]);
-
   return (
-    <FXContext.Provider
-      value={{
-        rates,
-        status,
-        getRate,
-        refresh,
-      }}
-    >
+    <FXContext.Provider value={{ rates, status, getRate, refresh }}>
       {children}
     </FXContext.Provider>
   );

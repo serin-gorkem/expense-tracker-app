@@ -1,5 +1,6 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { CATEGORY_OPTIONS } from "@/models/expense.model";
 import { useWizard } from "@/src/context/WizardContext";
 import React from "react";
@@ -7,10 +8,12 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function StepTarget() {
   const { t } = useTranslation();
+  const {setCurrency} = useWizard();
 
   const { draft, setTargetAmount, setTitle, next, canGoNext, setCategory } =
     useWizard();
 
+    const CURRENCIES: CurrencyCode[] = ["EUR", "USD", "TRY"];
   return (
     <View style={styles.container}>
       <Text style={styles.h1}>{t("goalWizard.target.title")}</Text>
@@ -26,6 +29,34 @@ export default function StepTarget() {
           style={styles.currencyInput}
         />
       </View>
+              <View style={styles.card}>
+          <Text style={styles.label}>
+            {t("goalWizard.target.currencyLabel")}
+          </Text>
+
+          <View style={styles.currencyRow}>
+            {CURRENCIES.map((c) => {
+              const active = draft.currency === c;
+
+              return (
+                <Pressable
+                  key={c}
+                  onPress={() => setCurrency(c)}
+                  style={[styles.currencyPill, active && styles.currencyActive]}
+                >
+                  <Text
+                    style={[
+                      styles.currencyText,
+                      active && styles.currencyTextActive,
+                    ]}
+                  >
+                    {c}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
 
       {/* GOAL TITLE */}
       <View style={styles.card}>
@@ -70,6 +101,7 @@ export default function StepTarget() {
           })}
         </View>
       </View>
+
 
       <Pressable
         style={[styles.primaryBtn, !canGoNext && styles.btnDisabled]}
@@ -126,41 +158,70 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   helper: {
-  marginTop: 4,
-  marginBottom: 10,
-  fontSize: 11,
-  color: "rgba(255,255,255,0.45)",
-},
+    marginTop: 4,
+    marginBottom: 10,
+    fontSize: 11,
+    color: "rgba(255,255,255,0.45)",
+  },
 
-categoryGrid: {
-  flexDirection: "row",
-  flexWrap: "wrap",
-  gap: 8,
-},
+  categoryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
 
-categoryItem: {
-  paddingHorizontal: 12,
-  paddingVertical: 8,
-  borderRadius: 999,
-  backgroundColor: "rgba(255,255,255,0.06)",
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.12)",
-},
+  categoryItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
 
-categoryActive: {
-  borderColor: "#6366F1",
-  backgroundColor: "rgba(99,102,241,0.15)",
-},
+  categoryActive: {
+    borderColor: "#6366F1",
+    backgroundColor: "rgba(99,102,241,0.15)",
+  },
 
-categoryText: {
-  color: "rgba(255,255,255,0.75)",
-  fontSize: 12,
-  fontWeight: "700",
-},
+  categoryText: {
+    color: "rgba(255,255,255,0.75)",
+    fontSize: 12,
+    fontWeight: "700",
+  },
 
-categoryTextActive: {
-  color: "#fff",
-},
+  categoryTextActive: {
+    color: "#fff",
+  },
+  currencyRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 8,
+  },
+
+  currencyPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+
+  currencyActive: {
+    borderColor: "#6366F1",
+    backgroundColor: "rgba(99,102,241,0.15)",
+  },
+
+  currencyText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.7)",
+  },
+
+  currencyTextActive: {
+    color: "#fff",
+  },
 
   input: {
     marginTop: 6,

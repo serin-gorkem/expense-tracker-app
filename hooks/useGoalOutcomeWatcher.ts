@@ -1,8 +1,9 @@
 import { Expense } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
+import { useGoalsStore } from "@/src/context/GoalContext";
 import {
-    calculateGoalOutcome,
-    GoalOutcome,
+  calculateGoalOutcome,
+  GoalOutcome,
 } from "@/utils/goals/calculateGoalOutcome";
 import { useEffect, useRef } from "react";
 
@@ -19,32 +20,30 @@ export function useGoalOutcomeWatcher({
   onSuccess,
   onFailure,
 }: Params) {
+  const { calculateGoalProgress } = useGoalsStore();
+
   const lastOutcomeRef = useRef<GoalOutcome>("ongoing");
   const lastGoalIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // 1️⃣ Active goal değiştiyse transition state sıfırlanır
+    // 1️⃣ Goal değiştiyse reset
     if (activeGoal?.id !== lastGoalIdRef.current) {
       lastOutcomeRef.current = "ongoing";
       lastGoalIdRef.current = activeGoal?.id ?? null;
     }
 
-    // 2️⃣ Active goal yoksa veya lifecycle uygun değilse çık
+    // 2️⃣ Guard
     if (!activeGoal || activeGoal.status !== "active") {
       return;
     }
 
-    // 3️⃣ Saved amount hesapla (goal boost'ları)
-    const savedAmount = expenses
-      .filter(
-        (e) => e.isGoalBoost && e.goalId === activeGoal.id
-      )
-      .reduce(
-        (sum, e) => sum + (e.boostAmount ?? e.amount),
-        0
-      );
+    // 3️⃣ ✅ BASE CURRENCY PROGRESS
+    const savedAmount = calculateGoalProgress(
+      activeGoal.id,
+      expenses
+    );
 
-    // 4️⃣ Outcome hesapla
+    // 4️⃣ Outcome
     const currentOutcome = calculateGoalOutcome({
       goal: activeGoal,
       savedAmount,
@@ -52,7 +51,7 @@ export function useGoalOutcomeWatcher({
 
     const previousOutcome = lastOutcomeRef.current;
 
-    // 5️⃣ SADECE TRANSITION ANINDA
+    // 5️⃣ Transition-only trigger
     if (previousOutcome !== currentOutcome) {
       if (currentOutcome === "succeeded") {
         onSuccess?.(activeGoal);
@@ -64,5 +63,5 @@ export function useGoalOutcomeWatcher({
 
       lastOutcomeRef.current = currentOutcome;
     }
-  }, [activeGoal, expenses, onSuccess, onFailure]);
+  }, [activeGoal, expenses, onSuccess, onFailure, calculateGoalProgress]);
 }

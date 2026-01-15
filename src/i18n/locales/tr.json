@@ -441,7 +441,11 @@
       "hint": "Tip : Gün içi harcamayı görmek için günlerin üstüne dokun",
       "baseline": "Günlük Limit ₺{{amount}}"
     },
-    "currencyExposure" : "Döviz Riski"
+"currency_exposure": {
+  "title": "Döviz dağılımı",
+  "center": "Toplam",
+  "percent": "%{{value}}"
+}
   },
 
   "goals": {
@@ -453,7 +457,7 @@
         "title": "ÖZET",
         "remaining": "Kalan",
         "dailyTarget": "Günlük hedef",
-        "lastBoost": "Son destek: +{{amount}}"
+        "lastBoost": "Son destek: {{currency}} {{amount}} ({{nativeAmount}} {{nativeCurrency}})"
       },
 
       "projection": {
@@ -496,8 +500,10 @@
       "fields": {
         "title": "Başlık",
         "target": "Hedef tutar",
-        "duration": "Süre (gün)"
+        "duration": "Süre (gün)",
+        "category": "Kategori"
       },
+      "currencyLockedHint": "Hedef oluşturulduktan sonra para birimi değiştirilemez.",
       "placeholders": {
         "title": "Hedef başlığı",
         "target": "örn. 5000",
@@ -544,6 +550,7 @@
       "amountPlaceholder": "örn. 5.000",
       "titleLabel": "Hedef başlığı (opsiyonel)",
       "titlePlaceholder": "örn. Yeni Laptop",
+        "currencyLabel": "Hedef para birimi",
       "categoryLabel": "Bu hedef hangi kategoriyle ilgili?",
       "categoryHelper": "Opsiyonel. Harcamalarınla ilişkilendirmemize yardımcı olur."
     },
@@ -578,7 +585,11 @@
     "actions": {
       "apply": "Hedefe ekle",
       "skip": "Bugün atla"
-    }
+    },
+        "preview": {
+          "notEnough": "Bu tutar hedefi tamamlamak için yeterli değil.",
+          "success": "Bu işlem hedefi tamamlayacak 🎉"
+        }
   },
   "goalInsights": {
     "title": "ANALİZLER",

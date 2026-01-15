@@ -23,15 +23,42 @@ export function ActiveGoalCard({ goal }: Props) {
   const { calculateGoalProgress } = useGoalsStore();
 
   const savedAmount = calculateGoalProgress(goal.id, expenses);
-  const remaining = Math.max(goal.targetAmount - savedAmount, 0);
+  const savedInGoalCurrency =
+  goal.currency === goal.baseCurrency
+    ? savedAmount
+    : savedAmount / (goal.baseTargetAmount / goal.targetAmount);
+ const remaining = Math.max(goal.baseTargetAmount - savedAmount, 0);
+
+ const remainingInGoalCurrency =
+  goal.currency === goal.baseCurrency
+    ? remaining
+    : remaining / (goal.baseTargetAmount / goal.targetAmount);
 
   const weekly = calculateGoalHealth(goal, expenses, "weekly");
   const monthly = calculateGoalHealth(goal, expenses, "monthly");
+  
+const goalRate =
+  goal.currency === goal.baseCurrency
+    ? 1
+    : goal.baseTargetAmount / goal.targetAmount;
+    const weeklyInGoalCurrency = {
+  ...weekly,
+  actual: Math.round(weekly.actual / goalRate),
+  expected: Math.round(weekly.expected / goalRate),
+};
 
+const monthlyInGoalCurrency = {
+  ...monthly,
+  actual: Math.round(monthly.actual / goalRate),
+  expected: Math.round(monthly.expected / goalRate),
+};
 const projection = calculateGoalProjection(
   goal,
   expenses,
   dailyBaseline ?? undefined
+);
+const requiredDailyInGoalCurrency = Math.ceil(
+  projection.requiredDaily / goalRate
 );
 const projectionMessage = t(
   `goals.active.projection.${projection.feasibility}`
@@ -39,14 +66,16 @@ const projectionMessage = t(
 
   const insights = buildGoalInsights(projection);
 
-  const progress =
-    goal.targetAmount > 0 ? Math.min(savedAmount / goal.targetAmount, 1) : 0;
+const progress =
+  goal.baseTargetAmount > 0
+    ? Math.min(savedAmount / goal.baseTargetAmount, 1)
+    : 0;
 
   const percentage = Math.round(progress * 100);
 
-  const lastBoost = expenses
-    .filter((e) => e.isGoalBoost && e.goalId === goal.id)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+const lastBoost = expenses
+  .filter((e) => e.isGoalBoost && e.goalId === goal.id)
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
   const categoryLabel = goal.category ? t(`categories.${goal.category}`) : null;
 
@@ -61,10 +90,16 @@ const projectionMessage = t(
       {/* META */}
       <View style={styles.metaRow}>
         <Text style={styles.amount}>
-          {savedAmount} / {goal.targetAmount}
+          {savedInGoalCurrency.toFixed(0)} / {goal.targetAmount.toFixed(0)}{" "}
+          {goal.currency}
         </Text>
+
         <Text style={styles.percent}>{percentage}%</Text>
       </View>
+
+      <Text style={styles.subtle}>
+        ≈ {savedAmount.toFixed(0)} {goal.baseCurrency}
+      </Text>
 
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${percentage}%` }]} />
@@ -81,21 +116,32 @@ const projectionMessage = t(
             <Text style={styles.summaryLabel}>
               {t("goals.active.summary.remaining")}
             </Text>
-            <Text style={styles.summaryValue}>{remaining}</Text>
+            <Text style={styles.summaryValue}>
+              {remainingInGoalCurrency.toFixed(0)} {goal.currency}
+            </Text>
           </View>
 
           <View>
             <Text style={styles.summaryLabel}>
               {t("goals.active.summary.dailyTarget")}
             </Text>
-            <Text style={styles.summaryValue}>{projection.requiredDaily}</Text>
+            <Text style={styles.summaryValue}>
+              {requiredDailyInGoalCurrency} {goal.currency}
+            </Text>
+
+            <Text style={styles.subtle}>
+              ≈ {projection.requiredDaily} {goal.baseCurrency}
+            </Text>
           </View>
         </View>
 
         {lastBoost && (
           <Text style={styles.lastBoost}>
             {t("goals.active.summary.lastBoost", {
-              amount: lastBoost.boostAmount ?? lastBoost.amount,
+              amount: lastBoost.fx.baseAmount.toFixed(0),
+              currency: goal.baseCurrency,
+              nativeAmount: lastBoost.amount,
+              nativeCurrency: lastBoost.fx.currency,
             })}
           </Text>
         )}
@@ -136,8 +182,19 @@ const projectionMessage = t(
         </Text>
 
         <View style={styles.healthRows}>
-          <GoalHealthRow label={t("goals.active.health.week")} {...weekly} />
-          <GoalHealthRow label={t("goals.active.health.month")} {...monthly} />
+          <GoalHealthRow
+            label={t("goals.active.health.week")}
+            health={weeklyInGoalCurrency.health}
+            actual={weeklyInGoalCurrency.actual}
+            expected={weeklyInGoalCurrency.expected}
+          />
+
+          <GoalHealthRow
+            label={t("goals.active.health.month")}
+            health={monthlyInGoalCurrency.health}
+            actual={monthlyInGoalCurrency.actual}
+            expected={monthlyInGoalCurrency.expected}
+          />
         </View>
       </View>
 
@@ -203,6 +260,11 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "#6366F1",
     borderRadius: 999,
+  },
+  subtle:{
+    fontSize: 11,
+    color: "rgba(255,255,255,0.55)",
+    marginBottom: 12,
   },
 
   category: {

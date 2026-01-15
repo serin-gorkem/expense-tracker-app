@@ -39,6 +39,7 @@ import { useDayEndFlow } from "@/hooks/useDayEndFlow";
 import { useGoalOutcomeWatcher } from "@/hooks/useGoalOutcomeWatcher";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
+import { useFX } from "@/src/context/FXContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { buildGoalBoostExpense } from "@/utils/goals/applyLeftoverToGoal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -63,6 +64,7 @@ export default function Home() {
   const [goalModal, setGoalModal] = useState<GoalModalType>(null);
   const [modalGoal, setModalGoal] = useState<Goal | null>(null);
   const { t } = useTranslation();
+  const { getRate } = useFX();
 
   const options = useMemo(
     () => ({ mode, category, query }),
@@ -181,8 +183,6 @@ export default function Home() {
           : TAB_BAR_HEIGHT + insets.bottom - 70,
     };
   });
-
-
 
   return (
     <View style={styles.root}>
@@ -340,22 +340,40 @@ export default function Home() {
             </View>
           )}
         </ScrollView>
-        <GoalApplyModal
-          visible={showModal && !!activeGoal}
-          remainingAmount={remainingAmount ?? 0}
-          goal={activeGoal!}
-          onDecision={(decision) => {
-            closeModal();
+        {activeGoal && (
+          <GoalApplyModal
+            visible={showModal && !!activeGoal}
+            remainingAmount={remainingAmount ?? 0}
+            goal={activeGoal!}
+            getRate={getRate}
+            onDecision={(decision, payload) => {
+              closeModal();
 
-            if (decision === "APPLY_TO_GOAL" && activeGoal) {
-              // TODO
-              // Check if the activeGoal completed.
-              addExpense(
-                buildGoalBoostExpense(remainingAmount ?? 0, activeGoal)
-              );
-            }
-          }}
-        />
+              if (decision === "APPLY_TO_GOAL" && activeGoal && payload) {
+                const { amount, currency, fxStatus } = payload;
+
+                const rate =
+                  currency === activeGoal.baseCurrency ? 1 : getRate(currency);
+
+                if (!rate) return;
+
+                addExpense(
+                  buildGoalBoostExpense({
+                    amount,
+                    goal: activeGoal,
+                    fx: {
+                      currency,
+                      rate,
+                      baseAmount: Number((amount * rate).toFixed(2)),
+                      status: fxStatus ?? "cached",
+                      date: new Date().toISOString(),
+                    },
+                  })
+                );
+              }
+            }}
+          />
+        )}
 
         <Animated.View style={[styles.searchWrapper, searchBarStyle]}>
           <SearchBar value={query} onChange={setQuery} />
@@ -369,14 +387,14 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   safe: { flex: 1, paddingHorizontal: 16, paddingTop: 6 },
   header: {
-    flex:1,
+    flex: 1,
     marginBottom: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   heading: {
-    width:"55%",
+    width: "55%",
   },
   topContent: {
     marginBottom: 20,

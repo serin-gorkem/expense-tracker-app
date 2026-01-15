@@ -1,13 +1,12 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { useFX } from "@/src/context/FXContext";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useWizard } from "@/src/context/WizardContext";
 import { createGoalFromDraft } from "@/utils/goals/createGoalFromDraft";
-import {
-  getOnboardingReturn
-} from "@/utils/onboarding/onboardingReturn";
+import { getOnboardingReturn } from "@/utils/onboarding/onboardingReturn";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
 type FeasibilityLevel = "good" | "tight" | "heavy";
 
 export default function StepReview() {
@@ -15,6 +14,8 @@ export default function StepReview() {
   const { t } = useTranslation();
   const { draft, goTo, reset } = useWizard();
   const { createGoal } = useGoalsStore();
+  const { getRate } = useFX();
+  const { profile } = useFinanceProfile();
 
   const dailyAvg =
     draft.targetAmount && draft.durationInDays
@@ -32,10 +33,15 @@ export default function StepReview() {
   const defaultTitle = t(`goals.goal.defaultTitle.${draft.type}`);
 
   const handleSubmit = async () => {
-    const goal = createGoalFromDraft(draft, defaultTitle);
+    const goal = createGoalFromDraft(
+      draft,
+      defaultTitle,
+      profile.baseCurrency,
+      getRate
+    );
     createGoal(goal);
     reset();
-    
+
     const onboardingReturn = await getOnboardingReturn();
     if (onboardingReturn) {
       router.replace("/onboarding");

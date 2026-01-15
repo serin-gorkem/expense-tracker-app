@@ -1,4 +1,7 @@
+import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Category } from "@/models/expense.model";
+import { Goal } from "@/models/goal.model";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -15,9 +18,11 @@ export default function EditGoalScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [category, setCategory] = useState<Category | undefined>(undefined);
 
   const { goals, updateGoal, deleteGoal } = useGoalsStore();
 
+  const [localGoal, setLocalGoal] = useState<Goal | null>(null);
   const goal = goals.find((g) => g.id === id);
 
   const [title, setTitle] = useState("");
@@ -27,18 +32,20 @@ export default function EditGoalScreen() {
   /* =========================
      Init form from goal
   ========================= */
-
   useEffect(() => {
     if (!goal) return;
+
+    setLocalGoal(goal);
     setTitle(goal.title);
     setTarget(String(goal.targetAmount));
     setDuration(String(goal.durationInDays));
+    setCategory(goal.category);
   }, [goal]);
 
-  if (!goal) {
+  if (!localGoal) {
     return (
       <View style={styles.container}>
-        <Text style={styles.h1}>Goal not found</Text>
+        <Text style={styles.h1}>{t("common.loading")}</Text>
       </View>
     );
   }
@@ -47,9 +54,19 @@ export default function EditGoalScreen() {
      Actions
   ========================= */
 
+  
+
   const handleSave = () => {
     const targetAmount = Number(target);
     const durationInDays = Number(duration);
+
+    if (Number.isNaN(targetAmount) || Number.isNaN(durationInDays)) {
+      Alert.alert(
+        t("errors.invalidInput.title"),
+        t("errors.invalidInput.message")
+      );
+      return;
+    }
 
     if (!title || targetAmount <= 0 || durationInDays <= 0) {
       Alert.alert(
@@ -59,10 +76,11 @@ export default function EditGoalScreen() {
       return;
     }
 
-    updateGoal(goal.id, {
+    updateGoal(localGoal.id, {
       title,
       targetAmount,
       durationInDays,
+      category,
     });
 
     router.back();
@@ -75,7 +93,7 @@ export default function EditGoalScreen() {
         text: t("common.delete"),
         style: "destructive",
         onPress: () => {
-          deleteGoal(goal.id);
+          deleteGoal(localGoal.id);
           router.replace("/(tabs)/goals");
         },
       },
@@ -119,6 +137,26 @@ export default function EditGoalScreen() {
           placeholder={t("goals.edit.placeholders.duration")}
           placeholderTextColor="rgba(255,255,255,0.35)"
           style={styles.input}
+        />
+        <Text style={styles.label}>{t("goalWizard.target.currencyLabel")}</Text>
+
+        <View style={styles.readonlyBox}>
+          <Text style={styles.readonlyText}>{localGoal.currency}</Text>
+          <Text style={styles.subtle}>
+            {t("goals.edit.currencyLockedHint")}
+          </Text>
+        </View>
+        <Text style={styles.label}>{t("goals.edit.fields.category")}</Text>
+
+        <CategoryFilter
+          category={category ?? "all"}
+          setCategory={(c) => {
+            if (c === "all") {
+              setCategory(undefined);
+            } else {
+              setCategory(c);
+            }
+          }}
         />
       </View>
 
@@ -238,5 +276,25 @@ const styles = StyleSheet.create({
   deleteText: {
     color: "rgba(239,68,68,0.95)",
     fontWeight: "800",
+  },
+
+  readonlyBox: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+
+  readonlyText: {
+    color: "rgba(255,255,255,0.7)",
+    fontWeight: "800",
+    fontSize: 14,
+  },
+  subtle: {
+    marginTop: 4,
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 11,
   },
 });

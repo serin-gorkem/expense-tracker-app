@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/models/currency.model";
 import { Category } from "@/models/expense.model";
 import { Goal } from "@/models/goal.model";
 import React, {
@@ -16,6 +17,7 @@ export type GoalDraft = {
   targetAmount?: number;
   category?: Category;
   customTitle?: string;
+  currency?: CurrencyCode;
 };
 
 type WizardContextType = {
@@ -38,6 +40,7 @@ type WizardContextType = {
   setTitle(customTitle: string): void;
   setDurationInDays(days: number): void;
   setTargetAmount(amount: number): void;
+  setCurrency(currency: CurrencyCode): void;
 
   startFromGoal(goal: Goal): void;
 };
@@ -71,6 +74,12 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
   const setCategory = useCallback((category?: Category) => {
     setDraft((d) => ({ ...d, category }));
   }, []);
+  function setCurrency(currency: CurrencyCode) {
+  setDraft((prev) => ({
+    ...prev,
+    currency,
+  }));
+}
   const next = useCallback(() => {
     setStep((s) => ORDER[Math.min(ORDER.indexOf(s) + 1, ORDER.length - 1)]);
   }, []);
@@ -133,6 +142,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
         goTo,
         reset,
 
+        setCurrency,
         setType,
         setDurationInDays,
         setTargetAmount,

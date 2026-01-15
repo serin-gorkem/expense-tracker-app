@@ -440,7 +440,7 @@
         "title": "ÜBERSICHT",
         "remaining": "Verbleibend",
         "dailyTarget": "Tägliches Ziel",
-        "lastBoost": "Letzter Beitrag: +{{amount}}"
+        "lastBoost": "Letzte Einzahlung: {{currency}} {{amount}} ({{nativeAmount}} {{nativeCurrency}})"
       },
       "projection": {
         "title": "PROGNOSE",
@@ -480,8 +480,10 @@
       "fields": {
         "title": "Titel",
         "target": "Zielbetrag",
-        "duration": "Dauer (Tage)"
+        "duration": "Dauer (Tage)",
+        "category": "Kategorie"
       },
+      "currencyLockedHint": "Die Währung kann nach der Erstellung des Ziels nicht mehr geändert werden.",
       "placeholders": {
         "title": "Zieltitel",
         "target": "z. B. 5000",
@@ -529,6 +531,7 @@
       "amountPlaceholder": "z. B. 5.000",
       "titleLabel": "Zieltitel (optional)",
       "titlePlaceholder": "z. B. Neuer Laptop",
+        "currencyLabel": "Zielwährung",
       "categoryLabel": "Womit hängt dieses Ziel zusammen?",
       "categoryHelper": "Optional. Hilft uns, dieses Ziel mit deinen Ausgaben zu verknüpfen."
     },
@@ -564,6 +567,10 @@
     "actions": {
       "apply": "Zum Ziel hinzufügen",
       "skip": "Heute überspringen"
+    },
+        "preview": {
+      "notEnough": "Dieser Betrag reicht nicht aus, um das Ziel zu erreichen.",
+      "success": "Dies wird dein Ziel abschließen 🎉"
     }
   },
 

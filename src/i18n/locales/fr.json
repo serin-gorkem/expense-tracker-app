@@ -441,7 +441,7 @@
         "title": "RÉSUMÉ",
         "remaining": "Restant",
         "dailyTarget": "Objectif quotidien",
-        "lastBoost": "Dernier ajout : +{{amount}}"
+        "lastBoost": "Dernière contribution : {{currency}} {{amount}} ({{nativeAmount}} {{nativeCurrency}})"
       },
       "projection": {
         "title": "PROJECTION",
@@ -481,8 +481,10 @@
       "fields": {
         "title": "Titre",
         "target": "Montant cible",
-        "duration": "Durée (jours)"
+        "duration": "Durée (jours)",
+        "category": "Catégorie"
       },
+      "currencyLockedHint": "La devise ne peut pas être modifiée après la création de l’objectif.",
       "placeholders": {
         "title": "Titre de l’objectif",
         "target": "ex. 5000",
@@ -530,6 +532,7 @@
       "amountPlaceholder": "ex. 5 000",
       "titleLabel": "Titre de l’objectif (optionnel)",
       "titlePlaceholder": "ex. Nouveau portable",
+      "currencyLabel": "Devise de l’objectif",
       "categoryLabel": "À quoi cet objectif est-il lié ?",
       "categoryHelper": "Optionnel. Permet de relier l’objectif à vos dépenses."
     },
@@ -565,6 +568,10 @@
     "actions": {
       "apply": "Ajouter à l’objectif",
       "skip": "Passer pour aujourd’hui"
+    },
+    "preview": {
+      "notEnough": "Ce montant est insuffisant pour atteindre l'objectif.",
+      "success": "Votre objectif sera atteint 🎉"
     }
   },
 

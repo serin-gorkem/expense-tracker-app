@@ -39,11 +39,11 @@ export function calculateGoalProjection(
   const totalDays = goal.durationInDays;
   const daysRemaining = Math.max(totalDays - daysPassed, 0);
 
-  const totalSaved = expenses
-    .filter((e) => e.isGoalBoost && e.goalId === goal.id)
-    .reduce((sum, e) => sum + (e.boostAmount ?? 0), 0);
+const totalSaved = expenses
+  .filter((e) => e.isGoalBoost && e.goalId === goal.id)
+  .reduce((sum, e) => sum + e.fx.baseAmount, 0);
 
-  const remainingAmount = Math.max(goal.targetAmount - totalSaved, 0);
+const remainingAmount = Math.max(goal.baseTargetAmount - totalSaved, 0);
 
   const requiredDaily =
     daysRemaining > 0 ? remainingAmount / daysRemaining : 0;
