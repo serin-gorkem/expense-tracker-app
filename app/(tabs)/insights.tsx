@@ -37,23 +37,27 @@ export default function Insights() {
   const { activeGoal } = useGoalsStore();
   const dailyLimit = limits.daily.amount;
   const { t } = useTranslation();
+
   const monthGroups = groupExpensesByMonth(expenses);
   const weekGroups = groupExpensesByWeek(expenses);
 
   const donutData = buildMonthlyCategoryDonutData(monthGroups);
   const lineData = buildWeeklyLineChartData(weekGroups);
+
   const [month, setMonth] = useState(() => {
     const d = new Date();
     d.setDate(1);
     return d;
   });
 
-  const { profile: financeProfile } = useFinanceProfile();
-  const baseCurrency = financeProfile.baseCurrency!;
+  const { profile } = useFinanceProfile();
+  const baseCurrency = profile.baseCurrency!;
+
   const currencyExposure = useMemo(
     () => calculateCurrencyExposure(expenses, baseCurrency),
-    [expenses, financeProfile.baseCurrency]
+    [expenses, baseCurrency]
   );
+
   const dayMap = useMemo(
     () =>
       buildConsistencyDayMap({
@@ -65,29 +69,33 @@ export default function Insights() {
     [expenses, dailyLimit, month, activeGoal]
   );
 
-  const goPrevMonth = () =>
-    setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
-
-  const goNextMonth = () =>
-    setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-
   return (
     <View style={styles.root}>
       <LiquidBackground theme="insights" />
-            <LiquidDecor variant="insights" />
+      <LiquidDecor variant="insights" />
 
       <SafeAreaView style={styles.safe}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 28 }}
+          contentContainerStyle={styles.scroll}
         >
-          <Text style={styles.title}>{t("insights.screen.title")}</Text>
-          <Text style={styles.subtitle}>{t("insights.screen.subtitle")}</Text>
+          {/* HEADER (Home / Goals ile aynı) */}
+          <View style={styles.header}>
+            <Text style={styles.title}>{t("insights.screen.title")}</Text>
+            <Text style={styles.subtitle}>
+              {t("insights.screen.subtitle")}
+            </Text>
+          </View>
 
+          {/* EMPTY */}
           {expenses.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>{t("insights.empty.title")}</Text>
-              <Text style={styles.emptyDesc}>{t("insights.empty.desc")}</Text>
+              <Text style={styles.emptyTitle}>
+                {t("insights.empty.title")}
+              </Text>
+              <Text style={styles.emptyDesc}>
+                {t("insights.empty.desc")}
+              </Text>
             </View>
           ) : (
             <View style={styles.container}>
@@ -97,14 +105,21 @@ export default function Insights() {
                 month={month}
                 dayMap={dayMap}
                 onSelectDay={setSelectedDayKey}
-                onPrevMonth={goPrevMonth}
-                onNextMonth={goNextMonth}
+                onPrevMonth={() =>
+                  setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))
+                }
+                onNextMonth={() =>
+                  setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))
+                }
               />
+
               <DayDetailModal
                 dayKey={selectedDayKey}
                 dayInfo={selectedDayKey ? dayMap[selectedDayKey] : null}
                 expenses={
-                  selectedDayKey ? expensesByDay.get(selectedDayKey) ?? [] : []
+                  selectedDayKey
+                    ? expensesByDay.get(selectedDayKey) ?? []
+                    : []
                 }
                 onClose={() => setSelectedDayKey(null)}
               />
@@ -115,20 +130,30 @@ export default function Insights() {
                   baseCurrency={baseCurrency}
                 />
               )}
+
               {lineData.length > 0 && (
-                <WeeklyLineChart data={lineData} baseCurrency={baseCurrency} />
+                <WeeklyLineChart
+                  data={lineData}
+                  baseCurrency={baseCurrency}
+                />
               )}
+
               <FXRatesCard baseCurrency={baseCurrency} />
+
               {currencyExposure.length > 1 && (
                 <CurrencyExposureChart exposure={currencyExposure} />
               )}
+
               <FinancialInsightSection expenses={expenses} />
               <BehavioralInsightSection
                 expenses={expenses}
                 dailyLimit={dailyLimit}
               />
+
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{t("insights.more.title")}</Text>
+                <Text style={styles.cardTitle}>
+                  {t("insights.more.title")}
+                </Text>
 
                 <Text style={styles.item}>
                   • {t("insights.more.items.consistency")}
@@ -143,7 +168,9 @@ export default function Insights() {
                   • {t("insights.more.items.patterns")}
                 </Text>
 
-                <Text style={styles.itemMuted}>{t("insights.more.hint")}</Text>
+                <Text style={styles.itemMuted}>
+                  {t("insights.more.hint")}
+                </Text>
               </View>
             </View>
           )}
@@ -152,27 +179,41 @@ export default function Insights() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  safe: { flex: 1, paddingHorizontal: 16, paddingTop: 10 },
+
+  safe: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+
+  scroll: {
+    paddingBottom: 120,
+    gap: 16,
+  },
+
+  header: {
+    marginBottom: 8,
+  },
+
   title: {
     color: "rgba(255,255,255,0.92)",
-    fontSize: 26,
-    fontWeight: "800",
-    marginBottom: 6,
+    fontSize: 28,
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
+
   subtitle: {
+    marginTop: 2,
     color: "rgba(255,255,255,0.6)",
-    fontSize: 13,
-    marginBottom: 14,
+    fontSize: 12,
   },
-  itemMuted: {
-    color: "rgba(255,255,255,0.45)",
-    fontSize: 11,
-    marginTop: 8,
+
+  container: {
+    gap: 8,
   },
-  container: { gap: 8 },
+
   emptyCard: {
     padding: 16,
     borderRadius: 16,
@@ -180,12 +221,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
   },
+
   emptyTitle: {
     color: "rgba(255,255,255,0.9)",
     fontWeight: "800",
     fontSize: 14,
   },
-  emptyDesc: { color: "rgba(255,255,255,0.6)", marginTop: 6, fontSize: 12 },
+
+  emptyDesc: {
+    color: "rgba(255,255,255,0.6)",
+    marginTop: 6,
+    fontSize: 12,
+  },
+
   card: {
     padding: 16,
     borderRadius: 16,
@@ -193,10 +241,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
   },
+
   cardTitle: {
     color: "rgba(255,255,255,0.9)",
     fontWeight: "800",
     marginBottom: 8,
   },
-  item: { color: "rgba(255,255,255,0.75)", fontSize: 12, marginBottom: 6 },
+
+  item: {
+    color: "rgba(255,255,255,0.75)",
+    fontSize: 12,
+    marginBottom: 6,
+  },
+
+  itemMuted: {
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 11,
+    marginTop: 8,
+  },
 });

@@ -1,6 +1,13 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import EmptyState from "@/components/EmptyState/EmptyState";
 import { ActiveGoalCard } from "@/components/Goals/ActiveGoalCard";
@@ -20,94 +27,112 @@ export default function GoalsScreen() {
   const { goals, activeGoal } = useGoalsStore();
   const { reset } = useWizard();
   const [showGoalHint, setShowGoalHint] = useState(false);
-  
+
   const handleEditGoal = (goal: Goal) => {
     router.push(`../goals/${goal.id}/edit`);
   };
-  
+
   useEffect(() => {
-    const checkHint = async () => {
-      try {
-        const seen = await AsyncStorage.getItem("@goal_list_hint_seen");
-        if (!seen) setShowGoalHint(true);
-      } catch {}
-    };
-    
-    checkHint();
+    (async () => {
+      const seen = await AsyncStorage.getItem("@goal_list_hint_seen");
+      if (!seen) setShowGoalHint(true);
+    })();
   }, []);
-const dismissGoalHint = async () => {
-  setShowGoalHint(false);
-  try {
+
+  const dismissGoalHint = async () => {
+    setShowGoalHint(false);
     await AsyncStorage.setItem("@goal_list_hint_seen", "true");
-  } catch {}
-};
+  };
 
-return (
-  <View style={styles.container}>
-    <LiquidBackground theme="goals" />
-    <LiquidDecor variant="goals" />
+  return (
+    <View style={styles.root}>
+      <LiquidBackground theme="goals" />
+      <LiquidDecor variant="goals" />
 
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <Text style={styles.title}>{t("goals.screen.title")}</Text>
-      <Text style={styles.subtitle}>{t("goals.screen.subtitle")}</Text>
-      {/* CREATE GOAL */}
-      <Pressable
-        style={styles.button}
-        onPress={() => {
-          reset();
-          router.push("/goal-wizard");
-        }}
-      >
-        <Text style={styles.buttonText}>{t("goals.create")}</Text>
-      </Pressable>
+      <SafeAreaView style={styles.safe}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scroll}
+        >
+          {/* HEADER (Home ile aynı) */}
+          <View style={styles.header}>
+            <Text style={styles.title}>{t("goals.screen.title")}</Text>
+            <Text style={styles.subtitle}>
+              {t("goals.screen.subtitle")}
+            </Text>
+          </View>
 
-      {/* ACTIVE GOAL */}
-      {activeGoal && <ActiveGoalCard goal={activeGoal} />}
+          {/* CREATE GOAL CTA */}
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              reset();
+              router.push("/goal-wizard");
+            }}
+          >
+            <Text style={styles.buttonText}>
+              {t("goals.screen.create")}
+            </Text>
+          </Pressable>
 
-      {!goals.length && (
-        <EmptyState
-          title={t("empty.noGoalsTitle")}
-          description={t("empty.noGoalsDesc")}
-        />
-      )}
-      {showGoalHint && goals.length !== 0 && !activeGoal && (
-        <GoalListHint onDismiss={dismissGoalHint} />
-      )}
-      {/* GOALS LIST */}
-      <GoalsList
-        goals={goals}
-        activeGoalId={activeGoal?.id}
-        onEdit={handleEditGoal}
-      />
-    </ScrollView>
-  </View>
-);
+          {/* ACTIVE GOAL */}
+          {activeGoal && <ActiveGoalCard goal={activeGoal} />}
+
+          {/* EMPTY STATE */}
+          {!goals.length && (
+            <EmptyState
+              title={t("goals.screen.noGoalsTitle")}
+              description={t("goals.screen.noGoalsDesc")}
+            />
+          )}
+
+          {/* HINT */}
+          {showGoalHint && goals.length > 0 && !activeGoal && (
+            <GoalListHint onDismiss={dismissGoalHint} />
+          )}
+
+          {/* LIST */}
+          <GoalsList
+            goals={goals}
+            activeGoalId={activeGoal?.id}
+            onEdit={handleEditGoal}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
 }
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: "#020617",
-    paddingVertical: 32,
   },
+
+  safe: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+
+  scroll: {
+    paddingBottom: 120,
+    gap: 16,
+  },
+
+  header: {
+    marginBottom: 8,
+  },
+
   title: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 28,
     fontWeight: "700",
     letterSpacing: 0.2,
   },
+
   subtitle: {
     marginTop: 2,
     color: "rgba(255,255,255,0.6)",
     fontSize: 12,
-  },
-
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 120, // ⬅️ What-if modal + bottom bar safety
-    gap: 16,
   },
 
   button: {

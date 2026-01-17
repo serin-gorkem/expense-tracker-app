@@ -102,7 +102,9 @@
       "title": "Reset application data",
       "message": "This will permanently delete all your expenses, goals, streaks and achievements.",
       "confirm": "Reset"
-    }
+    },
+    "baseCurrency": "Base Currency",
+    "baseCurrencyHint": "This setting applies to new expenses only"
   },
   "limits": {
     "daily": {
@@ -172,7 +174,7 @@
     },
     "weekly_average": {
       "title": "Weekly average",
-      "description": "Your weekly average is ₺{{amount}}."
+      "description": "Your weekly average is {{amount}}."
     },
     "screen": {
       "title": "Insights",
@@ -216,7 +218,7 @@
       "hint": "Not a limit.",
       "daily": {
         "title": "Your daily baseline",
-        "desc": "A balanced day for you is around ₺{{amount}}. This is a reference point, not a limit."
+        "desc": "A balanced day for you is around {{amount}}. This is a reference point, not a limit."
       },
       "below": {
         "title": "Below your baseline",
@@ -418,7 +420,7 @@
   "charts": {
     "weekly": {
       "hint": "Hint: Tap on day to see daily spending",
-      "baseline": "Daily baseline ₺{{amount}}"
+      "baseline": "Daily baseline {{amount}}"
     },
     "currency_exposure": {
       "title": "Currency exposure",
@@ -430,7 +432,9 @@
     "screen": {
       "create": "Create Goal",
       "title": "Goals",
-      "subtitle": "Track and manage your savings goals"
+      "subtitle": "Track and manage your savings goals",
+      "noGoalsTitle": "No Goals yet",
+      "noGoalsDesc": "You haven’t created any goals yet. Start with a goal to give your spending more meaning."
     },
     "active": {
       "label": "ACTIVE GOAL",
@@ -600,5 +604,14 @@
     "structural": "Structural",
     "behavioral": "Behavioral",
     "insight": "{{percent}}% of your spending is behavioral."
+  },
+  "currency": {
+    "lockedHint": "The exchange rate is locked for this expense",
+    "fxBadge": {
+      "live": "Live rate",
+      "cached": "Cached rate",
+      "stale": "Outdated",
+      "locked": "Locked rate"
+    }
   }
 }

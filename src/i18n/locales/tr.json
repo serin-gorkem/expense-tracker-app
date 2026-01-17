@@ -54,7 +54,7 @@
       "title": "Her şey hazır 🎉",
       "autoSubtitle": "Gelirine göre harcama limitlerini senin için hesapladık.",
       "manualSubtitle": "Limitlerinin özetini aşağıda görebilirsin.",
-       "baseCurrencyHint": "Limitler {{currency}} üzerinden hesaplanır."
+      "baseCurrencyHint": "Limitler {{currency}} üzerinden hesaplanır."
     },
     "done": {
       "title": "Her şey hazır 🎉",
@@ -100,12 +100,14 @@
     "monthlyIncome": "Aylık gelir",
     "fixedExpenses": "Sabit giderler",
     "disableAutoHint": "Düzenlemek için otomatik limitleri kapat",
-      "reset": {
-    "button": "Tüm verileri sıfırla",
-    "title": "Uygulama verilerini sıfırla",
-    "message": "Tüm harcamalar, hedefler, seriler ve başarılar silinecek.",
-    "confirm": "Sıfırla"
-  }
+    "reset": {
+      "button": "Tüm verileri sıfırla",
+      "title": "Uygulama verilerini sıfırla",
+      "message": "Tüm harcamalar, hedefler, seriler ve başarılar silinecek.",
+      "confirm": "Sıfırla"
+    },
+      "baseCurrency": "Ana Para Birimi",
+  "baseCurrencyHint": "Bu seçim yeni harcamalar için geçerli olacaktır"
   },
 
   "limits": {
@@ -186,7 +188,7 @@
 
     "weekly_average": {
       "title": "Haftalık ortalama",
-      "description": "Haftalık ortalaman ₺{{amount}}."
+      "description": "Haftalık ortalaman {{amount}}."
     },
 
     "screen": {
@@ -235,7 +237,7 @@
 
       "daily": {
         "title": "Günlük referansın",
-        "desc": "Senin için dengeli bir gün yaklaşık ₺{{amount}} civarında. Bu bir referanstır, limit değil."
+        "desc": "Senin için dengeli bir gün yaklaşık {{amount}} civarında. Bu bir referanstır, limit değil."
       },
 
       "below": {
@@ -451,13 +453,13 @@
   "charts": {
     "weekly": {
       "hint": "Tip : Gün içi harcamayı görmek için günlerin üstüne dokun",
-      "baseline": "Günlük Limit ₺{{amount}}"
+      "baseline": "Günlük Limit {{amount}}"
     },
-"currency_exposure": {
-  "title": "Döviz dağılımı",
-  "center": "Toplam",
-  "percent": "%{{value}}"
-}
+    "currency_exposure": {
+      "title": "Döviz dağılımı",
+      "center": "Toplam",
+      "percent": "%{{value}}"
+    }
   },
 
   "goals": {
@@ -465,7 +467,8 @@
       "create": "Hedef oluştur",
       "title": "Hedefler",
       "subtitle": "Birikim ve hedeflerini buradan takip et",
-      "noGoalsTitle": "Hedef Yok"
+      "noGoalsTitle": "Henüz hedef Yok",
+      "noGoalsDesc": "Henüz bir hedef oluşturmadın. Harcamalarını daha anlamlı kılmak için bir hedefle başlayabilirsin."
     },
     "active": {
       "label": "AKTİF HEDEF",
@@ -476,21 +479,18 @@
         "dailyTarget": "Günlük hedef",
         "lastBoost": "Son destek: {{currency}} {{amount}} ({{nativeAmount}} {{nativeCurrency}})"
       },
-
       "projection": {
         "title": "TAHMİN",
         "good": "Planın önündesin. Bu tempoyu koruyabilirsin.",
         "tight": "Biraz geridesin ama bu hedef hâlâ gerçekçi.",
         "heavy": "Bu tempoyla hedefe ulaşmak zor görünüyor."
       },
-
       "health": {
         "title": "HEDEF SAĞLIĞI",
         "subtitle": "Mevcut birikim hızı",
         "week": "Bu hafta",
         "month": "Bu ay"
       },
-
       "whatIf": {
         "title": "Her gün daha fazla biriktirsem?",
         "preset": "+{{amount}}",
@@ -567,7 +567,7 @@
       "amountPlaceholder": "örn. 5.000",
       "titleLabel": "Hedef başlığı (opsiyonel)",
       "titlePlaceholder": "örn. Yeni Laptop",
-        "currencyLabel": "Hedef para birimi",
+      "currencyLabel": "Hedef para birimi",
       "categoryLabel": "Bu hedef hangi kategoriyle ilgili?",
       "categoryHelper": "Opsiyonel. Harcamalarınla ilişkilendirmemize yardımcı olur."
     },
@@ -603,10 +603,10 @@
       "apply": "Hedefe ekle",
       "skip": "Bugün atla"
     },
-        "preview": {
-          "notEnough": "Bu tutar hedefi tamamlamak için yeterli değil.",
-          "success": "Bu işlem hedefi tamamlayacak 🎉"
-        }
+    "preview": {
+      "notEnough": "Bu tutar hedefi tamamlamak için yeterli değil.",
+      "success": "Bu işlem hedefi tamamlayacak 🎉"
+    }
   },
   "goalInsights": {
     "title": "ANALİZLER",
@@ -636,5 +636,14 @@
     "structural": "Zorunlu",
     "behavioral": "Davranışsal",
     "insight": "Harcamalarının %{{percent}}’i davranışsal."
+  },
+  "currency": {
+    "lockedHint": "Bu harcama için döviz kuru sabitlenmiştir",
+    "fxBadge": {
+      "live": "Canlı kur",
+      "cached": "Önbelleklenmiş kur",
+      "stale": "Güncel değil",
+      "locked": "Sabitlenmiş kur"
+    }
   }
 }

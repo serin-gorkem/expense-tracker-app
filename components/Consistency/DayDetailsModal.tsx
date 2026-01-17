@@ -5,7 +5,9 @@ import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTranslation } from "@/hooks/useTranslation";
 import { Expense } from "@/models/expense.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { DayInfo, DayKey } from "@/utils/consistency/buildDailyConsistencyMap";
+import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 
 type Props = {
   dayKey: DayKey | null;
@@ -21,9 +23,30 @@ export default function DayDetailModal({
   onClose,
 }: Props) {
   const { t } = useTranslation();
-  if (!dayKey || !dayInfo) return null;
+  const { profile } = useFinanceProfile();
+
+  if (!dayKey || !dayInfo || !profile.baseCurrency) return null;
+
+  const baseCurrency = profile.baseCurrency;
+  const baseMeta = CURRENCY_META[baseCurrency];
 
   const date = new Date(dayKey);
+
+  /* =========================
+     Helpers
+  ========================= */
+
+  function formatBase(amount: number) {
+    return `${baseMeta.symbol}${amount.toLocaleString()}`;
+  }
+
+  function formatOriginal(expense: Expense) {
+    const { currency, fxRate } = expense.fx;
+    if (currency === baseCurrency) return null;
+
+    const meta = CURRENCY_META[currency];
+    return `${meta.symbol}${expense.amount} @ ${fxRate.toFixed(2)}`;
+  }
 
   const statusLabel = {
     gold: t("dayDetail.status.streak"),
@@ -45,7 +68,7 @@ export default function DayDetailModal({
             {/* ---------- Header ---------- */}
             <View style={styles.header}>
               <Text style={styles.date}>
-                {date.toLocaleDateString("en-US", {
+                {date.toLocaleDateString(undefined, {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -60,7 +83,9 @@ export default function DayDetailModal({
                 <Text style={styles.goalTitle}>
                   {t("dayDetail.goal.title")}
                 </Text>
-                <Text style={styles.goalAmount}>+₺{dayInfo.goalAmount}</Text>
+                <Text style={styles.goalAmount}>
+                  +{formatBase(dayInfo.goalAmount ?? 0)}
+                </Text>
               </View>
             )}
 
@@ -77,16 +102,32 @@ export default function DayDetailModal({
               ) : (
                 expenses.map((e) => {
                   const isGoal = e.isGoalBoost;
+                  const original = formatOriginal(e);
+
                   return (
                     <View
                       key={e.id}
-                      style={[styles.expenseRow, isGoal && styles.goalExpense]}
+                      style={[
+                        styles.expenseRow,
+                        isGoal && styles.goalExpense,
+                      ]}
                     >
-                      <Text style={styles.expenseTitle}>
-                        {isGoal ? "🎯 " : ""}
-                        {e.title}
+                      <View>
+                        <Text style={styles.expenseTitle}>
+                          {isGoal ? "🎯 " : ""}
+                          {e.title}
+                        </Text>
+
+                        {original && (
+                          <Text style={styles.fxNote}>
+                            {original}
+                          </Text>
+                        )}
+                      </View>
+
+                      <Text style={styles.expenseAmount}>
+                        {formatBase(e.fx.baseAmount ?? e.amount)}
                       </Text>
-                      <Text style={styles.expenseAmount}>₺{e.amount}</Text>
                     </View>
                   );
                 })
@@ -187,6 +228,7 @@ const styles = StyleSheet.create({
   expenseRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.06)",
@@ -205,9 +247,16 @@ const styles = StyleSheet.create({
   },
 
   expenseAmount: {
-    color: "rgba(255,255,255,0.9)",
+    color: "rgba(255,255,255,0.95)",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "900",
+  },
+
+  fxNote: {
+    marginTop: 2,
+    fontSize: 11,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.45)",
   },
 
   closeBtn: {

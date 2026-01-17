@@ -1,6 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { CurrencyCode } from "@/models/currency.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
+import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 import { LineChartPoint } from "@/utils/expense/expenseChart";
 import { haptic } from "@/utils/haptics";
 import React, { useEffect, useRef, useState } from "react";
@@ -67,13 +68,8 @@ export default function WeeklyLineChart({ data, baseCurrency }: Props) {
       ? TOP_PADDING + DRAW_HEIGHT - (baselineValue / roundedMax) * DRAW_HEIGHT
       : null;
 
-  const CURRENCY_SYMBOL: Record<CurrencyCode, string> = {
-    TRY: "₺",
-    EUR: "€",
-    USD: "$",
-  };
   const formatAxis = (v: number) =>
-    `${CURRENCY_SYMBOL[baseCurrency]}${v.toLocaleString("en-US")}`;
+    `${CURRENCY_META[baseCurrency].symbol}${v.toLocaleString("en-US")}`;
   return (
     <GlassCard style={{ marginBottom: 12, paddingHorizontal: 16 }}>
       <View style={styles.chartWrapper}>

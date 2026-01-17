@@ -387,7 +387,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  safe: { flex: 1, paddingHorizontal: 16, paddingTop: 6 },
+  safe: { flex: 1, paddingHorizontal: 16, paddingTop: 10 },
   header: {
     flex: 1,
     marginBottom: 20,

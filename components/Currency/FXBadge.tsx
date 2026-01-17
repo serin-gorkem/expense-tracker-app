@@ -1,25 +1,25 @@
 // components/currency/FXBadge.tsx
+import { useTranslation } from "@/hooks/useTranslation";
 import { StyleSheet, Text, View } from "react-native";
 
 export type FXBadgeStatus = "live" | "cached" | "stale" | "locked";
 
-const META: Record<
-  FXBadgeStatus,
-  { label: string; color: string }
-> = {
-  live: { label: "Live rate", color: "#22c55e" },
-  cached: { label: "Cached rate", color: "#eab308" },
-  stale: { label: "Outdated", color: "#ef4444" },
-  locked: { label: "Locked rate", color: "#60a5fa" },
+const COLORS: Record<FXBadgeStatus, string> = {
+  live: "#22c55e",
+  cached: "#eab308",
+  stale: "#ef4444",
+  locked: "#60a5fa",
 };
 
 export default function FXBadge({ status }: { status: FXBadgeStatus }) {
-  const meta = META[status];
+  const { t } = useTranslation();
 
   return (
     <View style={styles.row}>
-      <View style={[styles.dot, { backgroundColor: meta.color }]} />
-      <Text style={styles.text}>{meta.label}</Text>
+      <View style={[styles.dot, { backgroundColor: COLORS[status] }]} />
+      <Text style={styles.text}>
+        {t(`currency.fxBadge.${status}`)}
+      </Text>
     </View>
   );
 }

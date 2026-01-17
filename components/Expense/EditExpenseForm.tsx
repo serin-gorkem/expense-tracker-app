@@ -58,12 +58,16 @@ export default function EditExpenseForm({
 
   function handleSubmit() {
     if (!title || amount == null || amount <= 0 || !category) return;
+    const isLocked = expense.fx.fxStatus === "locked";
 
     let rate = expense.fx.fxRate;
     let status = expense.fx.fxStatus;
 
-    if (currency !== profile.baseCurrency) {
+    if (isLocked) {
+      // Keep the locked state
+    } else if (currency !== profile.baseCurrency) {
       const liveRate = getRate(currency);
+
       if (liveRate) {
         rate = liveRate;
         status = fxStatus === "live" ? "live" : "cached";
@@ -129,6 +133,9 @@ export default function EditExpenseForm({
           placeholder={t("expense.placeholders.amount")}
           style={styles.input}
         />
+        {expense.fx.fxStatus === "locked" && (
+          <Text style={styles.label}>{t("currency.lockedHint")}</Text>
+        )}
 
         {/* Kind */}
         <Text style={styles.label}>{t("expense.fields.kind")}</Text>

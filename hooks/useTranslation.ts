@@ -1,14 +1,25 @@
 // src/hooks/useTranslation.ts
+import { CurrencyCode } from "@/models/currency.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useLanguage } from "@/src/context/LanguageContext";
 
 export function useTranslation() {
   const { t, language } = useLanguage();
+  const { profile } = useFinanceProfile();
 
-  function formatCurrency(value: number) {
+  function formatCurrency(
+    value: number,
+    options?: {
+      currency?: CurrencyCode;
+      maximumFractionDigits?: number;
+    }
+  ) {
+    const currency = options?.currency ?? profile.baseCurrency ?? "TRY";
+
     return new Intl.NumberFormat(language, {
       style: "currency",
-      currency: "EUR", // şimdilik sabit, sonra settings’ten bağlarız
-      maximumFractionDigits: 0,
+      currency,
+      maximumFractionDigits: options?.maximumFractionDigits ?? 0,
     }).format(value);
   }
 

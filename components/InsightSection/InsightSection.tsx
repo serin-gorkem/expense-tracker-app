@@ -8,6 +8,8 @@ import { useExpensesStore } from "../../src/context/ExpensesContext";
 import { StreakMilestoneCard } from "../StreakMilestoneCard/StreakMilestoneCard";
 import InsightCard from "./InsightCard";
 
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
+import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 type Props = {
   expenses: Expense[];
   streakMetrics: StreakMetrics;
@@ -20,17 +22,23 @@ export default function InsightSection({
   dailyLimit,
 }: Props) {
   const { dailyBaseline } = useExpensesStore();
-  const { t, formatCurrency } = useTranslation();
+  const { t } = useTranslation();
+  const { profile } = useFinanceProfile();
+  const baseCurrency = profile.baseCurrency;
 
+  function formatAmount(amount: number) {
+    if (!baseCurrency) return amount.toString();
+
+    const { symbol } = CURRENCY_META[baseCurrency];
+    return `${symbol}${amount.toLocaleString()}`;
+  }
   const insights = insightSelectors({
     expenses,
     dailyLimit,
     dailyBaseline,
   });
 
-  const { newMilestone } = useStreakMilestones(
-    streakMetrics.currentStreak
-  );
+  const { newMilestone } = useStreakMilestones(streakMetrics.currentStreak);
 
   return (
     <View style={styles.container}>
@@ -40,7 +48,7 @@ export default function InsightSection({
         const params = insight.params?.amount
           ? {
               ...insight.params,
-              amount: formatCurrency(insight.params.amount as number),
+              amount: formatAmount(insight.params.amount as number),
             }
           : insight.params;
 

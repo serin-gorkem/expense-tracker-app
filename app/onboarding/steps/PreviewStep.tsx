@@ -1,9 +1,9 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { CurrencyCode } from "@/models/currency.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
+import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 import { calculateAutoLimits } from "@/utils/limit/calculateAutoLimits";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
 type Props = {
   monthlyIncome: number;
   fixedExpenses: number;
@@ -86,13 +86,7 @@ export default function PreviewStep({
 ========================= */
 
 function formatAmount(value: number, currency: CurrencyCode) {
-  const symbols: Record<CurrencyCode, string> = {
-    TRY: "₺",
-    EUR: "€",
-    USD: "$",
-  };
-
-  return `${symbols[currency]}${value}`;
+  return `${CURRENCY_META[currency].symbol}${value}`;
 }
 
 function PreviewRow({

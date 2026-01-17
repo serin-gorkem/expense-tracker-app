@@ -105,7 +105,9 @@
       "title": "Réinitialiser les données de l’application",
       "message": "Toutes les dépenses, objectifs, séries et réussites seront supprimés définitivement.",
       "confirm": "Réinitialiser"
-    }
+    },
+    "baseCurrency": "Devise principale",
+    "baseCurrencyHint": "Ce paramètre s’applique uniquement aux nouvelles dépenses"
   },
 
   "limits": {
@@ -180,7 +182,7 @@
     },
     "weekly_average": {
       "title": "Moyenne hebdomadaire",
-      "description": "Votre moyenne hebdomadaire est de ₺{{amount}}."
+      "description": "Votre moyenne hebdomadaire est de {{amount}}."
     },
     "screen": {
       "title": "Analyses",
@@ -224,7 +226,7 @@
       "hint": "Ce n’est pas une limite.",
       "daily": {
         "title": "Votre référence quotidienne",
-        "desc": "Une journée équilibrée pour vous se situe autour de ₺{{amount}}. Il s’agit d’une référence, pas d’une limite."
+        "desc": "Une journée équilibrée pour vous se situe autour de {{amount}}. Il s’agit d’une référence, pas d’une limite."
       },
       "below": {
         "title": "En dessous de la référence",
@@ -354,11 +356,11 @@
     "empty": "Aucune dépense pour le moment.",
     "edit": {
       "title": "Modifier la dépense",
-            "success": {
-              "title": "Dépense mise à jour",
-              "desc": "Les modifications ont été enregistrées avec succès.",
-              "fx": "Le montant a été recalculé avec le taux de change le plus récent."
-            }
+      "success": {
+        "title": "Dépense mise à jour",
+        "desc": "Les modifications ont été enregistrées avec succès.",
+        "fx": "Le montant a été recalculé avec le taux de change le plus récent."
+      }
     },
     "fields": {
       "title": "Titre",
@@ -435,7 +437,7 @@
   "charts": {
     "weekly": {
       "hint": "Astuce : touchez un jour pour voir les dépenses quotidiennes",
-      "baseline": "Référence quotidienne ₺{{amount}}"
+      "baseline": "Référence quotidienne {{amount}}"
     },
     "currency_exposure": {
       "title": "Répartition des devises",
@@ -448,7 +450,9 @@
     "screen": {
       "create": "Créer un objectif",
       "title": "Objectifs",
-      "subtitle": "Suivez et gérez vos objectifs d’épargne"
+      "subtitle": "Suivez et gérez vos objectifs d’épargne",
+      "noGoalsTitle": "Aucun objectif pour le moment",
+      "noGoalsDesc": "Tu n’as pas encore créé d’objectif. Commence par un objectif pour donner plus de sens à tes dépenses."
     },
     "active": {
       "label": "OBJECTIF ACTIF",
@@ -614,11 +618,19 @@
       "description": "Aucune activité d’épargne récente détectée."
     }
   },
-
   "expenseBreakdown": {
     "title": "Répartition des dépenses",
     "structural": "Structurelles",
     "behavioral": "Comportementales",
     "insight": "{{percent}} % de vos dépenses sont comportementales."
+  },
+  "currency": {
+    "lockedHint": "Le taux de change est verrouillé pour cette dépense",
+    "fxBadge": {
+      "live": "Taux en direct",
+      "cached": "Taux en cache",
+      "stale": "Obsolète",
+      "locked": "Taux verrouillé"
+    }
   }
 }

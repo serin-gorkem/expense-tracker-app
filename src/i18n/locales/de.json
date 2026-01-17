@@ -104,7 +104,9 @@
       "title": "App-Daten zurücksetzen",
       "message": "Alle Ausgaben, Ziele, Serien und Erfolge werden dauerhaft gelöscht.",
       "confirm": "Zurücksetzen"
-    }
+    },
+      "baseCurrency": "Basiswährung",
+  "baseCurrencyHint": "Diese Einstellung gilt nur für neue Ausgaben"
   },
 
   "limits": {
@@ -179,7 +181,7 @@
     },
     "weekly_average": {
       "title": "Wöchentlicher Durchschnitt",
-      "description": "Dein wöchentlicher Durchschnitt beträgt ₺{{amount}}."
+      "description": "Dein wöchentlicher Durchschnitt beträgt {{amount}}."
     },
     "screen": {
       "title": "Analysen",
@@ -223,7 +225,7 @@
       "hint": "Kein Limit.",
       "daily": {
         "title": "Dein täglicher Referenzwert",
-        "desc": "Ein ausgewogener Tag liegt für dich bei etwa ₺{{amount}}. Dies ist ein Referenzwert, kein Limit."
+        "desc": "Ein ausgewogener Tag liegt für dich bei etwa {{amount}}. Dies ist ein Referenzwert, kein Limit."
       },
       "below": {
         "title": "Unter deinem Referenzwert",
@@ -434,7 +436,7 @@
   "charts": {
     "weekly": {
       "hint": "Tipp: Tippe auf einen Tag, um die täglichen Ausgaben zu sehen",
-      "baseline": "Täglicher Referenzwert ₺{{amount}}"
+      "baseline": "Täglicher Referenzwert {{amount}}"
     },
     "currency_exposure": {
       "title": "Währungsaufteilung",
@@ -447,7 +449,9 @@
     "screen": {
       "create": "Ziel erstellen",
       "title": "Ziele",
-      "subtitle": "Verfolge und verwalte deine Sparziele"
+      "subtitle": "Verfolge und verwalte deine Sparziele",
+      "noGoalsTitle": "Noch keine Ziele",
+      "noGoalsDesc": "Du hast noch kein Ziel erstellt. Mit einem Ziel bekommen deine Ausgaben mehr Bedeutung."
     },
     "active": {
       "label": "AKTIVES ZIEL",
@@ -619,5 +623,14 @@
     "structural": "Strukturell",
     "behavioral": "Verhaltensbedingt",
     "insight": "{{percent}}% deiner Ausgaben sind verhaltensbedingt."
+  },
+  "currency": {
+    "lockedHint": "Der Wechselkurs ist für diese Ausgabe gesperrt",
+    "fxBadge": {
+      "live": "Live-Kurs",
+      "cached": "Zwischengespeicherter Kurs",
+      "stale": "Veraltet",
+      "locked": "Gesperrter Kurs"
+    }
   }
 }

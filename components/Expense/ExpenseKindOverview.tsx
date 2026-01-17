@@ -40,7 +40,7 @@ export default function ExpenseKindOverview() {
             {t("expenseBreakdown.structural")}
           </Text>
           <Text style={styles.value}>
-            ₺{totals.structural}
+            {totals.structural}
           </Text>
         </View>
 
@@ -49,7 +49,7 @@ export default function ExpenseKindOverview() {
             {t("expenseBreakdown.behavioral")}
           </Text>
           <Text style={styles.value}>
-            ₺{totals.behavioral}
+            {totals.behavioral}
           </Text>
         </View>
 

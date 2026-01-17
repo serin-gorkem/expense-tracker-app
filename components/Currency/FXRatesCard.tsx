@@ -9,11 +9,6 @@ type Props = {
   baseCurrency: CurrencyCode;
 };
 
-const SYMBOL: Record<CurrencyCode, string> = {
-  TRY: "₺",
-  USD: "$",
-  EUR: "€",
-};
 
 export default function FXRatesCard({ baseCurrency }: Props) {
   const { t } = useTranslation();
@@ -47,8 +42,8 @@ export default function FXRatesCard({ baseCurrency }: Props) {
 
               <Text style={styles.rate}>
                 {isBase
-                  ? `1.00 ${SYMBOL[baseCurrency]}`
-                  :`${rates.rates[currency].toFixed(4)} ${SYMBOL[currency]}`}
+                  ? `1 ${baseCurrency}`
+                  : `${rates.rates[currency].toFixed(4)} ${currency}`}
               </Text>
             </View>
           );

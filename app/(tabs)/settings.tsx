@@ -3,11 +3,13 @@ import GlassCard from "@/components/ui/GlassCard";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { LiquidDecor } from "@/components/ui/LiquidDecor";
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { LimitPeriod } from "@/models/limit.model";
 import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { LANGUAGES } from "@/src/i18n/languages";
+import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 import { resetAppData } from "@/utils/storage/resetAppData";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
@@ -23,6 +25,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useExpensesStore } from "../../src/context/ExpensesContext";
+
+const CURRENCIES: CurrencyCode[] = ["TRY", "EUR", "USD"];
 /* =========================
    Helpers
 ========================= */
@@ -53,6 +57,11 @@ export default function Settings() {
   const { resetGoals } = useGoalsStore();
   const {resetProfile} = useFinanceProfile();
   const {resetExpenses} = useExpensesStore();
+
+const baseCurrency: CurrencyCode =
+  financeProfile.baseCurrency ?? "TRY";
+
+const currencyMeta = CURRENCY_META[baseCurrency];
 
   function confirmReset() {
     Alert.alert(t("settings.reset.title"), t("settings.reset.message"), [
@@ -98,26 +107,51 @@ export default function Settings() {
           </GlassCard>
           <GlassCard>
             <Text style={styles.label}>{t("settings.language")}</Text>
-            {/* =========================
-              LANGUAGE
-          ========================= */}
-            {LANGUAGES.map((l) => (
-              <Pressable
-                key={l.code}
-                onPress={() => changeLanguage(l.code)}
-                style={{ paddingVertical: 10 }}
-              >
-                <Text
-                  style={{
-                    color:
-                      language === l.code ? "#6366F1" : "rgba(255,255,255,0.7)",
-                    fontWeight: language === l.code ? "800" : "500",
-                  }}
-                >
-                  {l.label}
-                </Text>
-              </Pressable>
-            ))}
+
+            <View style={styles.pillRow}>
+              {LANGUAGES.map((l) => {
+                const active = language === l.code;
+
+                return (
+                  <Pressable
+                    key={l.code}
+                    onPress={() => changeLanguage(l.code)}
+                    style={[styles.pill, active && styles.pillActive]}
+                  >
+                    <Text
+                      style={[styles.pillText, active && styles.pillTextActive]}
+                    >
+                      {l.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </GlassCard>
+          <GlassCard>
+            <Text style={styles.label}>{t("settings.baseCurrency")}</Text>
+
+            <View style={styles.pillRow}>
+              {CURRENCIES.map((c) => {
+                const active = financeProfile.baseCurrency === c;
+
+                return (
+                  <Pressable
+                    key={c}
+                    onPress={() => updateFinanceProfile({ baseCurrency: c })}
+                    style={[styles.pill, active && styles.pillActive]}
+                  >
+                    <Text
+                      style={[styles.pillText, active && styles.pillTextActive]}
+                    >
+                      {CURRENCY_META[c].symbol} {c}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Text style={styles.hint}>{t("settings.baseCurrencyHint")}</Text>
           </GlassCard>
 
           {/* =========================
@@ -196,7 +230,9 @@ export default function Settings() {
                     setTempLimitValue(String(limit.amount));
                   }}
                 >
-                  <Text style={styles.amount}>₺{limit.amount}</Text>
+                  <Text style={styles.amount}>
+                    {currencyMeta.symbol} {limit.amount}
+                  </Text>
                 </Pressable>
               )}
 
@@ -249,7 +285,7 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  safe: { flex: 1, paddingHorizontal: 16 },
+  safe: { flex: 1, paddingHorizontal: 16, paddingTop: 10 },
 
   title: {
     fontSize: 26,
@@ -290,5 +326,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "rgba(255,255,255,0.45)",
     marginTop: 6,
+  },
+  pillRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 8,
+  },
+
+  pill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 999,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+
+  pillActive: {
+    backgroundColor: "rgba(99,102,241,0.25)",
+    borderColor: "#6366F1",
+  },
+
+  pillText: {
+    color: "rgba(255,255,255,0.7)",
+    fontWeight: "700",
+  },
+
+  pillTextActive: {
+    color: "#fff",
   },
 });

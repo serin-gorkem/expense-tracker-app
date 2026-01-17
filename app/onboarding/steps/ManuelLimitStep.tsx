@@ -1,6 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { LimitPeriod, LimitsState } from "@/models/limit.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
+import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 import Slider from "@react-native-community/slider";
 import { useState } from "react";
 import {
@@ -12,14 +13,40 @@ import {
 } from "react-native";
 
 /* =========================
+   Helpers
+========================= */
+
+function formatAmount(value: number, symbol: string) {
+  return `${symbol}${value.toLocaleString("en-US")}`;
+}
+
+function getMinLimit(period: LimitPeriod, limits: LimitsState) {
+  if (period === "daily") return 0;
+  if (period === "weekly") return limits.daily.amount;
+  return limits.weekly.amount;
+}
+
+function getMaxLimit(
+  period: LimitPeriod,
+  limits: LimitsState,
+  monthlyIncome?: number | null
+) {
+  if (period === "daily") return limits.weekly.amount;
+  if (period === "weekly") return limits.monthly.amount;
+  return monthlyIncome ?? 10000;
+}
+
+/* =========================
    EditableAmount
 ========================= */
 
 function EditableAmount({
   value,
+  symbol,
   onChange,
 }: {
   value: number;
+  symbol: string;
   onChange(v: number): void;
 }) {
   const { t } = useTranslation();
@@ -50,32 +77,14 @@ function EditableAmount({
 
   return (
     <Pressable onPress={() => setEditing(true)}>
-      <Text style={styles.amountText}>₺{value}</Text>
+      <Text style={styles.amountText}>
+        {formatAmount(value, symbol)}
+      </Text>
       <Text style={styles.editHint}>
         {t("onboarding.limits.tapToEdit")}
       </Text>
     </Pressable>
   );
-}
-
-/* =========================
-   Helpers
-========================= */
-
-function getMinLimit(period: LimitPeriod, limits: LimitsState) {
-  if (period === "daily") return 0;
-  if (period === "weekly") return limits.daily.amount;
-  return limits.weekly.amount;
-}
-
-function getMaxLimit(
-  period: LimitPeriod,
-  limits: LimitsState,
-  monthlyIncome?: number | null
-) {
-  if (period === "daily") return limits.weekly.amount;
-  if (period === "weekly") return limits.monthly.amount;
-  return monthlyIncome ?? 10000;
 }
 
 /* =========================
@@ -90,6 +99,9 @@ type Props = {
 export default function ManualLimitsStep({ onFinish, onBack }: Props) {
   const { limits, applyLimitChange, financeProfile } = useExpensesStore();
   const { t } = useTranslation();
+
+  const baseCurrency = financeProfile.baseCurrency ?? "TRY";
+  const symbol = CURRENCY_META[baseCurrency].symbol;
 
   return (
     <View style={styles.container}>
@@ -108,8 +120,11 @@ export default function ManualLimitsStep({ onFinish, onBack }: Props) {
 
           <EditableAmount
             value={limit.amount}
+            symbol={symbol}
             onChange={(v) =>
-              applyLimitChange(limit.period, { amount: Math.max(0, v) })
+              applyLimitChange(limit.period, {
+                amount: Math.max(0, v),
+              })
             }
           />
 
