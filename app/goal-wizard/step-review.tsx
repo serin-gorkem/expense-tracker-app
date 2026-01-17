@@ -16,6 +16,7 @@ export default function StepReview() {
   const { createGoal } = useGoalsStore();
   const { getRate } = useFX();
   const { profile } = useFinanceProfile();
+  const baseCurrency = profile.baseCurrency!;
 
   const dailyAvg =
     draft.targetAmount && draft.durationInDays
@@ -36,7 +37,7 @@ export default function StepReview() {
     const goal = createGoalFromDraft(
       draft,
       defaultTitle,
-      profile.baseCurrency,
+      baseCurrency,
       getRate
     );
     createGoal(goal);

@@ -25,7 +25,8 @@
         "title": "Moment mal 😄",
         "message": "Deine Ausgaben sind höher als dein Einkommen.\nEntweder hast du einen geheimen Sponsor – oder hier stimmt etwas nicht."
       },
-      "error": "Bitte geben Sie einen gültigen Fixkostenbetrag ein"
+      "error": "Bitte geben Sie einen gültigen Fixkostenbetrag ein",
+      "baseCurrencyHint": "Alle Beträge werden in {{currency}} eingegeben."
     },
     "goal-wizard": {
       "title": "Ziel festlegen",
@@ -51,7 +52,8 @@
     "preview": {
       "title": "Alles bereit 🎉",
       "autoSubtitle": "Wir haben deine Ausgabenlimits basierend auf deinem Einkommen berechnet.",
-      "manualSubtitle": "Hier siehst du eine Zusammenfassung deiner Limits."
+      "manualSubtitle": "Hier siehst du eine Zusammenfassung deiner Limits.",
+      "baseCurrencyHint": "Die Limits werden in {{currency}} berechnet."
     },
     "done": {
       "title": "Alles bereit 🎉",
@@ -186,6 +188,11 @@
     "empty": {
       "title": "Noch keine Daten",
       "desc": "Füge ein paar Ausgaben hinzu, um Analysen freizuschalten."
+    },
+    "fx": {
+      "title": "Wechselkurse (Basis: {{base}})",
+      "live": "Live-Kurse",
+      "cached": "Aus dem Cache"
     },
     "more": {
       "title": "Weitere Analysen werden freigeschaltet, während du die App nutzt",
@@ -345,7 +352,12 @@
   "expense": {
     "empty": "Noch keine Ausgaben.",
     "edit": {
-      "title": "Ausgabe bearbeiten"
+      "title": "Ausgabe bearbeiten",
+      "success": {
+        "title": "Ausgabe aktualisiert",
+        "desc": "Die Änderungen wurden erfolgreich gespeichert.",
+        "fx": "Der Betrag wurde mit dem aktuellen Wechselkurs neu berechnet."
+      }
     },
     "fields": {
       "title": "Titel",
@@ -432,7 +444,11 @@
   },
 
   "goals": {
-    "create": "Ziel erstellen",
+    "screen": {
+      "create": "Ziel erstellen",
+      "title": "Ziele",
+      "subtitle": "Verfolge und verwalte deine Sparziele"
+    },
     "active": {
       "label": "AKTIVES ZIEL",
       "badge": "AKTIV",

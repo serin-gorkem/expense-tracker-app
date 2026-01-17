@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/models/currency.model";
 import { Category, Expense } from "@/models/expense.model";
 import { buildMonthlyCategoryDonutData } from "@/utils/expense/expenseChart";
 import { GroupedExpenses } from "@/utils/expense/expenseGrouping";
@@ -14,6 +15,8 @@ type MonthlyExpenseListProps = {
   // CHART (her zaman category = "all" datası)
   chartGroups: GroupedExpenses[];
 
+  baseCurrency?: CurrencyCode | null;
+
   selectedCategory: Category | "all";
   onSelectCategory: (category: Category | "all") => void;
 
@@ -25,6 +28,7 @@ export default function MonthlyExpenseList({
   groups,
   chartGroups,
   selectedCategory,
+  baseCurrency,
   onSelectCategory,
   onDelete,
   onEdit,
@@ -41,6 +45,7 @@ export default function MonthlyExpenseList({
     <View>
       <MonthlyCategoryDonutChart
         data={donutData}
+        baseCurrency={baseCurrency!}
         monthLabel={monthLabel}
         selectedCategory={selectedCategory}
         onSelectCategory={onSelectCategory}

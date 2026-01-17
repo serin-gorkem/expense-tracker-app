@@ -8,26 +8,44 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { LimitStatus } from "@/models/limit.model";
+import FXBadge from "../Currency/FXBadge";
 
 const LIMIT_COLORS: Record<LimitStatus, string> = {
   safe: "#10B981",
   warning: "#F59E0B",
   exceeded: "#EF4444",
 };
-
 type LimitCardProps = {
   period: "daily" | "weekly" | "monthly";
+
+  // base currency
   total: number;
+  limitAmount: number;
+
+  // display
+  baseCurrency: CurrencyCode;
+
+  // optional V1+
+  nativeTotal?: number;
+  nativeCurrency?: CurrencyCode;
+
+  // fx
+  fxStatus?: "live" | "cached" | "stale";
+
   ratio: number;
   status: LimitStatus;
-  limitAmount: number;
 };
 
 export function LimitCard({
   period,
   total,
   limitAmount,
+  baseCurrency,
+  nativeTotal,
+  nativeCurrency,
+  fxStatus,
   ratio,
   status,
 }: LimitCardProps) {
@@ -50,14 +68,24 @@ export function LimitCard({
   return (
     <View style={styles.card}>
       {/* Header */}
-      <Text style={styles.title}>
-        {t(`limits.${period}.title`)}
-      </Text>
+      <Text style={styles.title}>{t(`limits.${period}.title`)}</Text>
 
       {/* Amount */}
       <Text style={styles.amount}>
-        ${total.toFixed(2)} / ${limitAmount.toFixed(2)}
+        {total.toFixed(2)} {baseCurrency} / {limitAmount.toFixed(2)}{" "}
+        {baseCurrency}
       </Text>
+      {fxStatus && (
+        <View style={{ marginBottom: 8 }}>
+          <FXBadge status={fxStatus} />
+        </View>
+      )}
+
+      {nativeTotal != null && nativeCurrency && (
+        <Text style={styles.subAmount}>
+          ≈ {nativeTotal.toFixed(2)} {nativeCurrency}
+        </Text>
+      )}
 
       {/* Progress Bar */}
       <View style={styles.progressTrack}>
@@ -107,6 +135,11 @@ export const styles = StyleSheet.create({
   progressFill: {
     height: "100%",
     borderRadius: 999,
+  },
+  subAmount: {
+    fontSize: 11,
+    color: "rgba(255,255,255,0.45)",
+    marginBottom: 8,
   },
   status: {
     marginTop: 10,

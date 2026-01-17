@@ -1,6 +1,7 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
 import GlassCard from "@/components/ui/GlassCard";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { LiquidDecor } from "@/components/ui/LiquidDecor";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LimitPeriod } from "@/models/limit.model";
 import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
@@ -51,6 +52,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const { resetGoals } = useGoalsStore();
   const {resetProfile} = useFinanceProfile();
+  const {resetExpenses} = useExpensesStore();
 
   function confirmReset() {
     Alert.alert(t("settings.reset.title"), t("settings.reset.message"), [
@@ -62,6 +64,7 @@ export default function Settings() {
           await resetAppData();
           resetGoals();
           resetProfile();
+          resetExpenses();
           router.replace("/onboarding");
         },
       },
@@ -69,7 +72,8 @@ export default function Settings() {
   }
   return (
     <View style={styles.root}>
-      <LiquidBackground />
+      <LiquidBackground theme="settings" />
+      <LiquidDecor variant="settings" />
 
       <SafeAreaView style={styles.safe}>
         <ScrollView

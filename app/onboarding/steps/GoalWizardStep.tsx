@@ -1,4 +1,3 @@
-import { OnboardingData } from "@/hooks/useOnboardingWizard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useWizard } from "@/src/context/WizardContext";
 import { setOnboardingReturn } from "@/utils/onboarding/onboardingReturn";
@@ -6,16 +5,25 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
-  data: OnboardingData;
+  useAutoLimits: boolean;
   onNext(): void;
   onBack(): void;
+  monthlyIncome?: number;
+  fixedExpenses?: number;
 };
 
-export default function GoalWizardStep({ data, onNext, onBack }: Props) {
+export default function GoalWizardStep({
+  useAutoLimits,
+  monthlyIncome,
+  fixedExpenses,
+  onNext,
+  onBack,
+}: Props) {
   const router = useRouter();
   const { reset } = useWizard();
   const { t } = useTranslation();
-if (!data) return null;
+  if (!useAutoLimits || monthlyIncome === null || fixedExpenses === null)
+    return null;
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -65,13 +73,13 @@ if (!data) return null;
         <Pressable
           style={styles.primaryBtn}
           onPress={async () => {
-            if (data.useAutoLimits) {
+            if (useAutoLimits) {
               await setOnboardingReturn({
                 flow: "auto",
                 step: 6,
                 useAutoLimits: true,
-                monthlyIncome: data?.monthlyIncome!,
-                fixedExpenses: data?.fixedExpenses!,
+                monthlyIncome: monthlyIncome!,
+                fixedExpenses: fixedExpenses!,
               });
             } else {
               await setOnboardingReturn({

@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/models/currency.model";
 import { Expense } from "@/models/expense.model";
 import { buildWeeklyLineChartData } from "@/utils/expense/expenseChart";
 import { GroupedExpenses } from "@/utils/expense/expenseGrouping";
@@ -10,12 +11,14 @@ import ExpenseList from "../Expense/ExpenseList";
 
 type WeeklyExpenseListProps = {
   groups: GroupedExpenses[];
+  baseCurrency?: CurrencyCode | null;
   onDelete: (id: string) => void;
   onEdit: (expense: Expense) => void;
 };
 
 export default function WeeklyExpenseList({
   groups,
+  baseCurrency,
   onDelete,
   onEdit,
 }: WeeklyExpenseListProps) {
@@ -23,7 +26,7 @@ export default function WeeklyExpenseList({
 
   return (
     <View>
-      <WeeklyLineChart data={chartData} />
+      <WeeklyLineChart data={chartData} baseCurrency={baseCurrency!} />
 
       {groups.map((group) => {
         const total = calculateTotal(

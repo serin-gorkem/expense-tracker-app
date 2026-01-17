@@ -1,11 +1,13 @@
 import CurrencyInput from "@/components/ui/CurrencyInput";
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   fixedExpenses: number | null;
   monthlyIncome: number | null;
+  baseCurrency: CurrencyCode; // ✅ NEW
   onChange(value: number): void;
   onNext(): void;
   onBack(): void;
@@ -14,6 +16,7 @@ type Props = {
 export default function FixedExpensesStep({
   fixedExpenses,
   monthlyIncome,
+  baseCurrency,
   onChange,
   onNext,
   onBack,
@@ -27,10 +30,7 @@ export default function FixedExpensesStep({
       return;
     }
 
-    if (
-      monthlyIncome != null &&
-      fixedExpenses > monthlyIncome
-    ) {
+    if (monthlyIncome != null && fixedExpenses > monthlyIncome) {
       Alert.alert(
         t("onboarding.fixedExpenses.alert.title"),
         t("onboarding.fixedExpenses.alert.message"),
@@ -45,35 +45,34 @@ export default function FixedExpensesStep({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {t("onboarding.fixedExpenses.title")}
-      </Text>
+      <Text style={styles.title}>{t("onboarding.fixedExpenses.title")}</Text>
 
       <Text style={styles.subtitle}>
         {t("onboarding.fixedExpenses.subtitle")}
       </Text>
 
+      <Text style={styles.currencyHint}>
+        {t("onboarding.fixedExpenses.baseCurrencyHint", {
+          currency: baseCurrency,
+        })}
+      </Text>
       <CurrencyInput
         value={fixedExpenses}
         onChange={(v) => {
           onChange(v);
           if (error) setError(null);
         }}
-        placeholder={t("onboarding.fixedExpenses.placeholder")}
+        placeholder={`${t(
+          "onboarding.fixedExpenses.placeholder"
+        )} (${baseCurrency})`}
         style={styles.input}
       />
 
-      {error && (
-        <Text style={styles.error}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={styles.error}>{error}</Text>}
 
       <View style={styles.actions}>
         <Pressable onPress={onBack}>
-          <Text style={styles.back}>
-            {t("common.back")}
-          </Text>
+          <Text style={styles.back}>{t("common.back")}</Text>
         </Pressable>
 
         <Pressable
@@ -83,9 +82,7 @@ export default function FixedExpensesStep({
           ]}
           onPress={handleNext}
         >
-          <Text style={styles.buttonText}>
-            {t("common.continue")}
-          </Text>
+          <Text style={styles.buttonText}>{t("common.continue")}</Text>
         </Pressable>
       </View>
     </View>
@@ -114,7 +111,7 @@ const styles = StyleSheet.create({
 
   input: {
     marginTop: 24,
-    color:"#fff"
+    color: "#fff",
   },
 
   actions: {
@@ -141,13 +138,19 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   error: {
-  color: "#EF4444",
-  fontSize: 12,
-  marginTop: 8,
-  fontWeight: "600",
-},
+    color: "#EF4444",
+    fontSize: 12,
+    marginTop: 8,
+    fontWeight: "600",
+  },
 
-buttonDisabled: {
-  opacity: 0.4,
-},
+  buttonDisabled: {
+    opacity: 0.4,
+  },
+  currencyHint: {
+    marginTop: 4,
+    fontSize: 12,
+    opacity: 0.45,
+    color: "#fff",
+  },
 });

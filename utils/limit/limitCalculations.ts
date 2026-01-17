@@ -54,9 +54,17 @@ const total = relevantExpenses
     const d = new Date(e.date);
     return d >= start && d <= end;
   })
-  .reduce((sum, e) => sum + e.amount, 0);
+  .reduce((sum, e) => {
+    // ✅ FX-aware
+    if (e.fx?.baseAmount != null) {
+      return sum + e.fx.baseAmount;
+    }
 
-  const ratio = total / limitAmount;
+    // legacy fallback
+    return sum + e.amount;
+  }, 0);
+
+const ratio = limitAmount > 0 ? total / limitAmount : 0;
   const remaining = Math.max(limitAmount - total,0);
 
   let status: LimitResult["status"] = "safe";

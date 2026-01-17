@@ -32,8 +32,10 @@ export function buildMonthlyCategoryDonutData(
 
   groups.forEach((group) => {
     group.expenses.forEach((expense) => {
-      totals[expense.category] =
-        (totals[expense.category] ?? 0) + expense.amount;
+      const amount =
+        expense.fx?.baseAmount != null ? expense.fx.baseAmount : expense.amount;
+
+      totals[expense.category] = (totals[expense.category] ?? 0) + amount;
     });
   });
 
@@ -67,15 +69,18 @@ export function buildWeeklyLineChartData(
     const filtered = filterExpensesForLimit(group.expenses, "weekly");
 
     filtered.forEach((expense) => {
+      if (!expense.fx || expense.fx.baseAmount == null) return;
+
       const date = new Date(expense.date);
       if (isNaN(date.getTime())) return;
 
-      // Mon = 0 ... Sun = 6
       const dayIndex = (date.getDay() + 6) % 7;
       const prev = totals.get(dayIndex) ?? 0;
-      totals.set(dayIndex, prev + expense.amount);
+
+      totals.set(dayIndex, prev + expense.fx.baseAmount);
     });
   });
+  
 
   return WEEK_KEYS.map((dayKey, index) => ({
     dayKey,

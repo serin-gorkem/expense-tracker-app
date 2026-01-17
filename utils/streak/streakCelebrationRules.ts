@@ -6,11 +6,11 @@ type Props = {
   currentStreak: number;
 };
 
-export type streakCelebrationResult =
+export type StreakCelebrationResult =
   | { type: "new_streak"; count: number }
   | { type: "milestone"; count: number; milestone: StreakMilestone };
 
-export function streakCelebrationRules({ prevStreak, currentStreak }: Props): streakCelebrationResult | null {
+export function StreakCelebrationRules({ prevStreak, currentStreak }: Props): StreakCelebrationResult | null {
   if (currentStreak <= 0 || currentStreak <= prevStreak) return null;
 
   if (prevStreak === 0 && currentStreak === 1) {

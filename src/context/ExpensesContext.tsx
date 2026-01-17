@@ -28,6 +28,7 @@ type ExpensesStore = {
   addExpense(expense: Expense): void;
   removeExpense(id: string): void;
   updateExpense(expense: Expense): void;
+  resetExpenses(): void;
 
   limits: LimitsState;
   applyLimitChange(period: LimitPeriod, patch: LimitPatch): void;
@@ -54,8 +55,8 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
      Finance Profile
   ========================= */
 
-const { profile: financeProfile, updateProfile: updateFinanceProfile } =
-  useFinanceProfile();
+  const { profile: financeProfile, updateProfile: updateFinanceProfile } =
+    useFinanceProfile();
   /* =========================
      Baseline Math (Phase 1)
   ========================= */
@@ -138,25 +139,22 @@ const { profile: financeProfile, updateProfile: updateFinanceProfile } =
      User Limit Change
   ========================= */
 
-  function applyAutoLimit(
-  period: LimitPeriod,
-  amount: number
-) {
-  setLimits((prev) => {
-    const next: LimitsState = {
-      daily: { ...prev.daily },
-      weekly: { ...prev.weekly },
-      monthly: { ...prev.monthly },
-    };
+  function applyAutoLimit(period: LimitPeriod, amount: number) {
+    setLimits((prev) => {
+      const next: LimitsState = {
+        daily: { ...prev.daily },
+        weekly: { ...prev.weekly },
+        monthly: { ...prev.monthly },
+      };
 
-    next[period].amount = amount;
-    next[period].active = true;
-    next[period].source = "auto";
+      next[period].amount = amount;
+      next[period].active = true;
+      next[period].source = "auto";
 
-    enforceConstraints(next, period);
-    return next;
-  });
-}
+      enforceConstraints(next, period);
+      return next;
+    });
+  }
 
   function applyLimitChange(period: LimitPeriod, patch: LimitPatch) {
     setLimits((prev) => {
@@ -228,12 +226,17 @@ const { profile: financeProfile, updateProfile: updateFinanceProfile } =
     financeProfile.autoLimitEnabled,
   ]);
 
+  function resetExpenses() {
+    store.resetExpenses();
+    setLimits(DEFAULT_LIMITS);
+  }
+
   /* =========================
      Suggested Limits CTA
   ========================= */
 
   function applySuggestedLimits() {
-updateFinanceProfile({ autoLimitEnabled: true });
+    updateFinanceProfile({ autoLimitEnabled: true });
   }
 
   /* =========================
@@ -250,6 +253,7 @@ updateFinanceProfile({ autoLimitEnabled: true });
       updateFinanceProfile,
       applySuggestedLimits,
       disposableIncome,
+      resetExpenses,
       dailyBaseline,
     }),
     [

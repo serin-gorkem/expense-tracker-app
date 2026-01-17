@@ -10,6 +10,7 @@ import { getUnlockedMilestones } from "@/utils/streak/streakMilestoneStore";
 
 import AchievementCard from "@/components/Achievements/AchievementCard";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { LiquidDecor } from "@/components/ui/LiquidDecor";
 import { useStreakMetrics } from "@/hooks/useStreakMetrics";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
@@ -45,7 +46,8 @@ export default function AchievementsScreen() {
 
   return (
     <View style={styles.root}>
-      <LiquidBackground />
+      <LiquidBackground theme="achievements" />
+      <LiquidDecor variant="achievements" />
 
       <SafeAreaView style={styles.safe}>
         <ScrollView

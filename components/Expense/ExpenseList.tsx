@@ -12,36 +12,29 @@ type ExpenseListProps = {
 
 const ExpenseList = ({ expenses, onDelete, onEdit }: ExpenseListProps) => {
   const { t } = useTranslation();
-
-  if (expenses.length === 0) {
-    return (
-      <View style={styles.empty}>
-        <Text style={styles.emptyText}>
-          {t("expense.empty")}
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <FlatList
-      data={expenses}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <ExpenseItem
-          expense={item}
-          onDelete={onDelete}
-          onEdit={onEdit}
+    <>
+      {expenses.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>{t("expense.empty")}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={expenses}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <ExpenseItem expense={item} onDelete={onDelete} onEdit={onEdit} />
+          )}
+          style={{ flex: 1 }}
+          scrollEnabled={false}
+          contentContainerStyle={{
+            paddingTop: 2,
+            paddingBottom: 20,
+          }}
+          showsVerticalScrollIndicator={false}
         />
       )}
-      style={{ flex: 1 }}
-      scrollEnabled={false}
-      contentContainerStyle={{
-        paddingTop: 2,
-        paddingBottom: 20,
-      }}
-      showsVerticalScrollIndicator={false}
-    />
+    </>
   );
 };
 

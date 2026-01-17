@@ -1,4 +1,5 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { Category } from "@/models/expense.model";
 import { DonutChartItem } from "@/utils/expense/expenseChart";
 import { haptic } from "@/utils/haptics";
@@ -9,6 +10,7 @@ import GlassCard from "../ui/GlassCard";
 
 type Props = {
   data: DonutChartItem[];
+  baseCurrency: CurrencyCode; // ✅
   monthLabel?: string;
 
   // optional — Insights için
@@ -18,12 +20,17 @@ type Props = {
 
 export default function MonthlyCategoryDonutChart({
   data,
+  baseCurrency,
   monthLabel = "",
   selectedCategory,
   onSelectCategory,
 }: Props) {
   const {t} = useTranslation();
   if (!data.length) return null;
+
+  function formatAmount(value: number, currency: CurrencyCode) {
+  return `${value.toLocaleString("en-US")} ${currency}`;
+}
 
   const resolvedSelectedCategory: Category | "all" =
     selectedCategory ?? "all";
@@ -95,10 +102,10 @@ export default function MonthlyCategoryDonutChart({
                 {monthLabel !== "" && (
                   <Text style={styles.month}>{monthLabel}</Text>
                 )}
-
                 <Text style={styles.total}>
-                  ₺{(activeItem?.value ?? total).toLocaleString("en-US")}
+                  {formatAmount(activeItem?.value ?? total, baseCurrency)}
                 </Text>
+  
 
                 {isFiltering && (
                   <Text style={styles.activeLabel}>
@@ -129,7 +136,8 @@ export default function MonthlyCategoryDonutChart({
               >
                 <View style={[styles.dot, { backgroundColor: item.color }]} />
                 <Text style={styles.legendText}>
-                  {t(`categories.${item.label}`)} · ₺{item.value}
+                  {t(`categories.${item.label}`)} ·{" "}
+                  {formatAmount(item.value, baseCurrency)}
                 </Text>
               </View>
             </Pressable>

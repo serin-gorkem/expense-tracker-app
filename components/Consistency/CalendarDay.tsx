@@ -125,11 +125,6 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     marginTop: -1,
   },
-
-  todayRing: {
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.6)",
-  },
   goalCellOverlay: {
     boxShadow: "0 0 0 2px rgba(34,211,238,0.9)", // web benzeri
     borderWidth: 1,

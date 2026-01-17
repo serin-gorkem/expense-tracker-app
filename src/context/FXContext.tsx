@@ -53,8 +53,9 @@ export function FXProvider({ children }: { children: React.ReactNode }) {
   }, [profile.baseCurrency]);
 
   function getRate(currency: CurrencyCode): number | null {
-    if (!rates) return null;
+    if (!rates || !profile.baseCurrency) return null;
     if (currency === rates.base) return 1;
+    
 
     const baseToCurrency = rates.rates[currency];
     if (!baseToCurrency) return null;
@@ -63,6 +64,7 @@ export function FXProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function refresh() {
+    if (!profile.baseCurrency) return;
     try {
       const data = await fetchFXRates(profile.baseCurrency);
       setRates(data);

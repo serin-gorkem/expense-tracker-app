@@ -136,16 +136,6 @@ function getMostExpensiveWeekdayInsight({
 
   const isOverLimit = mostExpensive.avg > dailyLimit;
 
-  const weekdayNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-
   return {
     type: "behavioral_inconsistent_days",
     titleKey: "insights.behavioral.expensiveWeekday.title",

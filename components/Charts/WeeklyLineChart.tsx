@@ -1,4 +1,5 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { LineChartPoint } from "@/utils/expense/expenseChart";
 import { haptic } from "@/utils/haptics";
@@ -17,9 +18,10 @@ import GlassCard from "../ui/GlassCard";
 
 type Props = {
   data: LineChartPoint[];
+  baseCurrency: CurrencyCode;
 };
 
-export default function WeeklyLineChart({ data }: Props) {
+export default function WeeklyLineChart({ data, baseCurrency }: Props) {
   const { t } = useTranslation();
   const tooltipAnim = useRef(new Animated.Value(0)).current;
   const { dailyBaseline } = useExpensesStore();
@@ -33,6 +35,10 @@ export default function WeeklyLineChart({ data }: Props) {
     }).start();
   }, [activeIndex]);
   if (!data.length) return null;
+
+  function formatAmount(value: number) {
+    return `${value.toLocaleString("en-US")} ${baseCurrency}`;
+  }
 
   const rawMax = Math.max(...data.map((d) => d.value), dailyBaseline ?? 0);
 
@@ -60,6 +66,14 @@ export default function WeeklyLineChart({ data }: Props) {
     baselineValue != null && roundedMax > 0
       ? TOP_PADDING + DRAW_HEIGHT - (baselineValue / roundedMax) * DRAW_HEIGHT
       : null;
+
+  const CURRENCY_SYMBOL: Record<CurrencyCode, string> = {
+    TRY: "₺",
+    EUR: "€",
+    USD: "$",
+  };
+  const formatAxis = (v: number) =>
+    `${CURRENCY_SYMBOL[baseCurrency]}${v.toLocaleString("en-US")}`;
   return (
     <GlassCard style={{ marginBottom: 12, paddingHorizontal: 16 }}>
       <View style={styles.chartWrapper}>
@@ -94,11 +108,13 @@ export default function WeeklyLineChart({ data }: Props) {
           dataPointsColor="rgba(255,255,255,0.95)"
           xAxisLabelsVerticalShift={18}
           yAxisLabelTexts={[
+            formatAxis(0),
             "-",
-            "0",
-            `₺${roundedMax * 0.5}`,
-            `₺${roundedMax * 0.75}`,
-            `₺${roundedMax}`,
+            formatAxis(roundedMax * 0.25),
+            formatAxis(roundedMax * 0.5),
+            formatAxis(roundedMax * 0.75),
+            formatAxis(roundedMax),
+            "", // ⬅️ üst sınırı bilinçli gizle
           ]}
           /* Spacing */
           initialSpacing={10}
@@ -118,7 +134,7 @@ export default function WeeklyLineChart({ data }: Props) {
           /* Y Axis */
           hideYAxisText={!hasData}
           yAxisColor="transparent"
-          yAxisLabelPrefix="₺"
+          showYAxisIndices={false}
           yAxisOffset={1}
           yAxisTextStyle={{
             color: "rgba(255,255,255,0.45)",
@@ -187,17 +203,19 @@ export default function WeeklyLineChart({ data }: Props) {
             <Text style={styles.tooltipLabel}>
               {t(`weekdays.${data[activeIndex].dayKey}`)}
             </Text>
-            <Text style={styles.tooltipValue}>₺{data[activeIndex].value}</Text>
+            <Text style={styles.tooltipValue}>
+              {formatAmount(data[activeIndex].value)}
+            </Text>
           </Animated.View>
         )}
       </View>
-      <View style={styles.footer}> 
+      <View style={styles.footer}>
         <Text style={styles.hint}>{t("charts.weekly.hint")}</Text>
         {baselineY != null && (
           <View pointerEvents="none" style={[styles.baselineBadge]}>
             <Text style={styles.baselineText}>
               {t("charts.weekly.baseline", {
-                amount: baselineValue ?? 0,
+                amount: formatAmount(baselineValue ?? 0),
               })}
             </Text>
           </View>
@@ -246,23 +264,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: -28, // chart'a yaklaştır
-    paddingLeft:24,
+    paddingLeft: 24,
   },
 
   dayItem: {
     flex: 1,
     alignItems: "center",
     paddingVertical: 8,
-  },
-
-  baseline: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    height: 0,
-    borderTopWidth: 2,
-    borderColor: "rgba(34,197,94,0.9)",
-    zIndex: 5,
   },
   baselineLine: {
     position: "absolute",
@@ -299,6 +307,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   footer: {
-    marginVertical:16,
+    marginVertical: 16,
   },
 });

@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 type FinanceProfileContextType = {
   profile: FinanceProfile;
   setBaseCurrency: (currency: CurrencyCode) => void;
+  hydrated: boolean;
   updateProfile: (patch: Partial<FinanceProfile>) => void;
   resetProfile(): void;
 };
@@ -16,7 +17,7 @@ const DEFAULT_PROFILE: FinanceProfile = {
   monthlyIncome: null,
   fixedExpenses: null,
   autoLimitEnabled: true,
-  baseCurrency: "EUR",
+  baseCurrency: null,
 };
 
 const FinanceProfileContext = createContext<FinanceProfileContextType | null>(
@@ -67,7 +68,7 @@ export function FinanceProfileProvider({
 
   return (
     <FinanceProfileContext.Provider
-      value={{ profile, setBaseCurrency, updateProfile, resetProfile }}
+      value={{ profile, setBaseCurrency, hydrated,updateProfile, resetProfile }}
     >
       {children}
     </FinanceProfileContext.Provider>

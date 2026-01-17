@@ -1,4 +1,5 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { calculateAutoLimits } from "@/utils/limit/calculateAutoLimits";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -7,6 +8,7 @@ type Props = {
   monthlyIncome: number;
   fixedExpenses: number;
   useAutoLimits: boolean;
+  baseCurrency: CurrencyCode;
   onFinish(): void;
 };
 
@@ -14,11 +16,11 @@ export default function PreviewStep({
   monthlyIncome,
   fixedExpenses,
   useAutoLimits,
+  baseCurrency,
   onFinish,
 }: Props) {
   const { t } = useTranslation();
-  const { updateFinanceProfile, applyAutoLimit } =
-    useExpensesStore();
+  const { updateFinanceProfile, applyAutoLimit } = useExpensesStore();
 
   const limits = calculateAutoLimits({
     monthlyIncome,
@@ -27,15 +29,13 @@ export default function PreviewStep({
 
   function finish() {
     updateFinanceProfile({
-      monthlyIncome,
-      fixedExpenses,
       autoLimitEnabled: useAutoLimits,
     });
 
     if (useAutoLimits) {
-applyAutoLimit("daily", limits.daily);
-applyAutoLimit("weekly", limits.weekly);
-applyAutoLimit("monthly", limits.monthly);
+      applyAutoLimit("daily", limits.daily);
+      applyAutoLimit("weekly", limits.weekly);
+      applyAutoLimit("monthly", limits.monthly);
     }
 
     onFinish();
@@ -43,9 +43,7 @@ applyAutoLimit("monthly", limits.monthly);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {t("onboarding.preview.title")}
-      </Text>
+      <Text style={styles.title}>{t("onboarding.preview.title")}</Text>
 
       <Text style={styles.subtitle}>
         {useAutoLimits
@@ -57,21 +55,27 @@ applyAutoLimit("monthly", limits.monthly);
         <PreviewRow
           label={t("onboarding.limits.period.daily")}
           value={limits.daily}
+          currency={baseCurrency}
         />
         <PreviewRow
           label={t("onboarding.limits.period.weekly")}
           value={limits.weekly}
+          currency={baseCurrency}
         />
         <PreviewRow
           label={t("onboarding.limits.period.monthly")}
           value={limits.monthly}
+          currency={baseCurrency}
         />
       </View>
 
+      <Text style={styles.currencyHint}>
+        {t("onboarding.preview.baseCurrencyHint", {
+          currency: baseCurrency,
+        })}
+      </Text>
       <Pressable style={styles.button} onPress={finish}>
-        <Text style={styles.buttonText}>
-          {t("common.finish")}
-        </Text>
+        <Text style={styles.buttonText}>{t("common.finish")}</Text>
       </Pressable>
     </View>
   );
@@ -81,11 +85,29 @@ applyAutoLimit("monthly", limits.monthly);
    Helpers
 ========================= */
 
-function PreviewRow({ label, value }: { label: string; value: number }) {
+function formatAmount(value: number, currency: CurrencyCode) {
+  const symbols: Record<CurrencyCode, string> = {
+    TRY: "₺",
+    EUR: "€",
+    USD: "$",
+  };
+
+  return `${symbols[currency]}${value}`;
+}
+
+function PreviewRow({
+  label,
+  value,
+  currency,
+}: {
+  label: string;
+  value: number;
+  currency: CurrencyCode;
+}) {
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>₺{value}</Text>
+      <Text style={styles.rowValue}>{formatAmount(value, currency)}</Text>
     </View>
   );
 }
@@ -146,5 +168,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "800",
     fontSize: 15,
+  },
+  currencyHint: {
+    marginTop: 4,
+    fontSize: 12,
+    opacity: 0.45,
+    color: "#000",
   },
 });

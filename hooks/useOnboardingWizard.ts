@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/models/currency.model";
 import {
   clearOnboardingReturn,
   getOnboardingReturn,
@@ -6,15 +7,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 export type OnboardingData = {
-  monthlyIncome: number | null;
-  fixedExpenses: number | null;
   useAutoLimits: boolean;
+
+  baseCurrency: CurrencyCode | null; // ✅ NEW
 };
 
 const INITIAL: OnboardingData = {
-  monthlyIncome: null,
-  fixedExpenses: null,
   useAutoLimits: true,
+  baseCurrency: null,
 };
 
 export function useOnboardingWizard() {

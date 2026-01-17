@@ -1,6 +1,6 @@
 // hooks/useStreakCelebrations.ts
 import { haptic } from "@/utils/haptics";
-import { StreakCelebrationResult, streakCelebrationRules } from "@/utils/streak/streakCelebrationRules";
+import { StreakCelebrationResult, StreakCelebrationRules } from "@/utils/streak/streakCelebrationRules";
 import {
   clearCelebrationShown,
   markCelebrationShown,
@@ -34,7 +34,7 @@ export function useStreakCelebration(currentStreak: number, totalExpenseCount: n
     }
 
     // 3) rule-based result
-    const result = streakCelebrationRules({
+    const result = StreakCelebrationRules({
       prevStreak,
       currentStreak,
     });

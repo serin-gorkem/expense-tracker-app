@@ -33,6 +33,10 @@ export function useExpenses() {
   const removeExpense = (id: string) =>
     setExpenses((prev) => prev.filter((e) => e.id !== id));
 
+    const resetExpenses = () => {
+    setExpenses([]);
+  };
+
   const updateExpense = (expense: Expense) =>
     setExpenses((prev) =>
       prev.map((e) => (e.id === expense.id ? { ...e, ...expense } : e))
@@ -44,5 +48,6 @@ export function useExpenses() {
     addExpense,
     removeExpense,
     updateExpense,
+    resetExpenses,
   };
 }

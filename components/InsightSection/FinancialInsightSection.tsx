@@ -19,12 +19,13 @@ export default function FinancialInsightSection({ expenses }: Props) {
   const { t, formatCurrency } = useTranslation();
   const { rates } = useFX();
   const { profile } = useFinanceProfile();
+  const baseCurrency = profile.baseCurrency!;
 
   const insights: InsightItem[] = selectAllFinancialInsights({
     expenses,
     dailyBaseline,
     currentRates: rates?.rates ?? {},
-    baseCurrency: profile.baseCurrency,
+    baseCurrency,
   });
 
   if (insights.length === 0) return null;

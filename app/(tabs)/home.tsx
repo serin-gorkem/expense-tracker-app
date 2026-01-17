@@ -35,15 +35,17 @@ import { calculateLimitStatus } from "@/utils/limit/limitCalculations";
 
 import GoalApplyModal from "@/components/Goals/GoalApplyModal";
 import GoalOutcomeModal from "@/components/Goals/GoalOutcomeModal";
+import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { LiquidDecor } from "@/components/ui/LiquidDecor";
 import { useDayEndFlow } from "@/hooks/useDayEndFlow";
 import { useGoalOutcomeWatcher } from "@/hooks/useGoalOutcomeWatcher";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Goal } from "@/models/goal.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useFX } from "@/src/context/FXContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
 import { buildGoalBoostExpense } from "@/utils/goals/applyLeftoverToGoal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
@@ -134,6 +136,12 @@ export default function Home() {
     expenses.length
   );
 
+  const { profile } = useFinanceProfile();
+  const baseCurrency = profile.baseCurrency!;
+  const { status } = useFX();
+
+  const fxStatus = status === "empty" ? undefined : status;
+
   useEffect(() => {
     if (!lastDeletedExpense) return;
     const timer = setTimeout(() => setLastDeletedExpense(null), 4000);
@@ -186,16 +194,8 @@ export default function Home() {
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        colors={["#050816", "#070A2A", "#0B1238", "#050816"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
-      />
-
-      <View style={[styles.blob, styles.blobA]} />
-      <View style={[styles.blob, styles.blobB]} />
-      <View style={[styles.blob, styles.blobC]} />
+      <LiquidBackground theme="home" />
+      <LiquidDecor variant="home" />
 
       <SafeAreaView style={styles.safe}>
         {celebration && (
@@ -227,9 +227,11 @@ export default function Home() {
               <LimitCard
                 period={mode}
                 total={limitResult.total}
+                limitAmount={activeLimit.amount}
                 ratio={limitResult.ratio}
                 status={limitResult.status}
-                limitAmount={activeLimit.amount}
+                baseCurrency={baseCurrency}
+                fxStatus={fxStatus}
               />
             )}
           </View>
@@ -279,7 +281,7 @@ export default function Home() {
                 </Text>
               )}
 
-              {!loading && isGlobalEmpty && (
+              {!loading && isGlobalEmpty && !showExpenseHint && (
                 <EmptyState
                   title={t("empty.noExpensesTitle")}
                   description={t("empty.noExpensesDesc")}
@@ -413,18 +415,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   loading: { color: "rgba(255,255,255,0.75)", marginTop: 12 },
-
-  blob: {
-    position: "absolute",
-    width: 320,
-    height: 320,
-    borderRadius: 999,
-    opacity: 0.35,
-  },
-  blobA: { top: -120, left: -90, backgroundColor: "#5B7CFF" },
-  blobB: { top: 80, right: -140, backgroundColor: "#8B5CFF", opacity: 0.25 },
-  blobC: { bottom: -160, left: 40, backgroundColor: "#22D3EE", opacity: 0.18 },
-
   toast: {
     position: "absolute",
     bottom: 80,

@@ -51,12 +51,12 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
   const [boostGoal, setBoostGoal] = useState(false);
 
   const [currency, setCurrency] = useState<CurrencyCode>("EUR");
-  const { profile } = useFinanceProfile();
+  const { profile, hydrated } = useFinanceProfile();
   const { getRate, status: fxStatus } = useFX();
-
+  
   const [lockFX, setLockFX] = useState(false);
   const [manualRate, setManualRate] = useState<number | null>(null);
-
+  
   const resetForm = () => {
     setTitle("");
     setOriginalTitle(null);
@@ -64,23 +64,27 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
     setCategory(null);
     setKind("behavioral");
     setBoostGoal(false);
-    setCurrency(profile.baseCurrency);
+    setCurrency(baseCurrency);
   };
-
+  
   const badgeStatus =
-    currency === profile.baseCurrency
-      ? null
-      : lockFX
-      ? "locked"
-      : mapFXStatusToBadge(fxStatus);
-
-      useEffect(() => {
-  if (currency === profile.baseCurrency) {
-    setLockFX(false);
-    setManualRate(null);
+  currency === profile.baseCurrency
+  ? null
+  : lockFX
+  ? "locked"
+  : mapFXStatusToBadge(fxStatus);
+  
+  useEffect(() => {
+    if (currency === profile.baseCurrency) {
+      setLockFX(false);
+      setManualRate(null);
+    }
+  }, [currency, profile.baseCurrency]);
+  
+  if (!hydrated || !profile.baseCurrency) {
+    return null; // ya da loader
   }
-}, [currency, profile.baseCurrency]);
-
+  const baseCurrency = profile.baseCurrency;
   const handleSubmit = () => {
     const newErrors: ValidationError = {};
 
@@ -113,7 +117,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
     let rate: number;
     let status: "live" | "cached" | "locked";
 
-    if (currency === profile.baseCurrency) {
+    if (currency === baseCurrency) {
       rate = 1;
       status = "live";
     } else if (lockFX) {
@@ -141,7 +145,7 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
     const fxSnapshot = buildFXSnapshot({
       amount: safeAmount,
       currency,
-      baseCurrency: profile.baseCurrency,
+      baseCurrency,
       rate,
       status,
     });

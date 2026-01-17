@@ -25,7 +25,8 @@
         "title": "Bir saniye 😄",
         "message": "Giderlerin gelirinden fazla görünüyor.\nGizli bir sponsorun yoksa, burada bir hata var gibi."
       },
-      "error": "Geçerli bir sabit gider tutarı girin"
+      "error": "Geçerli bir sabit gider tutarı girin",
+      "baseCurrencyHint": "Tüm tutarlar {{currency}} cinsindendir."
     },
     "goal-wizard": {
       "title": "Hedef belirle",
@@ -52,7 +53,8 @@
     "preview": {
       "title": "Her şey hazır 🎉",
       "autoSubtitle": "Gelirine göre harcama limitlerini senin için hesapladık.",
-      "manualSubtitle": "Limitlerinin özetini aşağıda görebilirsin."
+      "manualSubtitle": "Limitlerinin özetini aşağıda görebilirsin.",
+       "baseCurrencyHint": "Limitler {{currency}} üzerinden hesaplanır."
     },
     "done": {
       "title": "Her şey hazır 🎉",
@@ -195,6 +197,11 @@
     "empty": {
       "title": "Henüz veri yok",
       "desc": "Analizleri görmek için birkaç harcama ekle."
+    },
+    "fx": {
+      "title": "Döviz Kurları (Baz: {{base}})",
+      "live": "Canlı kur",
+      "cached": "Önbellekten"
     },
 
     "more": {
@@ -365,7 +372,12 @@
   "expense": {
     "empty": "Henüz harcama yok.",
     "edit": {
-      "title": "Harcamayı düzenle"
+      "title": "Harcamayı düzenle",
+      "success": {
+        "title": "Harcama güncellendi",
+        "desc": "Değişiklikler başarıyla kaydedildi.",
+        "fx": "Tutar güncel döviz kuru kullanılarak yeniden hesaplandı."
+      }
     },
     "fields": {
       "title": "Başlık",
@@ -449,7 +461,12 @@
   },
 
   "goals": {
-    "create": "Hedef oluştur",
+    "screen": {
+      "create": "Hedef oluştur",
+      "title": "Hedefler",
+      "subtitle": "Birikim ve hedeflerini buradan takip et",
+      "noGoalsTitle": "Hedef Yok"
+    },
     "active": {
       "label": "AKTİF HEDEF",
       "badge": "AKTİF",

@@ -1,4 +1,5 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { CurrencyCode } from "@/models/currency.model";
 import { Expense, EXPENSE_KIND_META } from "@/models/expense.model";
 import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { haptic } from "@/utils/haptics";
@@ -19,7 +20,7 @@ const formatDate = (iso: string) => {
   const month = d.toLocaleString("tr-TR", { month: "short" });
   return `${day} ${month}`;
 };
-const formatAmount = (n: number, currency: string) => {
+const formatAmount = (n: number, currency: CurrencyCode) => {
   try {
     return new Intl.NumberFormat("tr-TR", {
       style: "currency",
@@ -35,6 +36,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
   const isGoalBoost = expense.isGoalBoost === true;
   const { t } = useTranslation();
   const { profile } = useFinanceProfile();
+  const baseCurrency = profile.baseCurrency!;
   const confirmDelete = () => {
     Alert.alert(
       "Delete Expense",
@@ -134,7 +136,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
             </View>
 
             <Text style={[styles.amount, isGoalBoost && { color: "#22c55e" }]}>
-                {formatAmount(expense.fx.baseAmount, "EUR")}
+                {formatAmount(expense.fx.baseAmount, baseCurrency)}
             </Text>
           </View>
           {expense.fx.currency !== profile.baseCurrency && (
@@ -232,6 +234,4 @@ const styles = StyleSheet.create({
     color: "rgba(199,210,254,0.95)",
   },
   actionDelete: { backgroundColor: "rgba(239,68,68,0.75)" },
-  actionEdit: { backgroundColor: "rgba(59,130,246,0.55)" },
-  actionText: { color: "rgba(255,255,255,0.95)", fontWeight: "900" },
 });

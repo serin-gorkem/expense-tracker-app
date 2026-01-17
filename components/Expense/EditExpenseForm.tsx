@@ -6,12 +6,24 @@ import {
   EXPENSE_KIND_META,
   ExpenseKind,
 } from "@/models/expense.model";
+import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
+import { useFX } from "@/src/context/FXContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
+import { buildFXSnapshot } from "@/utils/currency/buildFXSnapshot";
+import { haptic } from "@/utils/haptics";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import CurrencyInput from "../ui/CurrencyInput";
+
 type EditExpenseFormProps = {
   expense: Expense;
   onSubmit: (expense: Expense) => void;
@@ -23,31 +35,67 @@ export default function EditExpenseForm({
   onSubmit,
   onCancel,
 }: EditExpenseFormProps) {
+  const { t } = useTranslation();
+  const { profile } = useFinanceProfile();
+  const { getRate, status: fxStatus } = useFX();
+  const { goals } = useGoalsStore();
+
+  const currency = expense.fx.currency;
+
   const [title, setTitle] = useState(expense.title);
   const [amount, setAmount] = useState<number | null>(expense.amount);
   const [category, setCategory] = useState<Category>(expense.category);
   const [kind, setKind] = useState<ExpenseKind>(expense.kind);
-  const { goals, activeGoal } = useGoalsStore();
+
   const [isGoalBoost, setIsGoalBoost] = useState(expense.isGoalBoost ?? false);
   const [goalId, setGoalId] = useState<string | undefined>(expense.goalId);
   const [boostAmount, setBoostAmount] = useState<number | null>(
     expense.boostAmount ?? expense.amount
   );
-  const { t } = useTranslation();
+
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [pendingExpense, setPendingExpense] = useState<Expense | null>(null);
+
   function handleSubmit() {
     if (!title || amount == null || amount <= 0 || !category) return;
 
-    onSubmit({
+    let rate = expense.fx.fxRate;
+    let status = expense.fx.fxStatus;
+
+    if (currency !== profile.baseCurrency) {
+      const liveRate = getRate(currency);
+      if (liveRate) {
+        rate = liveRate;
+        status = fxStatus === "live" ? "live" : "cached";
+      }
+    } else {
+      rate = 1;
+      status = "live";
+    }
+
+    const fx = buildFXSnapshot({
+      amount,
+      currency,
+      baseCurrency: profile.baseCurrency!,
+      rate,
+      status,
+    });
+
+    const updated: Expense = {
       ...expense,
       title,
       amount,
       category,
       kind,
-
+      fx,
       isGoalBoost,
       goalId: isGoalBoost ? goalId : undefined,
       boostAmount: isGoalBoost ? boostAmount ?? amount : undefined,
-    });
+    };
+
+    setPendingExpense(updated);
+    setShowSuccess(true);
+    haptic.success();
   }
 
   return (
@@ -62,7 +110,6 @@ export default function EditExpenseForm({
 
         {/* Title */}
         <Text style={styles.label}>{t("expense.fields.title")}</Text>
-
         <TextInput
           value={title}
           onChangeText={setTitle}
@@ -73,7 +120,6 @@ export default function EditExpenseForm({
 
         {/* Amount */}
         <Text style={styles.label}>{t("expense.fields.amount")}</Text>
-
         <CurrencyInput
           value={amount}
           onChange={(v) => {
@@ -121,9 +167,9 @@ export default function EditExpenseForm({
             );
           })}
         </View>
-        {/* GOAL */}
-        <Text style={styles.label}>{t("expense.fields.goal")}</Text>
 
+        {/* Goal */}
+        <Text style={styles.label}>{t("expense.fields.goal")}</Text>
         <Pressable
           onPress={() => setIsGoalBoost((v) => !v)}
           style={[styles.goalToggle, isGoalBoost && styles.goalToggleActive]}
@@ -134,24 +180,22 @@ export default function EditExpenseForm({
               : t("expense.goal.inactive")}
           </Text>
         </Pressable>
+
         {isGoalBoost && (
-          <>
-            {/* Goal selection */}
-            <View style={styles.categoryRow}>
-              {goals.map((g) => {
-                const active = goalId === g.id;
-                return (
-                  <Pressable
-                    key={g.id}
-                    onPress={() => setGoalId(g.id)}
-                    style={[styles.category, active && styles.categoryActive]}
-                  >
-                    <Text style={styles.categoryText}>{g.title}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </>
+          <View style={styles.categoryRow}>
+            {goals.map((g) => {
+              const active = goalId === g.id;
+              return (
+                <Pressable
+                  key={g.id}
+                  onPress={() => setGoalId(g.id)}
+                  style={[styles.category, active && styles.categoryActive]}
+                >
+                  <Text style={styles.categoryText}>{g.title}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
         )}
 
         {/* Actions */}
@@ -164,6 +208,36 @@ export default function EditExpenseForm({
             <Text style={styles.btnText}>{t("common.save")}</Text>
           </Pressable>
         </View>
+
+        {/* SUCCESS MODAL */}
+        <Modal visible={showSuccess} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>
+                {t("expense.edit.success.title")}
+              </Text>
+
+              <Text style={styles.modalText}>
+                {expense.fx.currency !== profile.baseCurrency
+                  ? t("expense.edit.success.fx")
+                  : t("expense.edit.success.desc")}
+              </Text>
+
+              <Pressable
+                onPress={() => {
+                  setShowSuccess(false);
+                  if (pendingExpense) {
+                    onSubmit(pendingExpense);
+                  }
+                  onCancel();
+                }}
+                style={styles.modalBtn}
+              >
+                <Text style={styles.modalBtnText}>{t("common.ok")}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </BlurView>
     </View>
   );
@@ -303,6 +377,46 @@ const styles = StyleSheet.create({
 
   btnText: {
     color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalCard: {
+    width: "80%",
+    borderRadius: 18,
+    padding: 18,
+    backgroundColor: "rgba(17,24,39,0.95)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+  },
+
+  modalTitle: {
+    fontSize: 14,
+    fontWeight: "900",
+    color: "rgba(255,255,255,0.92)",
+    marginBottom: 6,
+  },
+
+  modalText: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.65)",
+    marginBottom: 14,
+  },
+
+  modalBtn: {
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.14)",
+    alignItems: "center",
+  },
+
+  modalBtnText: {
+    color: "rgba(255,255,255,0.95)",
     fontWeight: "900",
   },
 });

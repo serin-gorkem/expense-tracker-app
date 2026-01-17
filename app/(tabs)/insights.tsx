@@ -18,9 +18,11 @@ import {
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 import DayDetailModal from "@/components/Consistency/DayDetailsModal";
+import FXRatesCard from '@/components/Currency/FXRatesCard';
 import BehavioralInsightSection from "@/components/InsightSection/BehavioralInsightSection";
 import FinancialInsightSection from "@/components/InsightSection/FinancialInsightSection";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
+import { LiquidDecor } from "@/components/ui/LiquidDecor";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
 import { useGoalsStore } from "@/src/context/GoalContext";
@@ -47,10 +49,11 @@ export default function Insights() {
   });
 
   const { profile: financeProfile } = useFinanceProfile();
+  const baseCurrency = financeProfile.baseCurrency!;
   const currencyExposure = useMemo(
-  () => calculateCurrencyExposure(expenses, financeProfile.baseCurrency),
-  [expenses, financeProfile.baseCurrency]
-);
+    () => calculateCurrencyExposure(expenses, baseCurrency),
+    [expenses, financeProfile.baseCurrency]
+  );
   const dayMap = useMemo(
     () =>
       buildConsistencyDayMap({
@@ -70,7 +73,8 @@ export default function Insights() {
 
   return (
     <View style={styles.root}>
-      <LiquidBackground />
+      <LiquidBackground theme="insights" />
+            <LiquidDecor variant="insights" />
 
       <SafeAreaView style={styles.safe}>
         <ScrollView
@@ -106,9 +110,15 @@ export default function Insights() {
               />
 
               {donutData.length > 0 && (
-                <MonthlyCategoryDonutChart data={donutData} />
+                <MonthlyCategoryDonutChart
+                  data={donutData}
+                  baseCurrency={baseCurrency}
+                />
               )}
-              {lineData.length > 0 && <WeeklyLineChart data={lineData} />}
+              {lineData.length > 0 && (
+                <WeeklyLineChart data={lineData} baseCurrency={baseCurrency} />
+              )}
+              <FXRatesCard baseCurrency={baseCurrency} />
               {currencyExposure.length > 1 && (
                 <CurrencyExposureChart exposure={currencyExposure} />
               )}

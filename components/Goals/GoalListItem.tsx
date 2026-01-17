@@ -105,10 +105,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  titleCompleted: {
-    textDecorationLine: "line-through",
-  },
-
   badge: {
     fontSize: 10,
     fontWeight: "900",
@@ -120,16 +116,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
 
-  badgeCompleted: {
-    fontSize: 10,
-    fontWeight: "900",
-    color: "#22c55e",
-    borderWidth: 1,
-    borderColor: "#22c55e",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-  },
   category: {
     fontSize: 11,
     fontWeight: "700",
@@ -169,9 +155,5 @@ const styles = StyleSheet.create({
   fill: {
     height: "100%",
     backgroundColor: "#6366F1",
-  },
-
-  fillCompleted: {
-    backgroundColor: "#22c55e",
   },
 });

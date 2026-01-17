@@ -1,4 +1,3 @@
-import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { FinanceProfileProvider } from "@/src/context/FinanceProfileContext";
 import { FXProvider } from "@/src/context/FXContext";
 import { GoalsProvider } from "@/src/context/GoalContext";
@@ -17,7 +16,6 @@ export default function RootLayout() {
             <WizardProvider>
               <GoalsProvider>
                 <ExpensesProvider>
-                  <LiquidBackground />
                   <Stack screenOptions={{ headerShown: false }} />
                 </ExpensesProvider>
               </GoalsProvider>

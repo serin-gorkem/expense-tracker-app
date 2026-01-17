@@ -76,16 +76,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: "center",
   },
-  secondaryBtn: {
-    flex: 1,
-    backgroundColor: "rgba(17,24,39,0.55)",
-    borderRadius: 14,
-    paddingVertical: 16,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-  },
   btnDisabled: { opacity: 0.45 },
   primaryText: { color: "#0B1020", fontWeight: "800" },
-  secondaryText: { color: "rgba(255,255,255,0.85)", fontWeight: "700" },
 });

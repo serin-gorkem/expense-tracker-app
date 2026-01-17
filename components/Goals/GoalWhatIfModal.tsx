@@ -16,7 +16,6 @@ type Props = {
   goal: Goal;
 };
 
-const PRESETS = [10, 25, 50] as const;
 const CURRENCIES: CurrencyCode[] = ["EUR", "USD", "TRY"];
 const PRESETS_BY_CURRENCY: Record<CurrencyCode, readonly number[]> = {
   EUR: [10, 25, 50],

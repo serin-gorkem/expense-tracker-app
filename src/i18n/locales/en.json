@@ -24,7 +24,8 @@
       "alert": {
         "title": "Hold on 😄",
         "message": "Your expenses are higher than your income.\nEither you have a secret sponsor, or something went wrong here."
-      }
+      },
+      "baseCurrencyHint": "All amounts are entered in {{currency}}."
     },
     "goal-wizard": {
       "title": "Set a goal",
@@ -50,7 +51,8 @@
     "preview": {
       "title": "All set 🎉",
       "autoSubtitle": "We calculated your spending limits based on your income.",
-      "manualSubtitle": "Here is a summary of your limits."
+      "manualSubtitle": "Here is a summary of your limits.",
+      "baseCurrencyHint": "Limits are calculated in {{currency}}."
     },
     "done": {
       "title": "All set 🎉",
@@ -179,6 +181,11 @@
     "empty": {
       "title": "No data yet",
       "desc": "Add a few expenses to unlock insights."
+    },
+    "fx": {
+      "title": "Exchange Rates (Base: {{base}})",
+      "live": "Live rates",
+      "cached": "Cached"
     },
     "more": {
       "title": "More insights will unlock as you use the app",
@@ -332,7 +339,12 @@
   "expense": {
     "empty": "No expenses yet.",
     "edit": {
-      "title": "Edit expense"
+      "title": "Edit expense",
+      "success": {
+        "title": "Harcama güncellendi",
+        "desc": "Değişiklikler başarıyla kaydedildi.",
+        "fx": "Tutar güncel döviz kuru kullanılarak yeniden hesaplandı."
+      }
     },
     "fields": {
       "title": "Title",
@@ -415,7 +427,11 @@
     }
   },
   "goals": {
-    "create": "Create Goal",
+    "screen": {
+      "create": "Create Goal",
+      "title": "Goals",
+      "subtitle": "Track and manage your savings goals"
+    },
     "active": {
       "label": "ACTIVE GOAL",
       "badge": "ACTIVE",
@@ -466,8 +482,10 @@
       "fields": {
         "title": "Title",
         "target": "Target amount",
-        "duration": "Duration (days)"
+        "duration": "Duration (days)",
+        "category": "Category"
       },
+      "currencyLockedHint": "The currency cannot be changed after the goal is created.",
       "placeholders": {
         "title": "Goal title",
         "target": "e.g. 5000",
