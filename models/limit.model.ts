@@ -1,3 +1,5 @@
+import { CurrencyCode } from "./currency.model";
+
 export type LimitPeriod = "daily" | "weekly" | "monthly";
 
 export type LimitStatus = "safe" | "warning" | "exceeded";
@@ -7,15 +9,16 @@ export type LimitSource = "manual" | "auto";
 export type LimitResult = {
   total: number;
   ratio: number; // total / limit
-  remaining:number;
+  remaining: number;
   status: LimitStatus;
 };
 export type LimitConfig = {
   period: LimitPeriod;
   amount: number;
   active: boolean;
-
   source: LimitSource;
+
+  currency: CurrencyCode; // 🔥 limit hangi currency ile girildi
   graceDaysPerMonth?: number;
 };
 export type LimitsState = {

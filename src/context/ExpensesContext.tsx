@@ -1,15 +1,19 @@
 import { useExpenses } from "@/hooks/useExpenses";
+import { CurrencyCode } from "@/models/currency.model";
 import { Expense } from "@/models/expense.model";
 import { FinanceProfile } from "@/models/financeProfile.model";
 import { LimitPeriod, LimitsState } from "@/models/limit.model";
 import { useFinanceProfile } from "@/src/context/FinanceProfileContext";
+import { useFX } from "@/src/context/FXContext";
 import { calculateAutoLimits } from "@/utils/limit/calculateAutoLimits";
+import { convertLimitsToNewBase } from "@/utils/limit/convertLimits";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 /* =========================
@@ -73,8 +77,8 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
             new Date(
               new Date().getFullYear(),
               new Date().getMonth() + 1,
-              0
-            ).getDate()
+              0,
+            ).getDate(),
         )
       : null;
 
@@ -83,17 +87,53 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
   ========================= */
 
   const DEFAULT_LIMITS: LimitsState = {
-    daily: { period: "daily", amount: 100, active: true, source: "manual" },
-    weekly: { period: "weekly", amount: 500, active: true, source: "manual" },
+    daily: {
+      period: "daily",
+      amount: 100,
+      active: true,
+      source: "manual",
+      currency: financeProfile.baseCurrency ?? "TRY",
+    },
+    weekly: {
+      period: "weekly",
+      amount: 500,
+      active: true,
+      source: "manual",
+      currency: financeProfile.baseCurrency ?? "TRY",
+    },
     monthly: {
       period: "monthly",
       amount: 2000,
       active: true,
       source: "manual",
+      currency: financeProfile.baseCurrency ?? "TRY",
     },
   };
 
+  const prevBaseRef = useRef<CurrencyCode | null>(null);
+  const { rates } = useFX();
   const [limits, setLimits] = useState<LimitsState>(DEFAULT_LIMITS);
+
+  useEffect(() => {
+    const currentBase = financeProfile.baseCurrency;
+    const prevBase = prevBaseRef.current;
+
+    if (!currentBase || !prevBase || prevBase === currentBase) {
+      prevBaseRef.current = currentBase;
+      return;
+    }
+
+    setLimits((prev) =>
+      convertLimitsToNewBase({
+        limits: prev,
+        from: prevBase,
+        to: currentBase,
+        rates: rates?.rates ?? null,
+      }),
+    );
+
+    prevBaseRef.current = currentBase;
+  }, [financeProfile.baseCurrency, rates]);
 
   useEffect(() => {
     AsyncStorage.getItem("@limits").then((raw) => {
@@ -263,7 +303,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
       financeProfile,
       disposableIncome,
       dailyBaseline,
-    ]
+    ],
   );
 
   return (

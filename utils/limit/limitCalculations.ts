@@ -57,15 +57,39 @@ export function calculateLimitStatus({
       return d >= start && d <= end;
     })
     .reduce((sum, e) => {
-      return sum + e.fx.baseAmount;
+      // ✅ expense zaten base currency ise
+      if (e.fx.currency === baseCurrency) {
+        return sum + e.amount;
+      }
+
+      // ✅ FX yoksa fallback (güvenlik)
+      if (!rates) {
+        return sum + e.fx.baseAmount;
+      }
+
+      const rate = rates[e.fx.currency];
+      if (!rate || rate <= 0) {
+        return sum + e.fx.baseAmount;
+      }
+
+      // 🔥 ASIL KRİTİK SATIR
+      // expense amount → new base currency
+      const converted = e.amount * rate;
+
+      return sum + converted;
     }, 0);
 
-  const ratio = limitAmount > 0 ? total / limitAmount : 0;
+  const ratio = total / limitAmount;
   const remaining = Math.max(limitAmount - total, 0);
 
   let status: LimitResult["status"] = "safe";
   if (ratio >= 1) status = "exceeded";
   else if (ratio >= 0.6) status = "warning";
 
-  return { total, ratio, status, remaining };
+  return {
+    total: Number(total.toFixed(2)),
+    ratio,
+    remaining: Number(remaining.toFixed(2)),
+    status,
+  };
 }
