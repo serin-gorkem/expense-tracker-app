@@ -22,8 +22,6 @@ export default function GoalWizardStep({
   const router = useRouter();
   const { reset } = useWizard();
   const { t } = useTranslation();
-  if (!useAutoLimits || monthlyIncome === null || fixedExpenses === null)
-    return null;
   return (
     <View style={styles.container}>
       {/* HEADER */}

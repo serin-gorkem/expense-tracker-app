@@ -18,7 +18,7 @@ import {
 import { useExpensesStore } from "../../src/context/ExpensesContext";
 
 import DayDetailModal from "@/components/Consistency/DayDetailsModal";
-import FXRatesCard from '@/components/Currency/FXRatesCard';
+import FXRatesCard from "@/components/Currency/FXRatesCard";
 import BehavioralInsightSection from "@/components/InsightSection/BehavioralInsightSection";
 import FinancialInsightSection from "@/components/InsightSection/FinancialInsightSection";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
@@ -41,7 +41,6 @@ export default function Insights() {
   const monthGroups = groupExpensesByMonth(expenses);
   const weekGroups = groupExpensesByWeek(expenses);
 
-  const donutData = buildMonthlyCategoryDonutData(monthGroups);
   const lineData = buildWeeklyLineChartData(weekGroups);
 
   const [month, setMonth] = useState(() => {
@@ -53,9 +52,10 @@ export default function Insights() {
   const { profile } = useFinanceProfile();
   const baseCurrency = profile.baseCurrency!;
 
+  const donutData = buildMonthlyCategoryDonutData(monthGroups);
   const currencyExposure = useMemo(
     () => calculateCurrencyExposure(expenses, baseCurrency),
-    [expenses, baseCurrency]
+    [expenses, baseCurrency],
   );
 
   const dayMap = useMemo(
@@ -66,7 +66,7 @@ export default function Insights() {
         month,
         activeGoal: activeGoal ?? null,
       }),
-    [expenses, dailyLimit, month, activeGoal]
+    [expenses, dailyLimit, month, activeGoal],
   );
 
   return (
@@ -82,20 +82,14 @@ export default function Insights() {
           {/* HEADER (Home / Goals ile aynı) */}
           <View style={styles.header}>
             <Text style={styles.title}>{t("insights.screen.title")}</Text>
-            <Text style={styles.subtitle}>
-              {t("insights.screen.subtitle")}
-            </Text>
+            <Text style={styles.subtitle}>{t("insights.screen.subtitle")}</Text>
           </View>
 
           {/* EMPTY */}
           {expenses.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>
-                {t("insights.empty.title")}
-              </Text>
-              <Text style={styles.emptyDesc}>
-                {t("insights.empty.desc")}
-              </Text>
+              <Text style={styles.emptyTitle}>{t("insights.empty.title")}</Text>
+              <Text style={styles.emptyDesc}>{t("insights.empty.desc")}</Text>
             </View>
           ) : (
             <View style={styles.container}>
@@ -106,10 +100,14 @@ export default function Insights() {
                 dayMap={dayMap}
                 onSelectDay={setSelectedDayKey}
                 onPrevMonth={() =>
-                  setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))
+                  setMonth(
+                    (m) => new Date(m.getFullYear(), m.getMonth() - 1, 1),
+                  )
                 }
                 onNextMonth={() =>
-                  setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))
+                  setMonth(
+                    (m) => new Date(m.getFullYear(), m.getMonth() + 1, 1),
+                  )
                 }
               />
 
@@ -118,7 +116,7 @@ export default function Insights() {
                 dayInfo={selectedDayKey ? dayMap[selectedDayKey] : null}
                 expenses={
                   selectedDayKey
-                    ? expensesByDay.get(selectedDayKey) ?? []
+                    ? (expensesByDay.get(selectedDayKey) ?? [])
                     : []
                 }
                 onClose={() => setSelectedDayKey(null)}
@@ -132,13 +130,10 @@ export default function Insights() {
               )}
 
               {lineData.length > 0 && (
-                <WeeklyLineChart
-                  data={lineData}
-                  baseCurrency={baseCurrency}
-                />
+                <WeeklyLineChart data={lineData} baseCurrency={baseCurrency} />
               )}
 
-              <FXRatesCard baseCurrency={baseCurrency} />
+              <FXRatesCard />
 
               {currencyExposure.length > 1 && (
                 <CurrencyExposureChart exposure={currencyExposure} />
@@ -151,9 +146,7 @@ export default function Insights() {
               />
 
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>
-                  {t("insights.more.title")}
-                </Text>
+                <Text style={styles.cardTitle}>{t("insights.more.title")}</Text>
 
                 <Text style={styles.item}>
                   • {t("insights.more.items.consistency")}
@@ -168,9 +161,7 @@ export default function Insights() {
                   • {t("insights.more.items.patterns")}
                 </Text>
 
-                <Text style={styles.itemMuted}>
-                  {t("insights.more.hint")}
-                </Text>
+                <Text style={styles.itemMuted}>{t("insights.more.hint")}</Text>
               </View>
             </View>
           )}

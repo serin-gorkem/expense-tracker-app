@@ -9,27 +9,19 @@ type FXDiffResult = {
 
 export function calculateFXDifference(
   expense: Expense,
-  currentRates: Record<CurrencyCode, number>,
-  baseCurrency: CurrencyCode
+  currentRates: Record<CurrencyCode, number>, // currency -> base
+  baseCurrency: CurrencyCode,
 ): FXDiffResult | null {
   const fx = expense.fx;
 
-  // Base currency expense → FX farkı yok
   if (!fx || fx.currency === baseCurrency) return null;
-
-  // Locked expense → FX farkı anlamsız
   if (fx.locked) return null;
 
-  const currentRate = currentRates[fx.currency];
-  if (!currentRate) return null;
+  const rate = currentRates[fx.currency];
+  if (!rate) return null;
 
-  const currentBase = Number(
-    (expense.amount * currentRate).toFixed(2)
-  );
-
-  const difference = Number(
-    (currentBase - fx.baseAmount).toFixed(2)
-  );
+  const currentBase = Number((expense.amount * rate).toFixed(2));
+  const difference = Number((currentBase - fx.baseAmount).toFixed(2));
 
   return {
     snapshotBase: fx.baseAmount,

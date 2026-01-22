@@ -5,21 +5,20 @@ import { useTranslation } from "../../hooks/useTranslation";
 import { CurrencyCode } from "../../models/currency.model";
 import { useFX } from "../../src/context/FXContext";
 
-type Props = {
-  baseCurrency: CurrencyCode;
-};
-
-
-export default function FXRatesCard({ baseCurrency }: Props) {
+export default function FXRatesCard() {
   const { t } = useTranslation();
   const { rates, status } = useFX();
-  if (!rates || !baseCurrency) return null;
-  const updatedAt = rates?.fetchedAt
-    ? new Date(rates.fetchedAt).toLocaleString()
-    : null;
+
   if (!rates) return null;
 
-  const currencies = Object.keys(rates.rates) as CurrencyCode[];
+  const base = rates.base;
+  const updatedAt = rates.fetchedAt
+    ? new Date(rates.fetchedAt).toLocaleString()
+    : null;
+
+  const currencies = (Object.keys(rates.rates) as CurrencyCode[])
+    .filter((c) => c !== base)
+    .sort();
 
   return (
     <BlurView intensity={22} tint="dark" style={styles.card}>
@@ -28,22 +27,22 @@ export default function FXRatesCard({ baseCurrency }: Props) {
         style={StyleSheet.absoluteFillObject}
       />
 
-      <Text style={styles.title}>
-        {t("insights.fx.title", { base: baseCurrency })}
-      </Text>
+      <Text style={styles.title}>{t("insights.fx.title", { base })}</Text>
 
       <View style={styles.list}>
         {currencies.map((currency) => {
-          const isBase = currency === baseCurrency;
+          const rate = rates.rates[currency];
+
+          if (!rate || rate <= 0) return null;
+
+          const displayRate = 1 / rate; // 👈 SADECE UI İÇİN
 
           return (
             <View key={currency} style={styles.row}>
               <Text style={styles.currency}>{currency}</Text>
 
               <Text style={styles.rate}>
-                {isBase
-                  ? `1 ${baseCurrency}`
-                  : `${rates.rates[currency].toFixed(4)} ${currency}`}
+                1 {base} = {displayRate.toFixed(2)} {currency}
               </Text>
             </View>
           );

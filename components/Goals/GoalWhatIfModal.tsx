@@ -51,9 +51,7 @@ export default function GoalWhatIfModal({ visible, onClose, goal }: Props) {
       <Pressable style={styles.backdrop} onPress={onClose} />
 
       <View style={styles.modal}>
-        <Text style={styles.title}>
-          {t("goals.active.whatIf.title")}
-        </Text>
+        <Text style={styles.title}>{t("goals.active.whatIf.title")}</Text>
 
         {/* Currency selector */}
         <View style={styles.currencyRow}>
@@ -100,15 +98,11 @@ export default function GoalWhatIfModal({ visible, onClose, goal }: Props) {
         {simulated && baseExtraDaily != null && (
           <>
             <Text
-              style={[
-                styles.result,
-                styles[`status_${simulated.feasibility}`],
-              ]}
+              style={[styles.result, styles[`status_${simulated.feasibility}`]]}
             >
-              {t(
-                `goals.active.whatIf.result.${simulated.feasibility}`,
-                { amount: extra ?? 0 }
-              )}
+              {t(`goals.active.whatIf.result.${simulated.feasibility}`, {
+                amount: extra ?? 0,
+              })}
             </Text>
 
             <Text style={styles.meta}>
@@ -116,15 +110,13 @@ export default function GoalWhatIfModal({ visible, onClose, goal }: Props) {
             </Text>
 
             <Text style={styles.meta}>
-              {t("goals.active.whatIf.resultPrefix")}{" "}
-              {simulated.actualDaily} {goal.baseCurrency}
+              {t("goals.active.whatIf.resultPrefix")} {simulated.actualDaily}{" "}
+              {goal.baseCurrency}
             </Text>
           </>
         )}
 
-        <Text style={styles.note}>
-          {t("goals.active.whatIf.note")}
-        </Text>
+        <Text style={styles.note}>{t("goals.active.whatIf.note")}</Text>
       </View>
     </Modal>
   );

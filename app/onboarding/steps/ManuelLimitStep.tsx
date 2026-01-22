@@ -3,14 +3,9 @@ import { LimitPeriod, LimitsState } from "@/models/limit.model";
 import { useExpensesStore } from "@/src/context/ExpensesContext";
 import { CURRENCY_META } from "@/utils/currency/currencyMeta";
 import Slider from "@react-native-community/slider";
-import { useState } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 /* =========================
    Helpers
@@ -29,7 +24,7 @@ function getMinLimit(period: LimitPeriod, limits: LimitsState) {
 function getMaxLimit(
   period: LimitPeriod,
   limits: LimitsState,
-  monthlyIncome?: number | null
+  monthlyIncome?: number | null,
 ) {
   if (period === "daily") return limits.weekly.amount;
   if (period === "weekly") return limits.monthly.amount;
@@ -55,9 +50,7 @@ function EditableAmount({
 
   function commit() {
     const num = Number(temp);
-    if (!isNaN(num)) {
-      onChange(num);
-    }
+    if (!isNaN(num)) onChange(num);
     setEditing(false);
   }
 
@@ -77,12 +70,8 @@ function EditableAmount({
 
   return (
     <Pressable onPress={() => setEditing(true)}>
-      <Text style={styles.amountText}>
-        {formatAmount(value, symbol)}
-      </Text>
-      <Text style={styles.editHint}>
-        {t("onboarding.limits.tapToEdit")}
-      </Text>
+      <Text style={styles.amountText}>{formatAmount(value, symbol)}</Text>
+      <Text style={styles.editHint}>{t("onboarding.limits.tapToEdit")}</Text>
     </Pressable>
   );
 }
@@ -97,74 +86,114 @@ type Props = {
 };
 
 export default function ManualLimitsStep({ onFinish, onBack }: Props) {
-  const { limits, applyLimitChange, financeProfile } = useExpensesStore();
+  const { limits, applyLimitChange, financeProfile, updateFinanceProfile } =
+    useExpensesStore();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (financeProfile.autoLimitEnabled) {
+      updateFinanceProfile({ autoLimitEnabled: false });
+    }
+  }, []);
 
   const baseCurrency = financeProfile.baseCurrency ?? "TRY";
   const symbol = CURRENCY_META[baseCurrency].symbol;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        {t("onboarding.limits.manualTitle")}
-      </Text>
-      <Text style={styles.subtitle}>
-        {t("onboarding.limits.manualSubtitle")}
-      </Text>
+    <SafeAreaView style={styles.container}>
+      <View>
+        <Text style={styles.title}>{t("onboarding.limits.manualTitle")}</Text>
+        <Text style={styles.subtitle}>
+          {t("onboarding.limits.manualSubtitle")}
+        </Text>
 
-      {Object.values(limits).map((limit) => (
-        <View key={limit.period} style={styles.card}>
-          <Text style={styles.label}>
-            {t(`onboarding.limits.period.${limit.period}`)}
-          </Text>
+        {/* =========================
+          BASE CURRENCY (MANUAL)
+          ========================= */}
+        <View style={styles.card}>
+          <Text style={styles.label}>{t("settings.baseCurrency")}</Text>
 
-          <EditableAmount
-            value={limit.amount}
-            symbol={symbol}
-            onChange={(v) =>
-              applyLimitChange(limit.period, {
-                amount: Math.max(0, v),
-              })
-            }
-          />
+          <View style={styles.pillRow}>
+            {Object.values(CURRENCY_META).map((c) => {
+              const active = c.code === baseCurrency;
 
-          <Slider
-            minimumValue={getMinLimit(limit.period, limits)}
-            maximumValue={getMaxLimit(
-              limit.period,
-              limits,
-              financeProfile.monthlyIncome
-            )}
-            step={10}
-            value={limit.amount}
-            onValueChange={(v) =>
-              applyLimitChange(limit.period, {
-                amount: Math.round(v),
-              })
-            }
-            minimumTrackTintColor="#6366F1"
-            maximumTrackTintColor="rgba(0,0,0,0.1)"
-            thumbTintColor="#6366F1"
-          />
+              return (
+                <Pressable
+                  key={c.code}
+                  onPress={() => updateFinanceProfile({ baseCurrency: c.code })}
+                  style={[styles.pill, active && styles.pillActive]}
+                >
+                  <Text
+                    style={[styles.pillText, active && styles.pillTextActive]}
+                  >
+                    {c.symbol} {c.code}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
-      ))}
 
-      <View style={styles.actions}>
-        <Pressable onPress={onBack}>
-          <Text style={styles.back}>
-            {t("common.back")}
-          </Text>
-        </Pressable>
+        {/* =========================
+          LIMITS
+          ========================= */}
+        {Object.values(limits).map((limit) => (
+          <View key={limit.period} style={styles.card}>
+            <Text style={styles.label}>
+              {t(`onboarding.limits.period.${limit.period}`)}
+            </Text>
 
-        <Pressable style={styles.primaryBtn} onPress={onFinish}>
-          <Text style={styles.primaryText}>
-            {t("common.finish")}
-          </Text>
-        </Pressable>
+            <EditableAmount
+              value={limit.amount}
+              symbol={symbol}
+              onChange={(v) =>
+                applyLimitChange(limit.period, {
+                  amount: Math.max(0, v),
+                })
+              }
+            />
+
+            <Slider
+              minimumValue={getMinLimit(limit.period, limits)}
+              maximumValue={getMaxLimit(
+                limit.period,
+                limits,
+                financeProfile.monthlyIncome,
+              )}
+              step={10}
+              value={limit.amount}
+              onValueChange={(v) =>
+                applyLimitChange(limit.period, {
+                  amount: Math.round(v),
+                })
+              }
+              minimumTrackTintColor="#6366F1"
+              maximumTrackTintColor="rgba(0,0,0,0.1)"
+              thumbTintColor="#6366F1"
+            />
+          </View>
+        ))}
+
+        <View style={styles.actions}>
+          <Pressable onPress={onBack}>
+            <Text style={styles.back}>{t("common.back")}</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.primaryBtn}
+            onPress={() => {
+              updateFinanceProfile({ baseCurrency });
+              onFinish();
+            }}
+          >
+            <Text style={styles.primaryText}>{t("common.finish")}</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
+
 /* =========================
    Styles
 ========================= */
@@ -223,6 +252,36 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#6366F1",
     paddingVertical: 2,
+    color: "#0B1020",
+  },
+
+  pillRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 8,
+  },
+
+  pill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 999,
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.12)",
+  },
+
+  pillActive: {
+    backgroundColor: "rgba(99,102,241,0.2)",
+    borderColor: "#6366F1",
+  },
+
+  pillText: {
+    color: "rgba(0,0,0,0.6)",
+    fontWeight: "700",
+  },
+
+  pillTextActive: {
     color: "#0B1020",
   },
 

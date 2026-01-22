@@ -53,10 +53,10 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
   const [currency, setCurrency] = useState<CurrencyCode>("EUR");
   const { profile, hydrated } = useFinanceProfile();
   const { getRate, status: fxStatus } = useFX();
-  
+
   const [lockFX, setLockFX] = useState(false);
   const [manualRate, setManualRate] = useState<number | null>(null);
-  
+
   const resetForm = () => {
     setTitle("");
     setOriginalTitle(null);
@@ -66,21 +66,21 @@ const AddExpenseForm = ({ onSubmit }: AddExpenseFormProps) => {
     setBoostGoal(false);
     setCurrency(baseCurrency);
   };
-  
+
   const badgeStatus =
-  currency === profile.baseCurrency
-  ? null
-  : lockFX
-  ? "locked"
-  : mapFXStatusToBadge(fxStatus);
-  
+    currency === profile.baseCurrency
+      ? null
+      : lockFX
+        ? "locked"
+        : mapFXStatusToBadge(fxStatus);
+
   useEffect(() => {
     if (currency === profile.baseCurrency) {
       setLockFX(false);
       setManualRate(null);
     }
   }, [currency, profile.baseCurrency]);
-  
+
   if (!hydrated || !profile.baseCurrency) {
     return null; // ya da loader
   }

@@ -18,7 +18,11 @@ function getExpensesForDay(expenses: Expense[], day: Date): Expense[] {
   });
 }
 
-function isSafeDay(expenses: Expense[], day: Date, limitAmount: number): boolean {
+function isSafeDay(
+  expenses: Expense[],
+  day: Date,
+  limitAmount: number,
+): boolean {
   const dayExpenses = getExpensesForDay(expenses, day);
   if (dayExpenses.length === 0) return false;
 

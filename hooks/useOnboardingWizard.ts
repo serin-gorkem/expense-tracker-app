@@ -1,18 +1,15 @@
-import { CurrencyCode } from "@/models/currency.model";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+
+import { OnboardingData, OnboardingStep } from "@/models/onboarding.types";
+import { NEXT_STEP, PREV_STEP } from "@/utils/onboarding/onboarding.flow";
 import {
   clearOnboardingReturn,
   getOnboardingReturn,
 } from "@/utils/onboarding/onboardingReturn";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-export type OnboardingData = {
-  useAutoLimits: boolean;
 
-  baseCurrency: CurrencyCode | null; // ✅ NEW
-};
-
-const INITIAL: OnboardingData = {
+const INITIAL_DATA: OnboardingData = {
   useAutoLimits: true,
   baseCurrency: null,
 };
@@ -20,95 +17,52 @@ const INITIAL: OnboardingData = {
 export function useOnboardingWizard() {
   const router = useRouter();
 
+  const [step, setStep] = useState<OnboardingStep>(OnboardingStep.Welcome);
+  const [data, setData] = useState<OnboardingData>(INITIAL_DATA);
+
+  useEffect(() => {
+    async function hydrate() {
+      const ret = await getOnboardingReturn();
+      if (!ret) return;
+
+      setStep(ret.step);
+      setData((prev) => ({
+        ...prev,
+        useAutoLimits: ret.useAutoLimits,
+      }));
+
+      await clearOnboardingReturn();
+    }
+
+    hydrate();
+  }, []);
+
   async function finishOnboarding() {
     await AsyncStorage.setItem("@onboarding_completed", "true");
     router.replace("/home");
   }
 
-  const [step, setStep] = useState(0);
-  const [data, setData] = useState<OnboardingData>(INITIAL);
-
-  useEffect(() => {
-    async function hydrateReturn() {
-      const ret = await getOnboardingReturn();
-      if (ret) {
-        setStep(ret.step);
-        setData((prev) => ({
-          ...prev,
-          useAutoLimits: ret.useAutoLimits,
-          ...(ret.flow === "auto"
-            ? {
-                monthlyIncome: ret.monthlyIncome,
-                fixedExpenses: ret.fixedExpenses,
-              }
-            : {}),
-        }));
-        await clearOnboardingReturn();
-      }
-    }
-
-    hydrateReturn();
-  }, []);
+  function resolve(
+    map: typeof NEXT_STEP | typeof PREV_STEP,
+    current: OnboardingStep,
+  ) {
+    const r = map[current];
+    return typeof r === "function" ? r(data) : r;
+  }
 
   function next() {
-    /**
-     * TERMINAL STEPS
-     * Wizard’dan veya normal flow’dan gelen final adımlar
-     */
-    if (step === 5 || step === 6) {
+    const nextStep = resolve(NEXT_STEP, step);
+
+    if (nextStep === OnboardingStep.Done) {
       finishOnboarding();
       return;
     }
 
-    /**
-     * AUTO / MANUAL DECISION POINT
-     * Sadece onboarding içindeyken çalışır
-     */
-    if (step === 4) {
-      setStep(data.useAutoLimits ? 6 : 5);
-      return;
-    }
-
-    /**
-     * AUTO LIMIT ENABLED?
-     * AutoLimitStep sonrası routing
-     */
-    if (step === 1) {
-      setStep(data.useAutoLimits ? 2 : 4);
-      return;
-    }
-
-    /**
-     * DEFAULT LINEAR FLOW
-     */
-    setStep((s) => s + 1);
+    setStep(nextStep);
   }
+
   function back() {
-    /**
-     * Back from GoalWizardStep
-     */
-    if (step === 4) {
-      if (data.useAutoLimits) {
-        setStep(3); // FixedExpensesStep
-      } else {
-        setStep(1); // AutoLimitStep
-      }
-      return;
-    }
-
-    /**
-     * Back from PreviewStep
-     */
-    if (step === 6) {
-      if (data.useAutoLimits) {
-        setStep(4); // GoalWizardStep
-      } else {
-        setStep(5); // ManualLimitStep
-      }
-      return;
-    }
-
-    setStep((s) => Math.max(0, s - 1));
+    setStep(resolve(PREV_STEP, step));
   }
 
   function update(patch: Partial<OnboardingData>) {

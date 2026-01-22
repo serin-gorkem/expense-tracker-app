@@ -58,7 +58,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [lastDeletedExpense, setLastDeletedExpense] = useState<Expense | null>(
-    null
+    null,
   );
   const [showExpenseHint, setShowExpenseHint] = useState(false);
 
@@ -66,11 +66,11 @@ export default function Home() {
   const [goalModal, setGoalModal] = useState<GoalModalType>(null);
   const [modalGoal, setModalGoal] = useState<Goal | null>(null);
   const { t } = useTranslation();
-  const { getRate } = useFX();
-
+  const { getRate, rates, status } = useFX();
+  const { financeProfile } = useExpensesStore();
   const options = useMemo(
     () => ({ mode, category, query }),
-    [mode, category, query]
+    [mode, category, query],
   );
 
   const {
@@ -112,6 +112,8 @@ export default function Home() {
         expenses,
         period: mode,
         limitAmount: activeLimit.amount,
+        rates: rates?.rates ?? null,
+        baseCurrency: financeProfile.baseCurrency!,
       })
     : null;
 
@@ -133,14 +135,8 @@ export default function Home() {
 
   const { celebration, dismiss } = useStreakCelebration(
     streakMetrics.currentStreak,
-    expenses.length
+    expenses.length,
   );
-
-  const { profile } = useFinanceProfile();
-  const baseCurrency = profile.baseCurrency!;
-  const { status } = useFX();
-
-  const fxStatus = status === "empty" ? undefined : status;
 
   useEffect(() => {
     if (!lastDeletedExpense) return;
@@ -158,6 +154,25 @@ export default function Home() {
     checkHint();
   }, []);
 
+  const keyboard = useAnimatedKeyboard();
+  const insets = useSafeAreaInsets();
+  const TAB_BAR_HEIGHT = 64;
+  const searchBarStyle = useAnimatedStyle(() => {
+    const keyboardHeight = keyboard.height.value;
+
+    return {
+      bottom:
+        keyboardHeight > 0
+          ? keyboardHeight - 48
+          : TAB_BAR_HEIGHT + insets.bottom - 70,
+    };
+  });
+
+  const { profile } = useFinanceProfile();
+  if (!profile || !profile.baseCurrency) return null;
+  const baseCurrency = profile.baseCurrency!;
+
+  const fxStatus = status === "empty" ? undefined : status;
   const dismissExpenseHint = async () => {
     setShowExpenseHint(false);
     try {
@@ -177,20 +192,6 @@ export default function Home() {
     haptic.warning();
     setLastDeletedExpense(expenseToDelete);
   };
-
-  const keyboard = useAnimatedKeyboard();
-  const insets = useSafeAreaInsets();
-  const TAB_BAR_HEIGHT = 64;
-  const searchBarStyle = useAnimatedStyle(() => {
-    const keyboardHeight = keyboard.height.value;
-
-    return {
-      bottom:
-        keyboardHeight > 0
-          ? keyboardHeight - 48
-          : TAB_BAR_HEIGHT + insets.bottom - 70,
-    };
-  });
 
   return (
     <View style={styles.root}>
@@ -236,7 +237,6 @@ export default function Home() {
             )}
           </View>
 
-          <ModeSwitcher value={mode} onChange={setMode} />
           <GoalOutcomeModal
             visible={goalModal === "success"}
             type="success"
@@ -271,6 +271,7 @@ export default function Home() {
               <AddExpenseForm onSubmit={addExpense} />
 
               <CategoryFilter category={category} setCategory={setCategory} />
+              <ModeSwitcher value={mode} onChange={setMode} />
               {showExpenseHint && (
                 <ExpenseListHint onDismiss={dismissExpenseHint} />
               )}
@@ -305,6 +306,7 @@ export default function Home() {
                 (mode === "weekly" ? (
                   <WeeklyExpenseList
                     groups={groupExpensesByWeek(visibleExpenses)}
+                    baseCurrency={baseCurrency}
                     onDelete={handleDelete}
                     onEdit={setEditingExpense}
                   />
@@ -313,6 +315,7 @@ export default function Home() {
                     groups={groupExpensesByMonth(visibleExpenses)}
                     chartGroups={groupExpensesByMonth(monthlyChartExpenses)}
                     selectedCategory={category}
+                    baseCurrency={baseCurrency}
                     onSelectCategory={setCategory}
                     onDelete={handleDelete}
                     onEdit={setEditingExpense}
@@ -370,7 +373,7 @@ export default function Home() {
                       status: fxStatus ?? "cached",
                       date: new Date().toISOString(),
                     },
-                  })
+                  }),
                 );
               }
             }}
@@ -401,7 +404,6 @@ const styles = StyleSheet.create({
   topContent: {
     marginBottom: 20,
     flexDirection: "column",
-    gap: 12,
   },
   title: {
     color: "rgba(255,255,255,0.92)",

@@ -48,7 +48,7 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
           style: "destructive",
           onPress: () => onDelete(expense.id),
         },
-      ]
+      ],
     );
   };
 
@@ -136,12 +136,13 @@ const ExpenseItem = ({ expense, onDelete, onEdit }: ExpenseItemProps) => {
             </View>
 
             <Text style={[styles.amount, isGoalBoost && { color: "#22c55e" }]}>
-                {formatAmount(expense.fx.baseAmount, baseCurrency)}
+              {formatAmount(expense.fx.baseAmount, baseCurrency)}
             </Text>
           </View>
-          {expense.fx.currency !== profile.baseCurrency && (
+          {expense.fx.currency !== baseCurrency && (
             <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
-              {expense.amount} {expense.fx.currency} • FX {expense.fx.fxStatus}
+              {formatAmount(expense.amount, expense.fx.currency)} • FX{" "}
+              {expense.fx.fxStatus}
             </Text>
           )}
         </BlurView>

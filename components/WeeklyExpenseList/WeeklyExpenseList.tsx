@@ -3,7 +3,6 @@ import { Expense } from "@/models/expense.model";
 import { buildWeeklyLineChartData } from "@/utils/expense/expenseChart";
 import { GroupedExpenses } from "@/utils/expense/expenseGrouping";
 import { filterExpensesForLimit } from "@/utils/expense/expenseLimitFilter";
-import { calculateTotal } from "@/utils/expense/expenseSummary";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import WeeklyLineChart from "../Charts/WeeklyLineChart";
@@ -29,8 +28,9 @@ export default function WeeklyExpenseList({
       <WeeklyLineChart data={chartData} baseCurrency={baseCurrency!} />
 
       {groups.map((group) => {
-        const total = calculateTotal(
-          filterExpensesForLimit(group.expenses, "weekly")
+        const total = filterExpensesForLimit(group.expenses, "weekly").reduce(
+          (sum, e) => sum + (e.fx?.baseAmount ?? e.amount),
+          0,
         );
 
         return (
@@ -39,7 +39,7 @@ export default function WeeklyExpenseList({
             <Text style={styles.total}>
               {new Intl.NumberFormat("tr-TR", {
                 style: "currency",
-                currency: "TRY",
+                currency: baseCurrency!,
               }).format(total)}
             </Text>
 

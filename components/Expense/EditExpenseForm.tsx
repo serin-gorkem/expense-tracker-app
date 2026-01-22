@@ -50,7 +50,7 @@ export default function EditExpenseForm({
   const [isGoalBoost, setIsGoalBoost] = useState(expense.isGoalBoost ?? false);
   const [goalId, setGoalId] = useState<string | undefined>(expense.goalId);
   const [boostAmount, setBoostAmount] = useState<number | null>(
-    expense.boostAmount ?? expense.amount
+    expense.boostAmount ?? expense.amount,
   );
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -94,7 +94,7 @@ export default function EditExpenseForm({
       fx,
       isGoalBoost,
       goalId: isGoalBoost ? goalId : undefined,
-      boostAmount: isGoalBoost ? boostAmount ?? amount : undefined,
+      boostAmount: isGoalBoost ? (boostAmount ?? amount) : undefined,
     };
 
     setPendingExpense(updated);

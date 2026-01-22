@@ -1,3 +1,4 @@
+import { CurrencyCode } from "@/models/currency.model";
 import { Expense } from "@/models/expense.model";
 import { LimitPeriod, LimitResult } from "@/models/limit.model";
 import { filterExpensesForLimit } from "@/utils/expense/expenseLimitFilter";
@@ -16,7 +17,6 @@ function getDateRange(period: LimitPeriod) {
     const day = start.getDay();
     const diff = day === 0 ? -6 : 1 - day;
     start.setDate(start.getDate() + diff);
-
     end.setTime(start.getTime());
     end.setDate(start.getDate() + 6);
     end.setHours(23, 59, 59, 999);
@@ -25,7 +25,6 @@ function getDateRange(period: LimitPeriod) {
   if (period === "monthly") {
     start.setHours(0, 0, 0, 0);
     start.setDate(1);
-
     end.setMonth(start.getMonth() + 1);
     end.setDate(0);
     end.setHours(23, 59, 59, 999);
@@ -38,34 +37,31 @@ export function calculateLimitStatus({
   expenses,
   period,
   limitAmount,
+  rates,
+  baseCurrency,
 }: {
   expenses: Expense[];
   period: LimitPeriod;
   limitAmount: number;
+  rates: Record<CurrencyCode, number> | null;
+  baseCurrency: CurrencyCode;
 }): LimitResult | null {
   if (limitAmount <= 0) return null;
 
   const { start, end } = getDateRange(period);
-  
-const relevantExpenses = filterExpensesForLimit(expenses, period);
+  const relevantExpenses = filterExpensesForLimit(expenses, period);
 
-const total = relevantExpenses
-  .filter((e) => {
-    const d = new Date(e.date);
-    return d >= start && d <= end;
-  })
-  .reduce((sum, e) => {
-    // ✅ FX-aware
-    if (e.fx?.baseAmount != null) {
+  const total = relevantExpenses
+    .filter((e) => {
+      const d = new Date(e.date);
+      return d >= start && d <= end;
+    })
+    .reduce((sum, e) => {
       return sum + e.fx.baseAmount;
-    }
+    }, 0);
 
-    // legacy fallback
-    return sum + e.amount;
-  }, 0);
-
-const ratio = limitAmount > 0 ? total / limitAmount : 0;
-  const remaining = Math.max(limitAmount - total,0);
+  const ratio = limitAmount > 0 ? total / limitAmount : 0;
+  const remaining = Math.max(limitAmount - total, 0);
 
   let status: LimitResult["status"] = "safe";
   if (ratio >= 1) status = "exceeded";

@@ -35,7 +35,7 @@ export default function WeeklyLineChart({ data, baseCurrency }: Props) {
       useNativeDriver: true,
     }).start();
   }, [activeIndex]);
-  if (!data.length) return null;
+  if (!data.length || !baseCurrency) return null;
 
   function formatAmount(value: number) {
     return `${value.toLocaleString("en-US")} ${baseCurrency}`;
@@ -43,7 +43,7 @@ export default function WeeklyLineChart({ data, baseCurrency }: Props) {
 
   const rawMax = Math.max(...data.map((d) => d.value), dailyBaseline ?? 0);
 
-  const roundedMax = Math.ceil(rawMax / 50) * 50;
+  const roundedMax = Math.max(50, Math.ceil(rawMax / 50) * 50);
   const hasData = roundedMax > 0;
 
   const CHART_WIDTH = Dimensions.get("window").width - 8;
